@@ -323,6 +323,37 @@ The assessment, reduction, or allocation of protocol fees does not represent com
 Fee structure, fee level, or fee reductions do not imply expected outcomes, inducements to participate, or guarantees of future performance. Execution cycles may result in loss or zero outcomes regardless of the applicable fee rate.
 
 ---
+
+## 14. Settlement Backing and Capital Management
+
+Settlement backing refers to the aggregate on-chain assets held by the protocol that correspond to previously verified and settled outcomes. Settlement backing exists only as a result of completed execution cycles that produced verified surplus and were finalized through the protocol’s settlement process.
+
+Settlement backing is an accounting condition, not a guarantee. It reflects historical execution results and does not represent future availability, insurance, capital protection, or a promise of redemption under all circumstances.
+
+Backing availability refers to the portion of settlement backing that is accessible for use or release at a given point in time. Backing availability may be affected by timing constraints, redemption activity, execution state, liquidity conditions, or protocol-level safeguards. Backing availability is not required to equal total settlement backing at all times.
+
+Capital management, as used in this protocol, refers solely to the internal handling and accounting of settled surplus after execution finality. Capital management does not include discretionary investment, portfolio allocation, strategy selection, or optimization of user assets.
+
+Settlement backing is created only after:
+- An execution cycle has concluded
+- Outcomes have been verified
+- All execution-related costs and protocol fees have been deducted
+
+No backing is reserved, implied, or created in advance of execution or verification. The protocol does not pre-allocate capital, forecast backing levels, or guarantee future backing availability.
+
+Settlement backing may decrease over time due to:
+- Redemption or utilization of previously settled surplus
+- Losses incurred in subsequent execution cycles
+- System-wide events affecting liquidity or asset value
+- Protocol-level accounting adjustments required to maintain integrity
+
+Settlement backing is maintained at the protocol level and does not represent segregated reserves for individual users. Users do not acquire ownership claims over specific backing assets beyond what is represented by settled accounting entries.
+
+The protocol does not represent settlement backing as a stable reserve, liquidity pool, insurance mechanism, or loss mitigation system. Participation in the protocol exposes users to execution risk, market risk, and potential loss regardless of historical settlement backing levels.
+
+All settlement backing states, changes, and constraints are subject to on-chain verification and are intended to be auditable by independent observers.
+
+---
 ## 15. User Interface and Experience Design
 
 The YieldLoop user interface is designed to make system constraints, risks, and state transitions explicit rather than implicit. The interface does not present projected outcomes, estimated returns, or performance forecasts.
