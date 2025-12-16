@@ -17,6 +17,8 @@ It exists to explain:
 This document is **not** a marketing pitch and does not replace the YieldLoop whitepaper.  
 It is intended to complement the technical specification by addressing execution, governance, and business realities.
 
+Section 14 provides a consolidated financial model including budget, funding strategy, and operating revenue mechanics.
+
 ---
 
 ## Relationship to Other Documentation
