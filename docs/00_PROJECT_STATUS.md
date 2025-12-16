@@ -116,7 +116,7 @@ You will then have full context.
 ## 7) Contact
 
 Project lead: Todd Koletsky  
-Discord / Website: TBD
+Discord / Website: https://discord.gg/vARwn9yEET / www.yieldloop.io
 
 ---
 
