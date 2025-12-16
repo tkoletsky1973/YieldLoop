@@ -55,3 +55,11 @@ YieldLoop does not assume continuous growth, market dominance, or network effect
 YieldLoop’s business model is designed to support long-term sustainability without reliance on growth assumptions or performance projections.
 
 All revenue mechanics, budget assumptions, and funding structures are described in Section 14. This section defines the constraints and intent of the model, while Section 14 defines how capital is raised, how operating revenue is generated, and how costs are managed.
+
+---
+
+## 8.5 Financial Model Summary
+
+YieldLoop’s financial model is intentionally constrained. Capital formation, operating revenue, and discretionary expenses are explicitly separated.
+
+Capital formation mechanisms (including NFTs and grants), operating revenue mechanics (protocol fees applied only to net-positive cycles), and discretionary expenditures (including advisory bounties) are defined in Section 14. This section describes the business logic; Section 14 defines the financial mechanics.
