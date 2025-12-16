@@ -1,128 +1,90 @@
 # YieldLoop
 
-**YieldLoop** is a non-custodial, cycle-based execution and settlement protocol designed to measure and record only completed, verifiable outcomes.
+**YieldLoop is a proof-driven DeFi yield platform focused on verified surplus, transparent execution, and conservative system design.**
 
-The system is built around a single governing rule:
+YieldLoop rejects projected APYs, inflationary rewards, and narrative-based performance. Instead, it operates in fixed execution cycles where only **verifiable, realized profit** counts. If profit cannot be verified after fees, slippage, gas, and execution costs, it is treated as zero.
 
-**If an outcome cannot be verified after execution, it does not exist.**
-
-YieldLoop does not display projected returns, estimated yields, or interim performance metrics. All outcomes are evaluated only after execution has concluded and settlement is finalized.
+The goal is not to promise upside — it is to **prove reality**.
 
 ---
 
-## Purpose
+## What Problem YieldLoop Solves
 
-YieldLoop exists to provide infrastructure for:
-- User-authorized strategy execution
-- Deterministic enforcement of execution constraints
-- Post-execution verification and accounting
-- Transparent settlement of completed outcomes
+Most DeFi yield systems rely on:
+- Estimated APYs
+- Emissions masking losses
+- Opaque trading logic
+- Assumed performance
 
-The protocol prioritizes clarity, auditability, and rule enforcement over flexibility, speed, or optimization.
+These models make it difficult for users, auditors, or regulators to distinguish real surplus from accounting artifacts.
 
----
-
-## What YieldLoop Is
-
-YieldLoop is:
-- A **non-custodial protocol** using user-owned smart contract vaults
-- A **cycle-based system** with fixed execution and settlement boundaries
-- A **rules-driven execution framework** without discretionary control
-- A **post-execution accounting mechanism** that records only finalized results
-- Infrastructure intended to be verifiable by independent observers
+YieldLoop replaces assumption with verification.
 
 ---
 
-## What YieldLoop Is Not
+## Core Design Principles
 
-YieldLoop is not:
-- An investment product
-- A managed fund
-- A trading advisor or portfolio manager
-- A yield optimizer or aggregator
-- A forecasting or performance prediction system
+- **Proof over projection**  
+  Only realized, post-cost surplus is counted.
 
-YieldLoop does not custody assets, pool funds, recommend strategies, or guarantee outcomes.
+- **Cycle-based execution**  
+  Results are measured at the end of each execution cycle. Outcomes are binary: profit or no profit.
 
----
+- **No synthetic yield**  
+  No emissions, no inflation, no smoothing.
 
-## Execution Model
-
-Execution occurs only within explicitly defined cycles.  
-Each cycle follows a fixed sequence:
-1. User configuration and authorization
-2. Active execution under enforced constraints
-3. Settlement and verification
-4. Post-cycle user decision
-
-During an active execution cycle, withdrawals and parameter changes are disabled. Users regain full control only after settlement completes.
-
-No execution occurs without explicit user authorization.
+- **Conservative controls**  
+  Safety, clarity, and auditability take priority over speed or hype.
 
 ---
 
-## Outcomes and Fees
+## NFT Program (Utility Only)
 
-Outcomes are evaluated retrospectively.  
-Only completed execution results are recognized.
+YieldLoop includes an optional **two-tier utility NFT system**:
 
-Protocol fees apply only to verified surplus after all execution-related costs have been deducted. No fees are charged on deposits, principal, or cycles that do not result in a verified positive outcome.
+### Supporter NFT
+- Public mint (target price: $300)
+- Unlimited supply
+- Transferable
+- 5% protocol-fee discount
+- Supporter Discord access
 
-Fee logic, limits, and governance constraints are defined explicitly in the protocol specification.
+### Governor NFT
+- Team-bestowed advisory role
+- One per wallet/person
+- Non-transferable by default
+- Revocable
+- 10% protocol-fee discount
+- Advisory and support participation only (no governance authority)
 
----
+NFTs are **utility and role tokens only**. They do not represent ownership, equity, profit share, or guaranteed returns.
 
-## Ecosystem Programs
-
-YieldLoop may support optional ecosystem programs such as NFTs, referral initiatives, or advisory participation.
-
-These programs:
-- Are not required to use the protocol
-- Do not alter execution or settlement behavior
-- Do not represent ownership, profit-sharing, or revenue rights
-- Are defined separately from core protocol logic
-
-Operational details for such programs are subject to change and do not form part of the core protocol definition.
-
----
-
-## Risk Disclosure
-
-Participation in any system built from this specification involves risk, including:
-- Smart contract risk
-- Execution and market risk
-- Infrastructure and dependency risk
-
-No insurance, guarantees, or capital protection mechanisms are provided.
+Full details:
+- `docs/appendices/APPENDIX_B_NFT_PROGRAM.md`
+- `docs/appendices/APPENDIX_H_GOVERNANCE_ADVISORY.md`
 
 ---
 
-## Regulatory Notice
+## Current Status
 
-This project describes a software protocol design.
+- ✅ Core platform concepts defined
+- ✅ NFT program fully specified
+- ✅ Governance and advisory framework documented
+- ⏳ Smart contracts not yet deployed
+- ⏳ Frontend applications not yet built
+- ⏳ Audit pending
 
-Nothing in this repository constitutes:
-- Investment advice
-- Legal advice
-- Tax advice
-- A solicitation of funds
-
-Users and contributors are responsible for compliance with applicable laws and regulations.
-
----
-
-## Project Status
-
-YieldLoop is currently in the design and specification phase.
-
-This repository represents **Version 0.1** of the protocol definition.  
-Smart contracts have not yet been deployed.
+YieldLoop is currently in the **pre-MVP / specification-complete phase** and is preparing for implementation.
 
 ---
 
-## Disclaimer
+## Repository Structure
 
-This documentation describes intended system behavior.  
-It does not represent a promise of functionality, availability, or performance.
+```text
+docs/
+  whitepaper/        → Core whitepaper
+  appendices/        → Formal program appendices (NFTs, governance, etc.)
+  nft/               → Developer-oriented NFT documentation
 
-Use at your own risk.
+contracts/           → Smart contracts (to be implemented)
+apps/                → Frontend applications (mint dApp, admin panel)
