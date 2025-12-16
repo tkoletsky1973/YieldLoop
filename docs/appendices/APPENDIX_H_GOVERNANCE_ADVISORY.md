@@ -4,13 +4,15 @@
 
 This appendix defines the **governance and advisory framework** for the YieldLoop platform.
 
-At launch, YieldLoop is **not a DAO** and does **not** grant binding governance authority to token holders or NFT holders. Decision-making authority is intentionally centralized within the YieldLoop team and its multisig to ensure operational safety, accountability, and regulatory clarity.
+At launch, YieldLoop is **not a DAO** and does **not** grant binding governance authority to token holders, NFT holders, or external participants. Decision-making authority is intentionally centralized within the YieldLoop team and its designated multisig to ensure operational safety, accountability, and regulatory clarity.
 
 This framework exists to:
-- Enable structured **advisory input**
-- Recognize trusted contributors
-- Prevent implied ownership, oversight, or fiduciary authority
-- Allow future governance evolution without promising it
+- Enable structured, bounded **advisory input**
+- Recognize trusted contributors without conferring authority
+- Prevent implied ownership, control, oversight, or fiduciary duty
+- Support future governance evolution **without promising it**
+
+Nothing in this appendix creates governance rights, enforceable claims, or expectations of compensation.
 
 ---
 
@@ -24,41 +26,45 @@ YieldLoop governance prioritizes:
 
 Accordingly:
 - Final authority remains with the YieldLoop team
-- Treasury and privileged actions are controlled by multisig
-- Advisory participation is encouraged but **non-binding**
+- Treasury access and privileged actions are controlled by multisig
+- External participation is advisory and **non-binding**
 
 No governance rights are implied by token or NFT ownership.
 
 ---
 
-## H.3 Advisory vs Binding Governance
+## H.3 Advisory Participation vs. Binding Governance
 
 ### H.3.1 Advisory Participation
 
-Advisory participation includes:
+Advisory participation may include:
 - Feedback and critique
-- Strategy discussion
-- Risk analysis
-- Educational content
-- Onboarding and community support
+- Strategy discussion (non-binding)
+- Risk analysis and scenario review
+- Design and UX review
+- Educational content and onboarding support
 - Partnership and outreach assistance
+- Community support and moderation assistance
 
 Advisory participation does **not** include:
-- Control of funds
-- Voting power
+- Control of funds or treasury
+- Contract upgrade authority
 - Enforcement authority
-- Execution rights
-- Fiduciary responsibility
+- Execution rights or privileged access
+- Fiduciary responsibility or duty
+- Authority to bind the YieldLoop team
+
+Advisory input is considered at the sole discretion of the YieldLoop team.
 
 ---
 
 ### H.3.2 Binding Governance
 
 Binding governance involves enforceable authority over:
-- Protocol rules
-- Treasury funds
-- Contract upgrades
-- Administrative enforcement
+- Protocol rules and parameter enforcement
+- Treasury funds and disbursements
+- Contract upgrades or migrations
+- Administrative enforcement actions
 
 At launch, **no external participants** hold binding governance authority over YieldLoop.
 
@@ -68,16 +74,16 @@ At launch, **no external participants** hold binding governance authority over Y
 
 ### H.4.1 Definition
 
-The **Governor** role is a high-trust **advisory and support position** within the YieldLoop ecosystem.
+The **Governor** role is a high-trust, non-binding **advisory and support position** within the YieldLoop ecosystem.
 
-Governors are invited contributors who assist the platform through:
-- Strategic input
-- Design critique
-- Education and onboarding
-- Partnerships and outreach
-- Community support
+Governors are invited contributors who may assist the platform through:
+- Strategic input and critique
+- Risk review and adversarial thinking
+- Education and onboarding support
+- Partnerships and outreach assistance
+- Community support and coordination
 
-Governors do not control the platform.
+Governors do not control the platform and do not represent YieldLoop unless explicitly authorized in writing.
 
 ---
 
@@ -86,10 +92,10 @@ Governors do not control the platform.
 Governor status is **bestowed by the YieldLoop team** and is not obtained through public purchase by default.
 
 Eligibility may include, but is not limited to:
-- Active and constructive community participation
+- Constructive community participation
 - Educational or onboarding contributions
-- Strategic partnerships
-- Influencer or ecosystem support
+- Demonstrated technical or operational competence
+- Strategic partnerships or ecosystem support
 - Advisory or subject-matter expertise
 
 Invitation criteria are discretionary and may evolve over time.
@@ -101,10 +107,11 @@ Invitation criteria are discretionary and may evolve over time.
 Governors:
 - Hold **no ownership or equity**
 - Have **no binding decision-making power**
-- Do **not** control treasury or protocol execution
-- Serve in an advisory and support capacity only
+- Do not control treasury, contracts, execution, or admin actions
+- Have no unilateral authority of any kind
+- Do not create fiduciary, agency, or representative relationships
 
-No Governor has unilateral authority.
+Governors influence decisions through expertise and persuasion only.
 
 ---
 
@@ -112,75 +119,120 @@ No Governor has unilateral authority.
 
 Governor participation is represented by a **Governor NFT**, which functions as:
 - A role identifier
-- An access credential
-- A signaling mechanism
+- An access credential (e.g., gated channels)
+- A signaling mechanism within the ecosystem
 
 The Governor NFT:
 - Is non-transferable by default
 - May be revoked and burned by administrative action
 - Does not grant voting rights or ownership
-- Does not create an entitlement to compensation
+- Does not create any entitlement to compensation, payments, or continued participation
 
-Holding a Governor NFT alone does not guarantee continued participation or benefits.
+Holding a Governor NFT alone does not guarantee benefits, invitations, or bounties.
 
 ---
 
 ## H.6 Participation Expectations
 
-Governor participation is **voluntary** and **non-contractual**.
+Governor participation is **voluntary**, **non-contractual**, and **non-exclusive**.
 
 Participation may include:
-- Strategy discussion
-- Risk review
-- Educational content
-- Community and onboarding support
-- Partnership development
+- Think tank sessions (defined below)
+- Strategy discussion (advisory only)
+- Risk review and critique
+- Educational content and onboarding support
+- Community support and coordination
+- Partnership development support
 
-No minimum participation level is guaranteed or required unless separately agreed.
+No minimum participation level is required unless separately agreed in writing. Lack of participation may result in reduced invitations or eventual revocation, at the team’s discretion.
 
 ---
 
-## H.7 Governor Support Bounty Program
+## H.7 Think Tank Sessions and Advisory Bounties
 
 ### H.7.1 Purpose
 
-To encourage meaningful participation, YieldLoop may provide **discretionary support bounties** to Governors who actively contribute to the platform.
+YieldLoop may convene discrete, purpose-defined advisory sessions (“think tank sessions”) to gather structured input from Governors.
 
-These bounties are intended as **operational support and recognition**, not yield, profit participation, or compensation.
+These sessions are intended as:
+- Advisory input and critique
+- Risk identification and structured discussion
+- Non-binding preference signaling
+
+These sessions are **not**:
+- Binding governance votes
+- Ownership oversight
+- Compensation for services
+- Employment or contractor work
 
 ---
 
-### H.7.2 Explicit Funding Source (Marketing Budget)
+### H.7.2 Session Definition (Pre-Assigned Bounty and Seat Limits)
 
-The Governor support bounty pool is funded **exclusively from the platform’s marketing budget**.
+Each think tank session is defined **in advance** and includes:
+- A specific purpose or topic
+- A fixed date and duration
+- A **maximum number of seats** (determined per session)
+- A **predefined bounty pool amount** assigned to the session before participation begins
+- The participation requirements (e.g., attendance + confirmed vote/input)
+
+Participation is invite-based or application-based at the YieldLoop team’s discretion.
+
+---
+
+### H.7.3 Funding Source (Marketing Budget Allocation)
+
+Think tank bounty pools are funded **exclusively from the platform’s marketing budget**.
 
 Specifically:
-- A configurable **0.5%–1.0% of the total marketing budget** is allocated to the Governor support pool
+- A configurable **0.5%–1.0% of the total marketing budget** may be allocated for these sessions
 - The marketing budget itself is funded through the platform’s existing protocol profit split
-- No additional token issuance, emissions, or inflation mechanisms are created
+- No additional token issuance, emissions, or inflation mechanisms are created for bounties
 
-This is a **budget allocation**, not a new revenue stream.
-
----
-
-### H.7.3 Asset and Distribution
-
-- Bounties are paid in **LOOP**
-- Distribution is **manual and discretionary**
-- Payments are executed by the YieldLoop team multisig
-- Timing, frequency, and amount vary based on contribution and available budget
+This is a **bounded budget allocation**, not a revenue stream and not a user-funded program.
 
 ---
 
-### H.7.4 No Entitlement or Guarantee
+### H.7.4 Distribution Mechanics (Equal Split, Conditional on Verified Participation)
 
-Governor support bounties:
-- Are not automatic
-- Are not guaranteed
-- Are not owed
-- Do not constitute wages, salary, yield, or profit share
+At the conclusion of a think tank session:
+- The bounty pool is split **equally** among participants who:
+  - Are verified as having attended, and
+  - Complete required participation criteria (e.g., confirmed vote or documented input)
 
-Eligibility is evaluated solely by the YieldLoop team based on observed participation.
+Distribution is:
+- Manual and discretionary in v1
+- Executed by the YieldLoop team multisig
+- Paid in LOOP (or other designated token)
+
+If a participant does not meet verification requirements, they receive no share of the bounty pool for that session.
+
+---
+
+### H.7.5 Cool-Down Rule (Rotation Requirement)
+
+To prevent concentration and ensure broad participation:
+
+- Any Governor who **receives a bounty payment** for a think tank session becomes **ineligible for the immediately subsequent think tank session**
+- This cool-down applies regardless of topic or session size
+- Governors who do not receive a bounty (e.g., did not attend or did not complete participation requirements) are not subject to the cool-down
+
+The intent is to rotate participation, diversify input, and avoid recurring or implied compensation patterns.
+
+---
+
+### H.7.6 No Entitlement, No Guarantee, No Compensation
+
+Think tank bounties:
+- Are **not automatic**
+- Are **not guaranteed**
+- Are **not owed**
+- Do not accrue
+- Do not represent wages, salary, yield, profit share, or consideration for services
+- Do not create employment, contractor, agency, partnership, or fiduciary relationships
+- Do not grant future rights, priority, or standing
+
+All invitations, eligibility determinations, and distributions remain at the sole discretion of the YieldLoop team.
 
 ---
 
@@ -191,12 +243,12 @@ Governor status may be removed at any time by administrative action.
 Removal may occur due to:
 - Inactivity
 - Abuse or misconduct
-- Misrepresentation
+- Misrepresentation of YieldLoop or the Governor role
 - Conflict of interest
-- Violation of platform rules
+- Violation of platform rules or community standards
 - Loss of trust
 
-Removal may include revocation and burning of the associated Governor NFT.
+Removal may include revocation and burning of the associated Governor NFT and loss of gated access.
 
 ---
 
@@ -204,10 +256,10 @@ Removal may include revocation and burning of the associated Governor NFT.
 
 At launch:
 - All binding decisions remain with the YieldLoop team
-- Multisig controls treasury and privileged actions
+- The multisig controls treasury and privileged actions
 - Advisory input does not override administrative authority
 
-Governors influence decisions through expertise and persuasion, not votes.
+Governors influence decisions through expertise and persuasion, not binding votes.
 
 ---
 
@@ -221,7 +273,7 @@ YieldLoop may, in the future:
 Any such changes:
 - Require explicit disclosure
 - Are not implied by current participation
-- May involve new contracts or frameworks
+- May involve new contracts, frameworks, and eligibility requirements
 
 No future governance rights are promised or guaranteed.
 
@@ -229,11 +281,12 @@ No future governance rights are promised or guaranteed.
 
 ## H.11 Legal and Operational Disclosures
 
-This advisory and governance framework:
-- Does not create employment, partnership, or fiduciary relationships
-- Does not grant ownership, equity, or revenue rights
-- Does not constitute an investment offering
-- Does not guarantee compensation or continued participation
+This advisory framework:
+- Does not create employment, contractor, partnership, agency, or fiduciary relationships
+- Does not grant ownership, equity, revenue rights, or profit rights
+- Does not constitute an investment offering or solicitation
+- Does not guarantee compensation, bounties, invitations, or continued participation
+- May be modified or discontinued prospectively at the YieldLoop team’s discretion
 
 Participation is voluntary and subject to change.
 
