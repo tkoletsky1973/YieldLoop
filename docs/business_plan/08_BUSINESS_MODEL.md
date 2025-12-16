@@ -47,3 +47,11 @@ YieldLoop’s sustainability model assumes:
 The system is designed to remain operable at small scale and to improve resilience as usage grows. Fee schedules may adjust prospectively to reflect operational scale, but do not create user expectations or incentives tied to aggregate behavior.
 
 YieldLoop does not assume continuous growth, market dominance, or network effects to remain viable. Sustainability is derived from disciplined operation and alignment between system behavior and business incentives.
+
+---
+
+## 8.4 Relationship to Financial Sustainability
+
+YieldLoop’s business model is designed to support long-term sustainability without reliance on growth assumptions or performance projections.
+
+All revenue mechanics, budget assumptions, and funding structures are described in Section 14. This section defines the constraints and intent of the model, while Section 14 defines how capital is raised, how operating revenue is generated, and how costs are managed.
