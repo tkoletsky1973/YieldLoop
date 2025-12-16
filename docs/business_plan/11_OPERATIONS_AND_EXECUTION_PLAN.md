@@ -78,3 +78,11 @@ Financial decisions are governed by budget categories and milestone-based spendi
 Use of funds is constrained to approved budget categories as defined in Section 14. Material deviations, reallocation between categories, or unplanned expenditures require founder review and approval.
 
 This structure ensures that financial decisions do not compromise system integrity, security priorities, or legal posture.
+
+---
+
+## 11.6 Financial Authority and Spend Controls
+
+All budgeted expenditures are governed by predefined categories and milestone-based allocation as defined in Section 14.
+
+Material deviations, discretionary advisory payouts, and reallocations between budget categories require approval by the YieldLoop team and are executed via multisig. Advisory input does not confer spending authority.
