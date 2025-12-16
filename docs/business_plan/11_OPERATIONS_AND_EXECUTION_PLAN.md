@@ -68,3 +68,13 @@ Referral credits:
 - Do not create ongoing compensation relationships
 
 The referral program does not function as a growth engine and does not influence operational priorities, execution logic, or system behavior.
+
+---
+
+## 11.5 Financial Authority and Spend Controls
+
+Financial decisions are governed by budget categories and milestone-based spending rather than discretionary allocation.
+
+Use of funds is constrained to approved budget categories as defined in Section 14. Material deviations, reallocation between categories, or unplanned expenditures require founder review and approval.
+
+This structure ensures that financial decisions do not compromise system integrity, security priorities, or legal posture.
