@@ -88,3 +88,42 @@ docs/
 
 contracts/           → Smart contracts (to be implemented)
 apps/                → Frontend applications (mint dApp, admin panel)
+
+Who This Repository Is For
+	•	Smart contract developers
+	•	Frontend / full-stack developers
+	•	Auditors
+	•	Grant reviewers
+	•	Technical advisors
+
+If you are looking to contribute or evaluate the system, start here:
+	•	docs/whitepaper/
+	•	docs/nft/
+
+⸻
+
+Governance and Control
+
+YieldLoop is not a DAO at launch.
+	•	Final decision authority resides with the YieldLoop team
+	•	Treasury and privileged actions are controlled by multisig
+	•	Advisory input is welcomed but non-binding
+
+⸻
+
+Disclosures
+
+YieldLoop is experimental software.
+Nothing in this repository constitutes financial advice, an investment offer, or a guarantee of profit. Users interact with the protocol at their own risk.
+
+⸻
+
+Contact
+	•	Project lead: Todd Koletsky
+	•	Discord: https://discord.gg/vARwn9yEET
+	•	Website: www.yieldloop.io
+
+⸻
+
+Verified finance starts with verified reality.
+
