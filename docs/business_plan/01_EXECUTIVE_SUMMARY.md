@@ -1,6 +1,7 @@
 # 1. Executive Summary
 
-YieldLoop is a deterministic, user-authorized execution infrastructure designed to operate on digital assets without custody, discretion, pooling, or implied performance.
+YieldLoop is a deterministic, user-authorized execution infrastructure designed to operate on digital assets without custody, discretion, pooling, or implied performance, and operates as a centralized execution platform with advisory input, constrained revenue mechanics, and no implied ownership or governance rights for token or NFT holders.
+
 
 The system enables users to explicitly authorize predefined actions on their own assets for bounded execution cycles and records the outcomes of those actions only after execution has completed. YieldLoop does not forecast results, optimize strategies, or provide investment advice. It exists to execute what users authorize and to account for what actually occurs.
 
