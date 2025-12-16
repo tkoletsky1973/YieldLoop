@@ -268,6 +268,19 @@ The Admin Panel must **check roles on-chain**, not rely on a static allowlist.
 
 ---
 
-## 7) Next File
+## 7) Contract Addresses, Networks, and Environment Configuration
+
+This section must specify:
+- Supported networks (BNB mainnet + testnet name/chainId)
+- Exact contract addresses per network (placeholders acceptable for now)
+- How the admin panel selects the network (auto-detect + block wrong chain)
+- Where config lives (e.g., `/apps/admin/config/contracts.ts`)
+- RPC providers used (public vs paid) and fallback behavior
+- Explorer links format (BscScan) for verification buttons
+
+
+---
+
+## 8) Next File
 
 Proceed to: `docs/nft/NFT_MINT_DAPP.md`
