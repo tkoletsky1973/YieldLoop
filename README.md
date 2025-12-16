@@ -1,5 +1,13 @@
 # YieldLoop
 
+## Start here (full project overview)
+
+For a complete, linear overview of the project, including business model, governance, NFTs, and financials:
+
+➡️ **Canonical Project Dossier**
+- `/docs/dossier/YIELDLOOP_CANONICAL_DOSSIER.md`
+
+
 **YieldLoop is a proof-driven DeFi yield platform focused on verified surplus, transparent execution, and conservative system design.**
 
 YieldLoop rejects projected APYs, inflationary rewards, and narrative-based performance. Instead, it operates in fixed execution cycles where only **verifiable, realized profit** counts. If profit cannot be verified after fees, slippage, gas, and execution costs, it is treated as zero.
