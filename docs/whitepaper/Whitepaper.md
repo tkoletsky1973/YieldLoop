@@ -104,6 +104,7 @@ YieldLoop is not a custodial service, bank, payment system, or deposit substitut
 
 In short, YieldLoop does not promise outcomes, manage risk on behalf of users, or replace user judgment. It executes what is authorized and records what occurred—nothing more.
 
+YieldLoop does not assume fiduciary duties, duties of care, or duties of loyalty toward users. Users act on their own behalf when authorizing execution, and the system’s role is limited to enforcing authorization and recording outcomes.
 
 ## 4. System Overview
 
@@ -362,6 +363,11 @@ Participation in governance does not convey ownership rights, revenue rights, or
 
 The presence of governance and administrative functions does not reduce system risk or create assurances regarding performance, availability, or outcomes.
 
+Emergency controls may halt or prevent further execution but do not alter, reverse, substitute, or modify any completed transactions. Settlement reflects the factual state of execution at the moment of halt, without discretionary adjustment or alternative action.
+
+Governance decisions affect system configuration and availability only. They do not direct execution, determine user outcomes, select strategies on a user’s behalf, or create reliance on the competence or judgment of governance participants.
+
+Users remain solely responsible for authorization choices and accept that governance actions apply prospectively and uniformly without regard to individual outcomes.
 
 ## 15. Optional Ecosystem Programs
 
@@ -401,6 +407,7 @@ Optional ecosystem programs are visually and functionally separated from core ex
 
 User interface design choices are intended to reduce confusion, discourage overinterpretation, and align user expectations with actual system behavior.
 
+The user interface does not highlight, prioritize, rank, recommend, or suggest any strategy, asset, configuration, or parameter. All available options are presented neutrally, and any execution occurs only as a result of explicit user selection and authorization.
 
 ## 17. Risk Disclosure and Assumptions
 
@@ -446,6 +453,30 @@ Users are solely responsible for determining whether their use of the system com
 
 Nothing in this document constitutes legal, tax, or regulatory advice. The descriptions provided reflect intended system behavior and design boundaries, not legal conclusions or assurances.
 
+### 19.1 Design Intent Regarding Regulated Activities
+
+YieldLoop is intentionally designed to operate outside the scope of regulated financial activities such as custody, brokerage, discretionary asset management, investment advisory services, pooled investment vehicles, and securities issuance.
+
+This design intent is reflected in the following structural characteristics:
+
+- The system does not take custody of user assets and does not commingle funds
+- All execution requires explicit, time-bounded user authorization
+- The system does not exercise discretionary control over assets or strategies
+- No recommendations, suitability assessments, or advice are provided
+- Outcomes are recorded only after execution has completed and are not projected or implied
+- Participation does not involve issuance of ownership interests, profit rights, or claims on system revenue
+
+These characteristics are architectural and operational features of the system, not legal representations or conclusions. Regulatory classification may vary by jurisdiction and may evolve over time.
+
+YieldLoop does not assume fiduciary duties, duties of care, or duties of loyalty toward users. Users act on their own behalf when authorizing execution, and the system’s role is limited to enforcing authorization and recording outcomes.
+
+### 19.2 Experimental Software and No Warranty
+
+YieldLoop is experimental software provided on an “as is” and “as available” basis. The system may contain defects, limitations, incomplete features, or vulnerabilities and may not perform as intended under all conditions.
+
+No warranties, express or implied, are made regarding system availability, correctness, performance, reliability, fitness for a particular purpose, or suitability for any use. Users assume all risks arising from use of the system, including the risk of partial or total loss.
+
+This disclosure does not limit accountability for intentional misconduct or misrepresentation, but it does clarify that the system is not offered with assurances of performance or reliability.
 
 ## 20. Glossary of Terms
 
@@ -521,6 +552,32 @@ The transfer of assets out of a user-owned vault after settlement and entry into
 **YieldLoop System**  
 The combination of smart contracts, execution logic, settlement processes, and accounting mechanisms described in this document.
 
+**Discretionary Control**  
+The ability to initiate, modify, redirect, or substitute execution actions without contemporaneous, explicit user authorization. YieldLoop does not exercise discretionary control.
+
+**Investment Advice**  
+Any recommendation, opinion, or suggestion that a user should engage in, refrain from, or modify a transaction based on expected financial outcomes. YieldLoop does not provide investment advice.
+
+**Managed Trading**  
+A structure in which an operator determines trading activity, timing, asset selection, or allocation on behalf of a user without per-cycle authorization. YieldLoop does not operate as a managed trading system.
+
+**Authorization**  
+A user’s explicit, time-bounded approval allowing predefined execution actions to occur within specified parameters.
+
+**Execution Cycle**  
+A bounded period during which authorized execution may occur, followed by settlement and accounting.
+
+**Settlement**  
+The finalization of execution results after all authorized actions have completed or halted.
+
+**Protocol Fee**  
+A predefined percentage applied only to net positive outcomes after settlement, used solely to support system operation.
+
+**Referral Credit**  
+A finite promotional credit sourced from protocol fees and accounted for as a marketing expense, not compensation or revenue sharing.
+
+**Strategy**  
+A predefined execution capability that remains inactive unless explicitly selected and authorized by a user for a specific execution cycle.
 
 # Appendix A — Fee Schedule and Pricing Policy (Operational, Non-Binding)
 
@@ -656,7 +713,15 @@ Fee reductions apply globally and automatically once the corresponding threshold
 Values are illustrative and rounded for clarity.
 
 ---
+### A.6.5 Fee Reductions as Operational Scaling, Not User Incentives
 
+Protocol fee reductions tied to Total Deposits Locked exist solely to reflect operational scale and cost efficiency. They are not designed or intended to incentivize deposits, participation, or collective user behavior.
+
+Individual users receive no guaranteed, proportional, or predictable benefit from aggregate changes in Total Deposits Locked. Fee reductions apply uniformly and prospectively and do not depend on the actions of any specific user.
+
+The system does not encourage users to increase deposits to affect fee rates, and no user representations or expectations should be formed based on aggregate deposit levels.
+
+---
 ## A.7 Fee Collection Timing
 
 Protocol fees are:
@@ -945,6 +1010,19 @@ A referral is considered qualified when:
 - Credits are capped by the six-cycle limit and do not recur beyond that point
 
 ---
+### C.4.4 Referral Credits as Promotional Fee Offsets
+
+Any referral credits described in this appendix are accounted for as promotional or marketing expense offsets derived from protocol fees. They do not represent commissions, revenue sharing, or compensation for services rendered.
+
+Referral credits:
+- Are sourced exclusively from protocol fees after settlement
+- Do not reduce or transfer any portion of a referred user’s principal or net outcome
+- Do not create ongoing compensation relationships
+- Expire automatically after the defined eligibility period
+
+The referral program does not establish agency, employment, or representative relationships between participants and the system operator.
+
+---
 
 ## C.5 Non-Financial Nature of Referral Credits
 
@@ -1023,7 +1101,19 @@ The purpose of this appendix is to plainly describe:
 These strategies are not recommendations, not advice, and do not imply expected outcomes.
 
 ---
+### D.1.1 Strategy Definitions as Capability, Not Direction
 
+The strategies described in this appendix define execution *capabilities* that the system may support. They do not represent default behavior, recommendations, model portfolios, or preconfigured investment programs.
+
+No strategy executes automatically. A strategy remains inert unless:
+- Explicitly selected by the user
+- Explicitly authorized for a specific execution cycle
+- Explicitly bounded by user-defined parameters
+
+Users determine whether any strategy is used, which assets are involved, how much capital is allocated, and whether execution occurs at all. The system does not initiate, prioritize, or substitute strategies on a user’s behalf.
+
+This distinction exists to prevent the system from functioning as a managed trading service or discretionary execution platform.
+---
 ## D.2 Strategy Set (Initial)
 
 YieldLoop’s initial strategy set is intentionally limited to simple, auditable programs:
