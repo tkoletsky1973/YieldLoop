@@ -46,7 +46,7 @@ Appendix D — Strategy Modules and Capabilities
 Appendix E — Revenue Sources and Financial Model  
 Appendix F — System Parameters and Defaults  
 Appendix G — Change Control and Versioning
-
+Appendix H - Governance and Advisory Framework
 
 ## 1. Introduction and Purpose
 
@@ -773,144 +773,430 @@ Nothing in this appendix should be interpreted as:
 Participation decisions should be based on system behavior and risk tolerance, not fee assumptions.
 
 
-# Appendix B — NFT Program Specification (Operational, Non-Binding)
+# Appendix B — YieldLoop NFT Program (User Guide + Developer Build Spec)
 
-This appendix describes the NFT programs associated with the YieldLoop ecosystem.
+## B.1 Purpose and Scope
 
-This appendix is descriptive, not contractual. NFT availability, pricing, benefits, and eligibility criteria may be modified through documented administrative or governance processes and apply prospectively only. NFT programs are optional and exist outside the core execution, settlement, and accounting system.
+YieldLoop includes an optional NFT program with two tiers: **Supporter** and **Governor**.
 
----
+These NFTs are **utility and role tokens**. They exist to provide:
+- Operational protocol-fee discounts (discount applies only to the protocol fee)
+- Access control and role signaling (UI and community gating)
+- A high-trust advisory/governance-support role (Governor tier)
 
-## B.1 Purpose
+These NFTs **do not** represent equity, ownership, revenue share, yield, guaranteed returns, or any promise of appreciation. NFT ownership does not change trading execution, strategy priority, market exposure, or outcomes.
 
-The NFT programs exist to:
-- Support development and ongoing operations
-- Coordinate testing, feedback, and community participation
-- Provide limited, non-financial participation benefits
-- Offer defined operational fee discounts as a pricing adjustment
-
-NFTs are not required to access or use the YieldLoop system.
+All NFT benefits are operational and may be modified **prospectively** by policy or platform configuration.
 
 ---
 
-## B.2 General Restrictions and Clarifications
+## B.2 NFT Tiers (User Explanation + Rules)
 
-NFTs issued or awarded by YieldLoop do not represent:
-- Equity or ownership interests
-- Profit-sharing or revenue rights
-- Claims on protocol assets
-- Guarantees of performance or outcomes
-- Rights to influence execution, settlement, or accounting
+### B.2.1 Supporter NFT
 
-NFTs are not marketed or represented as investments or income-generating assets.
+**What it is**  
+A utility membership NFT for supporters of YieldLoop.
 
----
+**Visual**  
+YieldLoop logo with the word **“SUPPORTER”** in **silver**.
 
-## B.3 NFT Categories
+**Price**  
+Supporter mint price is **$300** (implemented as the BNB amount set by the team at mint time).
 
-### B.3.1 Supporter NFT
+**Supply**  
+Unlimited.
 
-**Availability**  
-- Available on an ongoing basis  
-- Not supply-limited  
-- May be issued continuously or in multiple batches at the discretion of the system operator  
+**How you get it**  
+Mintable through the YieldLoop minting dApp on BNB Chain. Supporter minting is always open.
 
-**Illustrative Price**  
-- USD $300 equivalent
+**Transferability**  
+Supporter NFTs are freely transferable using standard ERC-721 transfers. Any operational benefits follow the wallet that currently holds the NFT.
 
-**Illustrative Benefits**
-- Five percent (5%) discount on applicable protocol fees, applied after settlement  
-- Access to designated community communication channels  
-- Eligibility for early testing, previews, and structured feedback programs  
+**Utility**  
+- **5% protocol-fee discount** (applied on-chain at settlement; see B.5)
+- Access to a Supporter-only Discord channel and related platform visibility features
+- The team may mint Supporter NFTs for promotional, marketing, partnership, or community purposes
 
-**Limitations**
-- No governance authority  
-- No influence over execution behavior or strategy selection  
-- No yield enhancement, priority access, or performance benefit  
-
-The Supporter NFT is designed for broad participation and does not derive value from scarcity.
+Supporter NFTs do not grant governance authority, ownership, or oversight.
 
 ---
 
-### B.3.2 Benefactor NFT
+### B.2.2 Governor NFT
 
-**Availability**  
-- Awarded, not sold  
-- Issued selectively at the discretion of the system operator  
+**What it is**  
+A high-trust role NFT representing an invited advisory/think-tank position within the YieldLoop community.
 
-**Eligibility Examples**
-- Advisors  
-- Active contributors  
-- Community leaders or outreach participants  
+**Visual**  
+YieldLoop logo with the word **“GOVERNOR”** in **gold**.
 
-**Illustrative Benefits**
-- Ten percent (10%) discount on applicable protocol fees, applied after settlement  
-- Access to designated advisory, governance, or think-tank channels  
-- Eligibility to participate in structured review or planning sessions  
+**Price**  
+Not sold by default. Governor NFTs are typically bestowed (admin mint). If a future iteration enables public minting, it must be explicitly enabled by policy and disclosed at that time.
 
-**Compensation Clarification**
-- Any compensation for time or services is defined separately  
-- Compensation is not performance-based  
-- Compensation is not tied to protocol revenue, execution outcomes, or deposits  
+**Supply**  
+Unlimited **team-only** minting (bestowed), subject to internal policy.
 
----
+**One per wallet/person**  
+Governor NFTs are intended to be limited to **one per person** and **one per wallet**. This is enforced through a combination of:
+- Contract-level “one per wallet” rule (recommended), and/or
+- Manual/admin policy for identity-level enforcement (no KYC required by default)
 
-## B.4 Fee Discounts and Interaction With Appendix A
+**How you get it (Bestowal criteria)**  
+Governor NFTs may be bestowed for contributions such as:
+- Partnerships and community partnerships
+- Influencer support and outreach
+- Active community membership and assistance
+- Educational material creation
+- Onboarding and user support
+- Other platform-support activities
 
-NFT-based fee discounts:
-- Apply only to protocol fees defined in Appendix A  
-- Reduce the fee rate applied after settlement  
-- Do not alter execution logic, settlement rules, or accounting  
+**Role and authority**  
+Governor NFTs are advisory and support-oriented. They do not grant ownership or binding oversight at this time unless and until a future governance framework is explicitly adopted and disclosed.
 
-Discounts:
-- Apply prospectively only  
-- Do not reduce the protocol fee below the minimum floor defined in Appendix A  
-- Are not transferable unless explicitly specified  
+**Transferability**  
+Governor NFTs are non-transferable by default. A Governor NFT may only be transferred if the YieldLoop team multisig explicitly authorizes a specific transfer of a specific token to a specific recipient.
 
-NFT ownership does not affect:
-- Execution priority  
-- Strategy module availability  
-- Withdrawal timing  
-- Outcome measurement  
+**Revocation**  
+Governor NFTs may be revoked and burned by administrative action. Revocation may occur for reasons including abuse, misrepresentation, violation of rules, loss of trust, or removal from the Governor support role.
 
----
+**Utility**  
+- **10% protocol-fee discount** (applied on-chain at settlement; see B.5)
+- Access to a Governor-only Discord channel and related platform features
+- Invitation to advisory/think-tank participation
+- Eligibility for discretionary Governor support bounties (see B.4)
 
-## B.5 Use of NFT Proceeds
-
-Funds raised through NFT sales may be used for:
-- Development and maintenance  
-- Infrastructure and hosting  
-- Security reviews and audits  
-- Community and ecosystem operations  
-
-NFT holders do not obtain rights to direct fund allocation unless explicitly defined through governance processes.
+Governor NFTs are not investments and do not provide profit rights.
 
 ---
 
-## B.6 Change Management
+## B.3 Mint Proceeds, Treasury, and Refunds
 
-NFT programs may be:
-- Modified  
-- Paused  
-- Replaced  
-- Discontinued  
+**Mint proceeds**  
+All mint proceeds are routed directly to a **team and development multisig wallet** (address established prior to deployment).
 
-All changes:
-- Apply prospectively only  
-- Do not affect completed execution cycles  
-- Are disclosed prior to taking effect  
+**Refund policy**  
+No refunds are provided under any circumstances.
+
+**Use of proceeds**  
+Mint proceeds are used for operational purposes such as development, audits, infrastructure, maintenance, and ongoing platform support.
 
 ---
 
-## B.7 Non-Reliance Statement
+## B.4 Governor Support Bounty Pool (Operational Support, Paid in LOOP)
 
-Nothing in this appendix should be interpreted as:
-- A promise of future benefits or pricing  
-- A guarantee of continued availability  
-- An inducement to use the core system  
-- A representation of economic value  
+If a Governor is actively participating in the Governor support role (advisory, onboarding, education, partnerships, community support, or other platform-support contributions), they may be eligible for a discretionary bounty paid in **LOOP**.
 
-Participation in NFT programs is optional and independent of YieldLoop system usage.
+**Source of funds**  
+The Governor support pool is funded by allocating a configurable portion of the platform’s marketing budget. The current target is approximately **0.5% to 1.0% of the marketing budget allocation** (derived from the existing protocol profit split).
+
+**No guarantee / no entitlement**  
+Governor bounties are:
+- Not automatic
+- Not guaranteed
+- Not a yield mechanism
+- Not a profit share
+- Determined and paid at the discretion of the team, based on contribution and available pool funds
+
+**Distribution method (v1)**  
+Bounties are distributed manually via multisig-controlled transfers in LOOP. A future version may formalize distribution mechanics, but no automation is implied or guaranteed.
+
+---
+
+## B.5 Discount Enforcement and Application (On-Chain)
+
+### B.5.1 What the discount applies to
+
+NFT discounts apply **only** to the platform’s **protocol fee**. Discounts do not apply to:
+- DEX fees
+- Slippage
+- Gas
+- Market losses
+- Strategy performance
+
+NFT ownership does not change execution priority, strategy selection, routing, or trading outcomes.
+
+### B.5.2 When the discount is calculated
+
+Discounts are applied **on-chain at settlement**, at the point where the platform computes realized results and the protocol fee.
+
+### B.5.3 Precedence
+
+If a wallet qualifies for both tiers, the **Governor** discount overrides the Supporter discount.
+
+### B.5.4 Fee floor protection
+
+Discounts may not reduce protocol fees below any minimum fee floor defined elsewhere in the system (e.g., Appendix A or protocol configuration). Discounts are applied only within allowable bounds.
+
+---
+
+## B.6 Smart Contract Architecture (Developer Build Specification)
+
+All NFT contracts are deployed as **immutable** contracts (no proxy upgrade pattern). Policy values (discount bps, treasury address, mint price) are controlled via explicit admin functions and/or separate policy contracts as defined below.
+
+### B.6.1 Contracts
+
+The NFT program requires the following on-chain contracts on BNB Chain:
+
+1) `YieldLoopSupporterNFT` (ERC-721)  
+2) `YieldLoopGovernorNFT` (ERC-721 with restricted transfers + revocation)  
+3) `DiscountRegistry` (policy contract for discount determination)
+
+### B.6.2 Access control
+
+Use OpenZeppelin `AccessControl` with roles such as:
+- `DEFAULT_ADMIN_ROLE` (held by multisig)
+- `MINTER_ROLE`
+- `PAUSER_ROLE`
+- `URI_ROLE`
+
+Administrative authority is expected to be held by a multisig.
+
+---
+
+## B.7 Transfer Rules (No Table)
+
+Supporter NFTs follow standard ERC-721 behavior and can be freely transferred between wallets. If a Supporter NFT is transferred, any associated operational benefits follow the wallet that currently holds the token.
+
+Governor NFTs do not follow standard ERC-721 behavior. By default, Governor NFTs are non-transferable. A Governor NFT may only be transferred if the team multisig explicitly authorizes a specific token to be transferred to a specific recipient. Any non-authorized transfer attempt must revert. Governor NFTs may also be revoked and burned by administrative action.
+
+---
+
+## B.8 Contract Requirements (Functions and Events)
+
+### B.8.1 `YieldLoopSupporterNFT` (ERC-721)
+
+**State (minimum)**
+- `address treasuryMultisig`
+- `uint256 mintPriceWei` (BNB amount set by admin)
+- `bool mintEnabled`
+
+**Minting**
+- `mintPublic(uint256 qty)` payable  
+  - always intended to remain available (open mint)
+  - no per-wallet limit
+- `mintAdmin(address to, uint256 qty)` onlyRole(MINTER_ROLE)
+
+**Admin controls**
+- `setMintPrice(uint256 newPriceWei)` onlyRole(DEFAULT_ADMIN_ROLE)
+- `setTreasury(address newTreasury)` onlyRole(DEFAULT_ADMIN_ROLE)
+- `setMintEnabled(bool enabled)` onlyRole(DEFAULT_ADMIN_ROLE)
+- `setBaseURI(string newBaseURI)` onlyRole(URI_ROLE)
+- `pause()` / `unpause()` onlyRole(PAUSER_ROLE)
+
+**Funds handling**
+- Mint proceeds must route to `treasuryMultisig` (direct forward or withdraw pattern)
+
+**Events (minimum)**
+- `SupporterMinted(address indexed to, uint256 indexed tokenId)`
+- `SupporterAdminMinted(address indexed to, uint256 indexed tokenId)`
+- `MintPriceUpdated(uint256 newPriceWei)`
+- `TreasuryUpdated(address indexed newTreasury)`
+- `MintEnabledUpdated(bool enabled)`
+- `BaseURIUpdated(string newBaseURI)`
+- `MintPaused(bool paused)`
+
+---
+
+### B.8.2 `YieldLoopGovernorNFT` (Restricted ERC-721)
+
+The Governor NFT contract implements an ERC-721 token with restricted transfer and revocation logic. Governor NFTs are intended to represent an invited, high-trust advisory role and therefore do not follow standard ERC-721 transfer behavior.
+
+**State (minimum required):**
+- `mapping(uint256 => address) authorizedRecipient` — stores the approved recipient for a one-time authorized transfer
+- `mapping(address => bool) hasGovernor` — enforces one Governor NFT per wallet
+
+**Minting**
+- `mintAdmin(address to, uint256 qty, string reason)`  
+  - Restricted to administrative authority (multisig)  
+  - Recommended enforcement: `hasGovernor[to] == false`  
+  - Upon mint, set `hasGovernor[to] = true`
+
+**Transfer authorization**
+- `authorizeTransfer(uint256 tokenId, address approvedRecipient)`  
+  - Restricted to administrative authority  
+  - Authorizes a single transfer of a specific token to a specific recipient  
+
+**Transfer restrictions**
+- In the transfer hook:
+  - Allow minting (`from == address(0)`)
+  - Allow burning (`to == address(0)`)
+  - For any other transfer:
+    - Require `to == authorizedRecipient[tokenId]`
+    - Clear `authorizedRecipient[tokenId]` after successful transfer
+    - Update `hasGovernor` mappings accordingly
+
+Unauthorized transfer attempts must revert.
+
+**Revocation**
+- `revoke(uint256 tokenId)`  
+  - Restricted to administrative authority  
+  - Burns the token  
+  - Clears `hasGovernor` for the previous holder  
+
+**Metadata**
+- `setBaseURI(string newBaseURI)` restricted to metadata admin role
+
+**Safety**
+- `pause()` / `unpause()` for minting and transfer authorization (recommended)
+
+**Events (minimum)**
+- `GovernorMinted(address indexed to, uint256 indexed tokenId, string reason)`
+- `TransferAuthorized(uint256 indexed tokenId, address indexed approvedRecipient)`
+- `GovernorRevoked(uint256 indexed tokenId, address indexed previousOwner)`
+- `BaseURIUpdated(string newBaseURI)`
+- `MintPaused(bool paused)`
+
+---
+
+### B.8.3 `DiscountRegistry` (On-Chain Discount Policy)
+
+The DiscountRegistry is a standalone policy contract queried by the YieldLoop protocol at settlement to determine protocol-fee discounts.
+
+**Purpose**
+- Centralize discount logic
+- Allow discount values to be updated without redeploying NFTs
+- Ensure deterministic, auditable discount enforcement
+
+**State (minimum required)**
+- `address supporterNft`
+- `address governorNft`
+- `uint16 supporterDiscountBps` (default: 500 = 5%)
+- `uint16 governorDiscountBps` (default: 1000 = 10%)
+- `bool discountsEnabled` (optional emergency switch)
+
+**View function**
+- `getDiscountBps(address user) external view returns (uint16)`
+  - If `discountsEnabled == false`, return 0
+  - If user holds Governor NFT, return `governorDiscountBps`
+  - Else if user holds Supporter NFT, return `supporterDiscountBps`
+  - Else return 0
+
+**Admin functions**
+- `setDiscounts(uint16 supporterBps, uint16 governorBps)`
+- `setNftAddresses(address supporter, address governor)`
+- `setDiscountsEnabled(bool enabled)`
+
+**Events (minimum)**
+- `DiscountsUpdated(uint16 supporterBps, uint16 governorBps)`
+- `NftAddressesUpdated(address indexed supporter, address indexed governor)`
+- `DiscountsEnabledUpdated(bool enabled)`
+
+---
+
+## B.9 Transfer Rules (Explanatory)
+
+Supporter NFTs follow standard ERC-721 transfer behavior and may be freely transferred between wallets. Any operational benefits associated with a Supporter NFT apply to the wallet that currently holds the token.
+
+Governor NFTs do not follow standard ERC-721 behavior. By default, Governor NFTs are non-transferable. A Governor NFT may only be transferred if the YieldLoop team multisig explicitly authorizes the transfer of a specific token to a specific recipient. Unauthorized transfer attempts must revert. Governor NFTs may also be revoked and burned by administrative action.
+
+---
+
+## B.10 Public Mint dApp (User Flow and Requirements)
+
+### B.10.1 Supporter Mint Flow
+1. User connects a wallet compatible with BNB Chain
+2. User is prompted to switch networks if necessary
+3. User selects mint quantity
+4. User confirms transaction
+5. Upon confirmation, the NFT appears in the user’s wallet
+6. The UI displays the wallet’s current protocol-fee discount status
+
+### B.10.2 Required Pages
+- Landing / explanation
+- Supporter mint
+- My NFTs (holdings + discount status)
+- Disclosures (utility-only, no refunds, no guarantees)
+
+Governor minting interfaces are hidden or disabled by default because Governor NFTs are bestowed.
+
+---
+
+## B.11 Admin Panel (Operational Requirements)
+
+The admin interface must support the following actions:
+
+**NFT Management**
+- Mint Supporter NFTs (single and batch)
+- Mint Governor NFTs (single and batch) with recorded reason
+- Revoke and burn Governor NFTs
+- Authorize Governor NFT transfers
+
+**Economic Controls**
+- Set Supporter mint price (BNB amount approximating $300)
+- Set treasury multisig address
+
+**Policy Controls**
+- Set Supporter and Governor discount values in DiscountRegistry
+- Enable or disable discounts (optional emergency control)
+
+**Metadata**
+- Update baseURIs for Supporter and Governor NFTs
+
+**Safety**
+- Pause and unpause minting
+
+**Reporting**
+- View totals minted per tier
+- View recent mint and admin events
+- Optional export of holder lists
+
+---
+
+## B.12 Pricing Implementation
+
+The Supporter NFT price is defined as **$300**.
+
+Because minting occurs in BNB, the contract stores and enforces a **BNB-denominated mint price** set by the team. The team may update this value prospectively to maintain an approximate $300 USD equivalent. Price updates do not affect previously minted NFTs.
+
+No on-chain oracle is required in v1.
+
+---
+
+## B.13 Artwork and Metadata
+
+Both NFT tiers use the YieldLoop logo as the base artwork:
+- Supporter NFT: “SUPPORTER” in silver
+- Governor NFT: “GOVERNOR” in gold
+
+Metadata must include:
+- Name
+- Description
+- Image URI
+- Tier attribute
+
+IPFS hosting is recommended. BaseURI updates are permitted for operational reasons.
+
+---
+
+## B.14 Governor Support Bounty Pool (Paid in LOOP)
+
+Governor NFT holders who actively participate in advisory, onboarding, education, partnerships, or other platform-support activities may be eligible for discretionary bounties paid in **LOOP**.
+
+The Governor support pool is funded by allocating approximately **0.5%–1.0% of the platform’s marketing budget**, derived from the existing protocol profit split.
+
+Bounties are:
+- Discretionary
+- Not automatic
+- Not guaranteed
+- Not yield
+- Not profit share
+
+Distribution is manual via multisig in v1.
+
+---
+
+## B.15 Disclosures
+
+YieldLoop NFTs are utility-based role tokens. They do not grant ownership, equity, revenue rights, or guaranteed returns. Discounts apply only to protocol fees and are calculated at settlement. NFT ownership does not influence trading outcomes or strategy execution. No refunds are provided.
+
+---
+
+## B.16 Future Extensibility
+
+Governor transfer authorization is currently controlled by the team multisig. Future iterations may migrate to governance-based approval or other mechanisms through new deployments. No upgradeability or future entitlement is implied.
+
+---
+
+**End of Appendix B**
 
 
 # Appendix C — Referral Program Rules and Safeguards (Operational, Non-Binding)
@@ -1648,3 +1934,233 @@ Nothing in this appendix or elsewhere in this document should be interpreted as:
 Use of the system is voluntary and at the user’s sole risk.
 
 
+# Appendix H — Governance and Advisory Framework
+
+## H.1 Purpose and Intent
+
+This appendix defines the advisory and governance-support framework for the YieldLoop platform.
+
+At launch, YieldLoop does not operate as a DAO and does not grant binding governance authority to token holders or NFT holders. Governance functions are intentionally limited, advisory in nature, and controlled through administrative and multisig processes.
+
+This framework exists to:
+- Enable structured advisory input
+- Recognize meaningful contributors
+- Preserve operational control and accountability
+- Avoid implied ownership, oversight, or fiduciary authority
+
+---
+
+## H.2 Governance Philosophy
+
+YieldLoop governance is intentionally conservative at launch.
+
+Final decision-making authority remains with the YieldLoop team and its multisig in order to:
+- Maintain system safety
+- Ensure operational continuity
+- Preserve regulatory clarity
+- Avoid premature or fragmented control
+
+Advisory input is welcomed and encouraged, but it is **non-binding**.
+
+---
+
+## H.3 Advisory vs Binding Governance
+
+### Advisory Participation
+
+Advisory participation includes:
+- Providing feedback and critique
+- Suggesting improvements
+- Assisting with onboarding and education
+- Supporting partnerships and outreach
+- Contributing ideas and analysis
+
+Advisory participation does **not** include:
+- Control over funds
+- Approval authority
+- Execution rights
+- Oversight responsibility
+- Fiduciary duty
+
+---
+
+### Binding Governance
+
+Binding governance involves enforceable authority over protocol behavior, funds, or rules.
+
+At launch, no external participants hold binding governance authority.
+
+---
+
+## H.4 The Governor Advisory Role
+
+### H.4.1 Definition
+
+The **Governor** role is a high-trust advisory and support position within the YieldLoop ecosystem.
+
+Governors are invited contributors who assist the platform through ideas, feedback, education, onboarding, partnerships, and community support.
+
+Governors do not control the platform.
+
+---
+
+### H.4.2 Eligibility and Invitation
+
+Governor status is **bestowed** by the YieldLoop team.
+
+Eligibility may include, but is not limited to:
+- Active and constructive community participation
+- Educational or onboarding contributions
+- Strategic partnerships or outreach
+- Influencer or ecosystem support
+- Advisory or subject-matter expertise
+
+Governor invitations are discretionary and may be modified or revoked at any time.
+
+---
+
+### H.4.3 Authority and Limitations
+
+Governors:
+- Have no ownership or equity
+- Have no binding oversight authority
+- Have no voting power at launch
+- Do not control treasury or protocol execution
+- Serve in an advisory and support capacity only
+
+---
+
+## H.5 Relationship to the Governor NFT
+
+Governor advisory participation is represented by a **Governor NFT**, which functions as:
+- A role identifier
+- An access credential
+- A signaling mechanism
+
+The Governor NFT:
+- Is non-transferable by default
+- May be revoked and burned by administrative action
+- Does not create governance rights
+- Does not create entitlement to compensation or rewards
+
+Holding a Governor NFT alone does not guarantee continued participation or benefits.
+
+---
+
+## H.6 Participation Expectations
+
+Governor participation is voluntary and non-contractual.
+
+Participation may include:
+- Strategy discussion
+- Risk review
+- Educational content
+- Community support
+- Onboarding assistance
+- Partnership development
+
+No minimum contribution level is guaranteed or enforced unless explicitly agreed outside this framework.
+
+---
+
+## H.7 Governor Support Bounty Program
+
+### H.7.1 Purpose
+
+YieldLoop may provide discretionary support bounties to Governors who actively contribute to the platform in a meaningful way.
+
+These bounties are intended as **operational support and recognition**, not compensation, yield, or profit participation.
+
+---
+
+### H.7.2 Explicit Funding Source (Marketing Budget)
+
+The Governor support bounty pool is funded **exclusively** from the platform’s **marketing budget**.
+
+Specifically:
+- A configurable **0.5%–1.0% of the total marketing budget** is allocated to the Governor support pool
+- The marketing budget itself is funded through the platform’s existing protocol profit split
+- No additional token issuance, emissions, or inflation mechanisms are created for this program
+
+This is a **budget allocation**, not a new revenue stream.
+
+---
+
+### H.7.3 Asset and Distribution
+
+- Bounties are paid in **LOOP**
+- Distribution is **manual and discretionary**
+- Payments are executed by the YieldLoop team multisig
+- Timing, frequency, and amount vary based on contribution and available budget
+
+---
+
+### H.7.4 No Entitlement or Guarantee
+
+Governor support bounties:
+- Are not automatic
+- Are not guaranteed
+- Are not owed
+- Do not constitute wages, salary, yield, or profit share
+
+Eligibility is evaluated solely by the YieldLoop team based on observed participation and contribution.
+
+---
+
+## H.8 Removal and Revocation
+
+Governor status may be removed at any time by administrative action.
+
+Removal may occur due to:
+- Inactivity
+- Abuse or misconduct
+- Misrepresentation
+- Conflict of interest
+- Violation of platform rules
+- Loss of trust
+
+Removal may include revocation and burning of the associated Governor NFT.
+
+---
+
+## H.9 Decision Authority
+
+At launch:
+- All binding decisions remain with the YieldLoop team
+- Multisig controls treasury and privileged actions
+- Advisory input does not override administrative authority
+
+Governors influence decisions through expertise and persuasion, not votes.
+
+---
+
+## H.10 Future Governance Expansion (Non-Binding)
+
+YieldLoop may, in the future, introduce:
+- Formal governance mechanisms
+- Voting systems
+- Delegated authority structures
+- DAO-like components
+
+Any such changes:
+- Require explicit disclosure
+- Are not implied by current roles
+- May involve new contracts or frameworks
+
+No future governance rights are promised or guaranteed.
+
+---
+
+## H.11 Legal and Operational Disclosures
+
+This advisory framework:
+- Does not create employment, partnership, or fiduciary relationships
+- Does not grant ownership, equity, or revenue rights
+- Does not constitute an investment offering
+- Does not guarantee compensation or continued participation
+
+Participation is voluntary and subject to change.
+
+---
+
+**End of Appendix H**
