@@ -47,3 +47,5 @@ YieldLoop explicitly avoids the following common growth tactics:
 These tactics are avoided because they introduce misaligned incentives, increase regulatory risk, and undermine user understanding of system boundaries.
 
 The go-to-market strategy is designed to align with the system’s architectural constraints and long-term operability rather than short-term adoption metrics.
+
+Marketing and outreach activities are limited to education, documentation, clarity, and infrastructure awareness. Marketing spend does not include performance promotion, inducements, or incentive-driven acquisition.
