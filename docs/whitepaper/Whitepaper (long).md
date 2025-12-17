@@ -1585,241 +1585,244 @@ It:
 
 Everything else is noise.
 
+---
 
-## 13. LOOP Token and Mechanics
+# 13. LOOP — System Accounting Token
 
-LOOP is the **accounting and settlement token** of the YieldLoop system.
+## 13.1 What LOOP Actually Is
 
-LOOP is not emitted on a schedule, not inflated, and not used as an incentive.
-LOOP exists **only** as a representation of realized, settled profit.
+LOOP is the system’s internal unit for tracking **real, verified surplus that the platform has already earned and retained**.
+
+That’s it.
+
+It is not a reward.  
+It is not an emission.  
+It is not printed in advance.  
+It is not promised to anyone.
+
+LOOP only exists **after** profit already happened.
+
+If YieldLoop never produces surplus, LOOP never grows.
 
 ---
 
-### 13.1 What LOOP Is
+## 13.2 Why LOOP Exists at All
 
-LOOP is a **receipt for verified profit**.
+LOOP exists to solve one problem:
 
-Every unit of LOOP corresponds to profit that:
-- Was actually earned
-- Was fully settled
-- Was not estimated, projected, or assumed
+> How do we permanently track and accumulate verified value inside the system without lying to ourselves or users?
 
-LOOP is used to:
-- Represent realized profit
-- Enable compounding without custody
-- Allow both users and the system to re-enter cycles using the same rules
+Most platforms fake this with:
+- APYs
+- emissions
+- rebasing
+- smoothing losses
+- “line goes up” dashboards
 
-LOOP is **not**:
-- A reward token
-- A yield emission
-- A speculative asset
-- A price-managed token
+YieldLoop refuses to do that.
+
+LOOP is the accounting artifact that remains **after reality is accepted**.
 
 ---
 
-### 13.2 When LOOP Is Minted
+## 13.3 Verified Surplus (The Hard Gate)
 
-LOOP is minted **only** at the end of an execution cycle and **only** if that cycle is positive.
+YieldLoop follows a single rule:
 
-All of the following must be true:
-- Execution has fully stopped
-- Settlement is complete
-- Net profit exists after all costs
+**If profit cannot be verified, it does not exist.**
 
-If any condition fails:
-- No LOOP is minted
-- No platform fee is charged
-- The cycle records zero
+Before surplus is acknowledged:
+- all gas is paid
+- all slippage is paid
+- all execution costs are paid
+- all user allocations are honored
+- all platform fees are calculated
 
-There is no partial minting.
+If anything is unclear, the cycle resolves to **zero**.
+
+Only surplus that survives this filter is considered real.
 
 ---
 
-### 13.3 Source of LOOP and Backing
+## 13.4 Where Surplus Goes
 
-LOOP is minted directly from **realized profit**.
+When surplus exists, it is split according to the platform’s allocation rules:
+- user portion
+- platform portion
 
-Minting flow:
-1. Execution completes
-2. Net profit is finalized
-3. Platform fee is calculated
-4. Remaining profit is converted into LOOP
-5. LOOP is issued to the vault
+The **platform portion does not leave the system**.
+
+Instead:
+- part compounds
+- part is withdrawn
+- the withdrawn portion is **re-deposited back into the system**
+- this repeats continuously
+
+This is the “loop.”
+
+The system is feeding itself with *verified* value only.
+
+---
+
+## 13.5 LOOP Minting (How It Actually Happens)
+
+LOOP is minted **only** when:
+1. A cycle closes
+2. Verified surplus exists
+3. The system’s retained portion is finalized
+4. Settlement logic authorizes minting
 
 There is:
-- No pre-mint
-- No discretionary minting
-- No emission schedule
-- No inflation
+- no fixed mint rate
+- no schedule
+- no inflation clock
+- no admin mint
 
-Every LOOP minted is backed by profit that already exists.
+Minting is a consequence, not a goal.
 
----
-
-### 13.4 Post-Cycle Distribution
-
-Once LOOP is minted, it is handled according to **user-selected post-cycle parameters**, chosen before execution:
-
-- Withdraw LOOP
-- Compound LOOP
-- Partial withdraw / compound split
-
-These parameters:
-- Are fixed for the cycle
-- Cannot be changed mid-cycle
-- Are executed mechanically
+If no surplus exists, minting does not happen.
 
 ---
 
-### 13.5 Platform Fee Interaction
+## 13.6 Initial Supply and Supply Lifecycle
 
-Platform fees are applied **before** LOOP is issued to the user.
+At launch, the LOOP token supply is **zero**.
 
-Flow:
-1. Net profit finalized
-2. Platform fee calculated
-3. Platform fee portion converted into LOOP
-4. Remaining LOOP issued to the user vault
+There is no genesis mint, bootstrap allocation, founder allocation, or pre-minted supply of any kind.
 
-Platform-owned LOOP follows the **exact same rules** as user LOOP.
+The first LOOP tokens can only be created after:
+- the platform completes at least one execution cycle, and
+- verified net surplus exists, and
+- the system’s retained portion of that surplus is finalized.
+
+Until those conditions are met, LOOP does not exist.
+
+Subsequent LOOP supply is created only through the minting process described in Section 13.5.  
+Supply growth is therefore:
+- event-driven, not time-based
+- constrained by verified retained surplus
+- independent of deposits, TVL, or user count
+
+If no verified surplus exists in a given period, LOOP supply remains unchanged.
+
+There is no mechanism for:
+- arbitrary minting
+- discretionary inflation
+- dilution without retained value
+
+Unless explicitly added by future governance, LOOP supply cannot be reduced, rebased, or burned.
+
+---
+## 13.7 LOOP Supply
+
+LOOP has:
+- no fixed maximum supply
+- no minimum supply
+- no emissions curve
+
+Supply expands **only** as retained surplus expands.
+
+If surplus slows, LOOP slows.  
+If surplus stops, LOOP stops.  
+If surplus reverses, LOOP simply does nothing.
+
+There is no rebasing.  
+There is no negative minting.  
+There is no dilution without value.
 
 ---
 
-### 13.6 System-Owned LOOP
+## 13.8 How LOOP Is “Valued” Internally
 
-The system accumulates LOOP from the **System Deposit** portion of platform fees.
+Internally, LOOP has a simple accounting floor:
 
-System-owned LOOP:
-- Is deposited into system vaults
-- Participates in execution cycles
-- Gains or fails exactly like user capital
-- Receives no protection or subsidy
+Accounting Floor = Total Verified Retained Surplus / Total LOOP Supply
 
-This creates a **self-funding execution participant** without emissions.
+This is not a market price.  
+This is not a guarantee.  
+This is not a promise.
 
----
+It is simply math.
 
-### 13.7 LOOP Supply Characteristics
+Each LOOP represents a proportional unit of already-existing surplus.
 
-LOOP supply is:
-- Variable
-- Performance-dependent
-- Non-inflationary
-
-Supply behavior:
-- Increases only when real profit exists
-- Pauses when profit does not exist
-- Has no target or cap
-
-There is no supply smoothing.
+Nothing more.  
+Nothing less.
 
 ---
 
-### 13.8 Accounting Floor (Non-Decreasing)
+## 13.9 Why the Floor Is Structurally Stable
 
-LOOP has a **non-decreasing accounting floor**.
+The floor does not erode by design because:
+- LOOP is only minted after surplus exists
+- surplus is retained, not emitted
+- supply cannot grow faster than retained value
 
-The floor is defined as:
+This does **not** mean the system is risk-free.  
+It means the accounting cannot lie.
 
-> The cumulative total of all realized, settled profit ever minted into LOOP,  
-> minus any LOOP that has been redeemed or withdrawn.
-
-Once LOOP is minted:
-- Its backing is locked
-- Its accounting value does not decrease
-- It is not clawed back due to future losses
-
-Losses affect **future minting only**, never past LOOP.
+Losses don’t get hidden.  
+They just result in no mint.
 
 ---
 
-### 13.9 What Can and Cannot Change
+## 13.10 What LOOP Is NOT Used For
 
-**What can change**
-- Rate of future LOOP growth
-- Execution frequency
-- Time required to redeem
-- Liquidity availability during cycles
+LOOP does not:
+- entitle holders to profits
+- grant governance rights
+- affect execution
+- change strategy outcomes
+- replace deposits
+- represent principal
 
-**What cannot change**
-- Previously minted LOOP backing
-- The accounting floor
-- Validity of issued LOOP
-
-The floor is monotonic.
+Those systems are intentionally separate.
 
 ---
 
-### 13.10 No Retroactive Loss Allocation
+## 13.11 Relationship to NFTs
 
-YieldLoop does not apply losses retroactively.
+NFTs:
+- do not mint LOOP
+- do not affect LOOP supply
+- do not change LOOP accounting
 
-- LOOP is not burned due to losses
-- LOOP backing is not reduced
-- LOOP is not repriced downward
+NFTs only influence:
+- platform fee discounts
+- access
+- governance participation
+- bounty eligibility
 
-If execution fails, the system simply does not mint new LOOP.
-
----
-
-### 13.11 Redeemability
-
-LOOP is redeemable **inside the YieldLoop system**.
-
-Redemption occurs when:
-- A user withdraws LOOP
-- LOOP is used as authorized capital in a cycle
-- LOOP is converted through execution logic into underlying assets
-
-Redemption is subject to:
-- Liquidity
-- Execution constraints
-- External protocol conditions
-
-There is no promise of instant redemption.
+LOOP remains untouched.
 
 ---
 
-### 13.12 No Burn, No Buyback
+## 13.12 Emergency and Halt Conditions
 
-The system does not:
-- Burn LOOP
-- Buy back LOOP
-- Destroy supply intentionally
+If the system pauses:
+- LOOP minting halts
+- LOOP supply freezes
+- retained surplus remains untouched
 
-LOOP supply changes only through:
-- Minting from realized profit
-- Redemption by users
+There is no unwind.  
+There is no forced action.  
 
----
-
-### 13.13 Failure Mode Behavior
-
-In extended adverse conditions:
-- LOOP issuance pauses
-- Platform fees drop to zero
-- System deposit growth halts
-- Execution cycles may pause
-
-The system enters a **dormant but solvent state**.
-
-Previously issued LOOP remains valid and redeemable under system rules.
+The system simply stops moving.
 
 ---
 
-### 13.14 Core Design Outcome
+## 13.13 Why This Matters
 
-LOOP is **truth encoded as a token**.
+LOOP is not designed to excite people.
 
-- Good cycles grow it
-- Bad cycles do not erase it
-- Nothing is promised
-- Nothing is hidden
+It is designed to be **boring, honest, and irreversible**.
 
-LOOP does not speculate.
-LOOP records reality.
+If YieldLoop succeeds, LOOP becomes a historical record of that success.  
+If it fails, LOOP exposes that failure without disguise.
 
+That is the point.
 
+---
 ## 14. Strategy Modules
 
 Strategy modules are **predefined execution programs** that operate inside user-owned vaults during an authorized execution cycle.
