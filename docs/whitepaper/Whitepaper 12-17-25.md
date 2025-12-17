@@ -1,4 +1,5 @@
 ### YieldLoop Whitepaper
+
 Todd Koletsky
 12-16-25
 Version: v0.1.1
