@@ -1247,7 +1247,7 @@ The system operator may verify eligibility and revoke benefits in cases of abuse
 ### C.4.1 Tier 1 — Pre-Launch Community Referral
 
 **Requirement**
-- Refer **20 unique, verifiable human participants** to designated community channels
+- Refer **25 unique, verifiable human participants** to designated community channels
 
 **Limit**
 - First **ten (10)** participants to reach the threshold
