@@ -2,8 +2,8 @@
 
 ## A User-Authorized Execution and Settlement System
 
-**Whitepaper 12_15_25**  
-**Version:** 0.1  
+**Whitepaper 12_16_25**  
+**Version:** 0.1.1  
 **Status:** Initial Design Specification  
 
 YieldLoop is software infrastructure that enables users to authorize predefined actions on their own digital assets and records the outcomes of those actions after execution has completed.
