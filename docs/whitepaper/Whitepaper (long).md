@@ -673,7 +673,26 @@ This state machine ensures:
 Every engineer should assume:
 > **If it didn’t happen inside the cycle, it doesn’t exist.**
 
+---
 
+## 6.11 Withdrawal & Exit Policy
+
+YieldLoop operates on fixed execution cycles with explicit state boundaries.
+Withdrawals from a user vault are permitted only when the vault is not participating in an active execution cycle.
+
+During the Active and Settlement states, vault withdrawals are temporarily disabled. This restriction exists to preserve execution integrity, ensure accurate accounting, and prevent partial or inconsistent settlement.
+
+Once a cycle completes and settlement finalizes, the vault automatically enters the Post-Cycle state. At this point, the vault unlocks and the user regains full control.
+
+In the Post-Cycle state, users may:
+	•	Withdraw any portion of their assets
+	•	Withdraw all assets and fully exit the system
+	•	Reconfigure parameters for a new cycle
+	•	Remain idle without penalty
+
+Cycle duration, withdrawal constraints, and exit timing are disclosed prior to user authorization. No discretionary extensions, priority exits, or administrative overrides are permitted.
+
+---
 ## 7. Ecosystem Walkthrough
 
 This section explains how all parts of the YieldLoop ecosystem interact over time, from a user’s first touch through long-term system operation.
@@ -2035,6 +2054,8 @@ The YieldLoop DApp exists to **accurately reflect system behavior**, enforce aut
 
 The interface must not persuade, optimize, recommend, or imply outcomes.  
 It must surface **explicit warnings, disclosures, and constraints** at all relevant decision points.
+
+Withdrawals are disabled while a cycle is active. Full withdrawal and account exit are available immediately after cycle completion.
 
 ---
 
