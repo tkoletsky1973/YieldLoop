@@ -33,6 +33,11 @@ Table of Contents
 19. Failure Modes & Safeguards
 20. Open Questions & Next Steps
 21. Roadmap
+22. Appendix A User Lifecycle, Execution Flow, and Control
+23. Appendix B System States, Permissions, and Control Boundaries
+24. Appendix C — Outcome Scenarios & Zero-Result Handling
+25. Appendix D — What LOOP Is / Is Not (definitions)
+26. Appendix E — Time, Cycles, and Cutoffs
 
 
 ## 1. Abstract
@@ -3197,3 +3202,968 @@ YieldLoop advances when:
 
 If progress slows, that is acceptable.
 If correctness fails, it is not.
+
+---
+
+# Appendix A  
+## User Lifecycle, Execution Flow, and Control Boundaries
+
+This appendix describes the full end-to-end user experience within YieldLoop, including all decision points, acknowledgements, execution boundaries, and post-cycle outcomes. This section is descriptive only and does not constitute financial advice or performance guarantees.
+
+---
+
+### 1. Arrival & Access
+
+1. The user arrives at the YieldLoop interface.
+2. The user is presented with a high-level description of the system, including:
+   - The absence of guaranteed returns
+   - The use of fixed execution cycles
+   - The possibility of zero-profit cycles
+3. The user connects a compatible wallet.
+
+No funds are transferred at this stage.
+
+---
+
+### 2. Risk Disclosure & Acknowledgement
+
+4. Prior to any deposit, the user must review and acknowledge:
+   - General risk disclosures
+   - Strategy execution risks
+   - Market volatility
+   - Smart contract risk
+   - The possibility of zero or negative outcomes
+5. The user must explicitly acknowledge that:
+   - YieldLoop does not promise profits
+   - Past performance does not imply future results
+   - All strategies operate at the user’s risk
+
+Progression is blocked until acknowledgements are completed.
+
+---
+
+### 3. Deposit Phase (Queue State)
+
+6. The user deposits funds into a YieldLoop vault.
+7. Deposits may be made at any time.
+8. Deposited funds do not enter active execution immediately.
+9. All deposits are placed into a pending state until the start of the next execution cycle.
+
+Deposits added mid-cycle will queue for the following cycle.
+
+---
+
+### 4. Strategy Configuration & Guidance (Optional)
+
+10. Prior to the cycle start, the user configures execution parameters, which may include:
+    - Risk level
+    - Strategy mix
+    - Allocation preferences
+    - Post-cycle handling preferences
+11. YieldLoop may optionally provide automated or AI-assisted guidance.
+12. Any guidance provided is:
+    - Non-binding
+    - Informational only
+    - Used entirely at the user’s discretion and risk
+
+The user remains fully responsible for all selected parameters.
+
+---
+
+### 5. Final Acknowledgement & Lock-In
+
+13. Before the cycle begins, the user must:
+    - Review all selected parameters
+    - Review post-cycle options
+    - Acknowledge that parameters will be locked for the duration of the cycle
+14. The user digitally signs all acknowledgements.
+
+Once confirmed:
+- Parameters are locked
+- Funds are committed for the upcoming cycle
+- No changes are possible until cycle completion
+
+---
+
+### 6. Cycle Start (Execution Begins)
+
+15. At the start of the calendar cycle:
+    - All queued deposits are activated
+    - Execution begins simultaneously across the system
+16. The execution cycle runs for a fixed calendar duration (e.g., one month).
+
+During this period:
+- Users cannot modify parameters
+- Users cannot withdraw active funds
+- No discretionary intervention occurs
+
+---
+
+### 7. Cycle Execution (No-Action Period)
+
+17. During the active cycle:
+    - Strategies execute autonomously
+    - The system may rebalance, trade, or refrain from action based on internal logic
+18. Users are not required to take any action.
+19. Inactivity does not penalize the user.
+
+The system may generate profit, break even, or incur losses.
+
+---
+
+### 8. Cycle End & Settlement
+
+20. At cycle completion:
+    - All positions are closed or settled
+    - Gas costs, fees, and execution costs are accounted for
+21. Profit (if any) is calculated only after full settlement.
+22. If no verifiable profit exists, results are recorded as zero.
+
+No estimates or projections are used.
+
+---
+
+### 9. Results Presentation
+
+23. The user is shown:
+    - Net cycle result
+    - Fees applied (if any)
+    - Whether surplus was generated
+24. If surplus exists:
+    - Platform fees are applied
+    - System deposit is allocated
+    - LOOP may be minted
+25. If no surplus exists:
+    - No LOOP is minted
+    - No fees are taken
+
+---
+
+### 10. Post-Cycle Options
+
+26. After results are finalized, the user may:
+    - Leave funds in the vault for the next cycle
+    - Withdraw funds
+    - Redeem LOOP (if available and eligible)
+    - Take no action
+
+Any action taken applies only to the next cycle.
+
+---
+
+### 11. Redemption (If Applicable)
+
+27. LOOP redemption, when available:
+    - Is optional
+    - Is not guaranteed
+    - Is subject to system conditions
+28. Redemption reflects historical retained surplus only.
+29. Redemption availability may change over time based on system design.
+
+---
+
+### 12. Next Cycle Preparation
+
+30. Funds remaining in the system return to a queued state.
+31. Users may update parameters for the next cycle.
+32. The process repeats from the next cycle start.
+
+---
+
+### Key Principles Reinforced
+
+- Deposits do not imply immediate execution  
+- No mid-cycle control exists  
+- Profit is verified, not assumed  
+- LOOP reflects history, not expectation  
+- Inaction is always a valid choice  
+
+---
+
+# Appendix B  
+## System States, Permissions, and Control Boundaries
+
+This appendix formally defines all YieldLoop system states and the permissions associated with each state. These definitions exist to eliminate ambiguity regarding user control, system behavior, and execution authority at any point in time.
+
+System states are mutually exclusive. Actions permitted in one state are explicitly disallowed in others.
+
+---
+
+## 1. Overview of State-Based Design
+
+YieldLoop operates as a state-driven system.  
+User funds, strategy parameters, and execution rights are governed by the current system state.
+
+At no time does YieldLoop permit:
+- Mid-cycle parameter changes
+- Mid-cycle withdrawals
+- Discretionary human intervention
+- Price or outcome guarantees
+
+---
+
+## 2. Defined System States
+
+### 2.1 Wallet Connected (Pre-Deposit)
+
+**Description:**  
+The user has connected a wallet but has not deposited funds.
+
+**Permitted Actions:**
+- View system information
+- Review disclosures
+- Simulate or preview configuration options
+
+**Prohibited Actions:**
+- Strategy execution
+- Fund commitment
+- Cycle participation
+
+No funds are at risk in this state.
+
+---
+
+### 2.2 Pending Deposit (Queued State)
+
+**Description:**  
+Funds have been deposited but are not yet active in an execution cycle.
+
+**Permitted Actions:**
+- Add additional funds
+- Modify strategy parameters
+- Modify post-cycle preferences
+- Withdraw pending (non-active) funds
+
+**Prohibited Actions:**
+- Strategy execution
+- Profit generation
+- Mid-cycle participation
+
+Funds in this state are idle and awaiting the next cycle start.
+
+---
+
+### 2.3 Configuration Locked (Pre-Cycle Lock)
+
+**Description:**  
+The user has finalized parameters and acknowledged all disclosures prior to cycle start.
+
+**Permitted Actions:**
+- Review locked parameters
+- Review upcoming cycle start
+
+**Prohibited Actions:**
+- Parameter changes
+- Fund withdrawal
+- Execution control
+
+This state exists to ensure informed consent before execution begins.
+
+---
+
+### 2.4 Active Cycle (Execution State)
+
+**Description:**  
+The system is actively executing strategies for the current cycle.
+
+**Permitted Actions:**
+- View status indicators
+- Monitor non-actionable informational data
+
+**Prohibited Actions:**
+- Parameter changes
+- Withdrawals
+- Deposits entering execution
+- Strategy overrides
+- Manual intervention
+
+This is a **no-control state**.  
+All execution is autonomous.
+
+---
+
+### 2.5 Settling (Post-Cycle Accounting)
+
+**Description:**  
+The execution cycle has ended and positions are being closed, reconciled, and accounted for.
+
+**Permitted Actions:**
+- View settlement progress
+
+**Prohibited Actions:**
+- Withdrawals
+- Redemptions
+- Parameter changes
+- New execution commitments
+
+Settlement must complete before results are finalized.
+
+---
+
+### 2.6 Finalized Results
+
+**Description:**  
+Cycle outcomes have been fully calculated and verified.
+
+**Permitted Actions:**
+- View final results
+- View fees (if any)
+- View LOOP minting status
+
+**Prohibited Actions:**
+- Retroactive changes
+- Dispute of verified accounting via protocol
+
+Results reflect realized outcomes only.
+
+---
+
+### 2.7 Post-Cycle Decision State
+
+**Description:**  
+The user may choose how funds and LOOP are handled going forward.
+
+**Permitted Actions:**
+- Withdraw funds
+- Leave funds queued for the next cycle
+- Redeem LOOP (if available and eligible)
+- Update parameters for the next cycle
+
+**Prohibited Actions:**
+- Reopening or altering completed cycles
+
+Actions taken apply only to future cycles.
+
+---
+
+### 2.8 Redemption Available (Conditional State)
+
+**Description:**  
+LOOP redemption is available only if system conditions permit.
+
+**Permitted Actions:**
+- Redeem eligible LOOP at the accounting rate
+
+**Prohibited Actions:**
+- Forced redemption
+- Guaranteed redemption
+- Redemption exceeding available surplus
+
+Redemption availability is not guaranteed and may change over time.
+
+---
+
+### 2.9 Dormant / No-Action State
+
+**Description:**  
+The user takes no action after cycle completion.
+
+**Permitted Actions:**
+- None required
+
+**Effect:**
+- Funds remain queued
+- Parameters persist or reset based on prior selection
+- No penalty is applied
+
+Inaction is always a valid state.
+
+---
+
+## 3. Control Authority Summary
+
+| State | User Control | System Control |
+|-----|-------------|----------------|
+| Wallet Connected | Full | None |
+| Pending Deposit | Full | None |
+| Configuration Locked | None | Partial |
+| Active Cycle | None | Full |
+| Settling | None | Full |
+| Finalized Results | View Only | Full |
+| Post-Cycle Decision | Full | None |
+| Redemption Available | Conditional | Conditional |
+
+---
+
+## 4. Explicit Non-Permissions
+
+At no time does YieldLoop allow:
+- Mid-cycle withdrawals
+- Mid-cycle parameter changes
+- Manual trade intervention
+- Price support actions
+- Outcome manipulation
+- Guaranteed profit mechanisms
+
+---
+
+## 5. Design Intent
+
+This state-based model exists to:
+- Protect users from impulsive intervention
+- Prevent execution interference
+- Ensure consistent accounting
+- Eliminate ambiguity regarding control and responsibility
+
+YieldLoop prioritizes determinism, transparency, and constraint over flexibility.
+
+---
+
+# Appendix C  
+## Outcome Scenarios, Zero-Result Handling, and Failure Conditions
+
+This appendix enumerates all possible execution outcomes within YieldLoop and defines how each outcome is handled, recorded, and presented to users. This section exists to eliminate ambiguity regarding system behavior, user expectations, and result interpretation.
+
+YieldLoop records outcomes based on realized execution only. No projections, estimates, or implied performance are used.
+
+---
+
+## 1. Principle of Verified Outcomes
+
+YieldLoop recognizes only **verifiable, realized outcomes** after:
+- All positions are settled
+- All execution costs are accounted for
+- All fees are applied
+
+If an outcome cannot be verified, it is treated as **zero**.
+
+---
+
+## 2. Primary Outcome Categories
+
+Each execution cycle results in exactly one of the following outcome categories.
+
+---
+
+### 2.1 Positive Net Profit
+
+**Definition:**  
+Total realized proceeds exceed total costs, including:
+- Gas
+- Slippage
+- Fees
+- Execution overhead
+
+**System Handling:**
+- Net profit is recorded
+- Platform fees are applied
+- System deposit is allocated
+- LOOP may be minted
+
+**User Presentation:**
+- Net profit displayed
+- Fees itemized
+- LOOP minting status shown
+
+Positive profit does not imply future performance.
+
+---
+
+### 2.2 Break-Even Outcome
+
+**Definition:**  
+Total realized proceeds approximately equal total costs.
+
+**System Handling:**
+- Outcome recorded as zero
+- No fees applied
+- No LOOP minted
+
+**User Presentation:**
+- Result shown as zero
+- Explanation provided that costs consumed gains
+
+Break-even cycles are considered successful executions with no surplus.
+
+---
+
+### 2.3 Zero-Activity Outcome
+
+**Definition:**  
+No trades or yield actions are executed due to system logic, risk constraints, or market conditions.
+
+**System Handling:**
+- No profit recorded
+- No fees applied
+- No LOOP minted
+
+**User Presentation:**
+- Clear indication that execution was intentionally withheld
+- Explanation that abstention is a valid system decision
+
+YieldLoop is not required to trade in every cycle.
+
+---
+
+### 2.4 Negative Outcome (Loss)
+
+**Definition:**  
+Total realized proceeds are less than total costs.
+
+**System Handling:**
+- Loss recorded
+- No platform fees applied
+- No LOOP minted
+
+**User Presentation:**
+- Loss amount shown
+- No attempt is made to offset or mask losses
+
+Losses are possible and expected in some market conditions.
+
+---
+
+## 3. Zero-Profit Rule
+
+YieldLoop enforces a strict **zero-profit rule**:
+
+- If net profit ≤ 0:
+  - Fees are not taken
+  - LOOP is not minted
+  - No surplus is recorded
+
+This rule prevents dilution, accounting distortion, and artificial reward issuance.
+
+---
+
+## 4. Partial Execution Scenarios
+
+In some cycles:
+- Only a subset of strategies may execute
+- Some capital may remain idle
+- Risk constraints may limit activity
+
+**Handling:**
+- Only executed portions are accounted for
+- Idle capital neither gains nor loses
+- Final outcome reflects aggregate realized result
+
+---
+
+## 5. Gas and Cost Dominance Scenarios
+
+**Definition:**  
+Execution gains are outweighed by gas, slippage, or overhead.
+
+**Handling:**
+- Treated as break-even or negative
+- No adjustments are made to compensate
+- No LOOP minted
+
+YieldLoop does not subsidize inefficiency.
+
+---
+
+## 6. Strategy Abstention Scenarios
+
+Strategies may abstain from execution when:
+- Risk thresholds are exceeded
+- Liquidity is insufficient
+- Market conditions are unfavorable
+- Internal safeguards are triggered
+
+**Handling:**
+- Abstention is logged as intentional
+- No profit or loss is recorded
+- No LOOP minted
+
+Abstention is considered a successful risk outcome.
+
+---
+
+## 7. System-Level Failure Conditions
+
+### 7.1 Smart Contract Failure
+
+**Handling:**
+- Execution halts
+- Funds remain in contract custody
+- Recovery follows predefined contract logic
+
+No performance assumptions are made.
+
+---
+
+### 7.2 External Dependency Failure
+
+Examples include:
+- Oracle outages
+- DEX unavailability
+- Network congestion
+
+**Handling:**
+- Execution may pause or abort
+- No forced execution occurs
+- Outcome recorded based on realized state only
+
+---
+
+## 8. LOOP Issuance Constraints
+
+LOOP is minted **only if**:
+- Net profit is positive
+- Platform fees are successfully collected
+- System deposit allocation completes
+
+If any step fails, LOOP is not minted.
+
+---
+
+## 9. User Dispute Limitation
+
+Users acknowledge that:
+- Outcomes are final once verified
+- The protocol does not arbitrate performance dissatisfaction
+- Disputes regarding market behavior are not grounds for reversal
+
+---
+
+## 10. Design Intent
+
+This outcome framework exists to:
+- Prevent performance misrepresentation
+- Eliminate reward issuance during losses
+- Preserve accounting integrity
+- Ensure users understand that inactivity and zero outcomes are valid
+
+YieldLoop prioritizes truthful reporting over continuous reward generation.
+
+---
+
+# Appendix D  
+## LOOP Definition, Scope, and Explicit Limitations
+
+This appendix defines the LOOP token precisely and establishes explicit boundaries regarding its function, purpose, and limitations. This section exists to prevent misinterpretation, implied guarantees, or unintended financial representations.
+
+LOOP is designed as an internal accounting artifact that records verified system surplus. It is not designed to function as a yield instrument, governance token, or investment contract.
+
+---
+
+## 1. What LOOP Is
+
+LOOP represents a proportional record of **historically verified, retained surplus** generated by the YieldLoop system.
+
+LOOP exists only when:
+- A cycle completes
+- Net profit is positive after all costs
+- Platform fees are collected
+- A system deposit is allocated
+
+LOOP is minted **after profit exists**, not before.
+
+---
+
+## 2. What LOOP Is Not
+
+LOOP is explicitly **not**:
+
+- A promise of future profit
+- A yield-bearing instrument
+- A claim on future revenue
+- A governance token
+- An equity share
+- A debt instrument
+- A stable asset
+- A price-backed or price-supported token
+- A guaranteed redemption asset
+
+Holding LOOP does not entitle the holder to:
+- Guaranteed returns
+- Priority withdrawals
+- Voting rights
+- Dividends
+- Price appreciation
+
+---
+
+## 3. LOOP and Value Interpretation
+
+Any perceived value of LOOP arises from:
+- Historical system performance
+- User interpretation of retained surplus
+- External market behavior (if applicable)
+
+YieldLoop does not:
+- Set a target price
+- Maintain a price floor
+- Defend market value
+- Guarantee liquidity
+- Guarantee redemption
+
+---
+
+## 4. Accounting Floor Clarification
+
+The accounting floor represents:
+
+> The ratio of total verified retained surplus to total LOOP supply.
+
+The accounting floor:
+- Is informational only
+- Is not a price guarantee
+- Is not a redemption promise (except where explicitly allowed)
+- Does not imply minimum market value
+
+Market prices, if they exist, may differ materially from the accounting floor.
+
+---
+
+## 5. LOOP Supply Characteristics
+
+- LOOP supply is variable
+- LOOP has no fixed maximum supply
+- LOOP minting is constrained by real profit
+- LOOP is never emitted or pre-allocated
+- LOOP is never minted in anticipation of performance
+
+If no profit exists, no LOOP exists.
+
+---
+
+## 6. LOOP Redemption (When Applicable)
+
+When redemption is enabled:
+- Redemption is optional
+- Redemption reflects historical surplus only
+- Redemption availability is conditional
+- Redemption may be paused or disabled permanently
+
+Redemption is not guaranteed and may change as system design evolves.
+
+---
+
+## 7. LOOP and Market Trading
+
+LOOP may or may not be tradable depending on system phase.
+
+If trading exists:
+- Prices are market-determined
+- YieldLoop does not intervene
+- YieldLoop does not provide price support
+- YieldLoop does not ensure liquidity
+
+Trading outcomes do not affect accounting outcomes.
+
+---
+
+## 8. No Reliance Statement
+
+Users acknowledge that:
+- LOOP should not be relied upon for income
+- LOOP should not be relied upon for appreciation
+- LOOP may have limited or no liquidity
+- LOOP may have no market value
+
+Participation in YieldLoop should not be based on LOOP expectations.
+
+---
+
+## 9. Design Intent
+
+LOOP exists to:
+- Record truth, not project outcomes
+- Reflect success, not promise it
+- Preserve accounting integrity
+- Avoid narrative-driven incentives
+
+YieldLoop prioritizes system correctness over token attractiveness.
+
+---
+
+# Appendix E  
+## Time, Cycle Duration, Cutoff Rules, and Calendar Definitions
+
+This appendix defines how time is measured, how execution cycles are scheduled, and how cutoff rules are enforced within YieldLoop. These definitions exist to eliminate ambiguity regarding timing, eligibility, and execution boundaries.
+
+All timing rules are deterministic and system-enforced.
+
+---
+
+## 1. Cycle Duration Definition
+
+YieldLoop operates on fixed execution cycles.
+
+- Each cycle has a defined start timestamp and end timestamp
+- Cycle duration is expressed as a fixed calendar period (e.g., one calendar month)
+- The exact duration and schedule are defined by the protocol and disclosed in advance
+
+Cycle length is not adjustable by individual users.
+
+---
+
+## 2. System Time Standard
+
+All system time references use a single authoritative standard:
+
+- Coordinated Universal Time (UTC)
+
+User local time zones do not affect:
+- Cycle boundaries
+- Deposit cutoffs
+- Execution start or end times
+- Settlement timing
+
+Displayed local times are informational only.
+
+---
+
+## 3. Deposit Timing Rules
+
+### 3.1 Deposit Eligibility
+
+- Deposits may be made at any time
+- Deposits do not enter execution immediately
+- Deposits are placed into a queued (pending) state
+
+---
+
+### 3.2 Cycle Inclusion Cutoff
+
+- Deposits must be confirmed on-chain **before** the cycle start timestamp to be included in the upcoming cycle
+- Deposits confirmed after the cutoff timestamp are queued for the following cycle
+
+No exceptions are made for:
+- Network congestion
+- User error
+- Wallet delays
+- Gas pricing issues
+
+---
+
+## 4. Parameter Configuration Cutoffs
+
+- Strategy parameters must be finalized before the cycle lock timestamp
+- Parameters not finalized by the cutoff are:
+  - Retained from the prior cycle, or
+  - Set to system defaults (as disclosed)
+
+Once parameters are locked:
+- They cannot be changed until cycle completion
+
+---
+
+## 5. Acknowledgement Deadlines
+
+- All required acknowledgements must be completed before the cycle lock timestamp
+- Failure to complete acknowledgements results in:
+  - Funds remaining queued
+  - Non-participation in the upcoming cycle
+
+No execution occurs without explicit acknowledgement.
+
+---
+
+## 6. Cycle Start and Execution Window
+
+- At the cycle start timestamp:
+  - All eligible queued funds enter execution
+  - Execution parameters become active
+- Execution continues until the cycle end timestamp
+
+Execution does not pause for:
+- User activity
+- Market conditions
+- External events
+
+---
+
+## 7. Cycle End and Settlement Window
+
+- At cycle end:
+  - No new execution actions are initiated
+  - Positions are closed or settled
+- Settlement may require additional time after the official cycle end timestamp
+
+Settlement duration:
+- Does not affect cycle eligibility
+- Does not extend execution
+- Must complete before results are finalized
+
+---
+
+## 8. Result Finalization Timing
+
+- Results are considered final only after:
+  - Settlement completes
+  - All costs are accounted for
+  - Verification checks pass
+- Preliminary or estimated results are not shown as final
+
+Users should rely only on finalized results.
+
+---
+
+## 9. Withdrawal Timing
+
+- Withdrawals are permitted only after results are finalized
+- Withdrawal requests submitted during:
+  - Active cycle
+  - Settlement phase  
+  are queued until permitted
+
+Withdrawal processing time depends on:
+- Network conditions
+- Contract execution
+
+YieldLoop does not guarantee instant withdrawals.
+
+---
+
+## 10. Redemption Timing (When Applicable)
+
+- Redemption availability is evaluated after result finalization
+- Redemption windows, if enabled:
+  - May be continuous
+  - May be periodic
+  - May be paused or discontinued
+
+Redemption timing is system-defined and not user-controlled.
+
+---
+
+## 11. Missed Cycle Scenarios
+
+If a user:
+- Deposits after cutoff
+- Fails to acknowledge risks
+- Fails to finalize parameters
+
+Then:
+- Funds remain queued
+- No execution occurs
+- No penalty is applied
+
+Participation resumes in the next eligible cycle.
+
+---
+
+## 12. System Downtime and Exceptional Timing Events
+
+In the event of:
+- Network outages
+- Blockchain congestion
+- External dependency failures
+
+The system may:
+- Delay execution start
+- Extend settlement time
+- Abort execution for the affected cycle
+
+In such cases:
+- Funds remain in custody
+- No forced execution occurs
+- Outcomes are recorded based on realized state only
+
+---
+
+## 13. Design Intent
+
+These timing rules exist to:
+- Enforce fairness across users
+- Prevent edge-case disputes
+- Eliminate discretionary timing decisions
+- Preserve deterministic execution
+
+YieldLoop prioritizes consistency over convenience.
+
+---
