@@ -445,6 +445,8 @@ YieldLoop is intentionally boring:
 
 What it provides instead is finality, clarity, and an engine that only grows when it actually works.
 
+LOOP includes a core but conditional redemption mechanism that allows retained surplus to be accessed over time when system solvency permits.
+
 This document exists to explain that engine so it can be built correctly.
 
 
@@ -1874,6 +1876,8 @@ Instead:
 - the withdrawn portion is **re-deposited back into the system**
 - this repeats continuously
 
+All system deposit movements occur automatically through settlement logic and cycle authorization; no discretionary withdrawal or re-deposit decisions are made by operators.
+
 This is the “loop.”
 
 The system is feeding itself with *verified* value only.
@@ -2037,6 +2041,47 @@ If YieldLoop succeeds, LOOP becomes a historical record of that success.
 If it fails, LOOP exposes that failure without disguise.
 
 That is the point.
+
+---
+
+### LOOP Redemption (Core, Conditional Feature)
+
+Redemption is a core feature of LOOP.
+
+LOOP exists to represent historically verified, retained surplus, and redemption is the mechanism by which that retained surplus may be accessed over time.
+
+Redemption is subject to the following constraints:
+
+- Redemption is **never guaranteed**
+- Redemption is **never immediate by default**
+- Redemption is **never forced**
+- Redemption is **never subsidized**
+- Redemption is **always bounded by available retained surplus**
+- Redemption may be **rate-limited, paused, or disabled** to preserve system solvency
+
+Redemption does not represent a promise of liquidity, price, or timing.  
+It represents a controlled release of already-earned surplus when system conditions allow.
+
+If redemption conditions are not met, LOOP remains valid as a record of retained value but cannot be extracted at that time.
+
+### Redemption Mechanics (High-Level)
+
+When enabled, redemption operates as follows:
+
+1. The system evaluates available retained surplus
+2. A redemption pool or window is defined by governance or protocol rules
+3. Eligible LOOP holders may redeem up to an allowed amount
+4. Redeemed LOOP is permanently removed from circulation
+5. Redeemed value exits the system
+
+Redemption cannot exceed retained surplus and cannot require liquidation of active user positions.
+
+The system may prioritize:
+- Fairness across holders
+- Rate limits
+- Long-term solvency
+
+No redemption schedule or price is implied.
 
 ---
 ## 14. Strategy Modules
@@ -3826,6 +3871,8 @@ YieldLoop prioritizes determinism, transparency, and constraint over flexibility
 This appendix enumerates all possible execution outcomes within YieldLoop and defines how each outcome is handled, recorded, and presented to users. This section exists to eliminate ambiguity regarding system behavior, user expectations, and result interpretation.
 
 YieldLoop records outcomes based on realized execution only. No projections, estimates, or implied performance are used.
+
+A cycle in which no trades occur due to risk constraints is considered a successful execution with zero activity.
 
 ---
 
