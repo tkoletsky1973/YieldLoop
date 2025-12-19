@@ -207,6 +207,7 @@ YieldLoop is designed to:
 
 This document explains how the system actually works, end to end, so it can be built correctly.
 
+When this document refers to the ‘floor,’ it refers to the internal accounting floor derived from retained surplus, not the external market price of LOOP, which may fluctuate independently.
 
 ## 2. Problem
 
@@ -629,138 +630,192 @@ No silent fixes.
 No magic.
 
 
-## 6. Execution Cycle & State Machine
+## 6. Execution Cycle & State Machine (Expanded)
 
-The execution cycle is the backbone of YieldLoop.
+The execution cycle is the backbone of YieldLoop.  
+Every action in the system is gated by explicit cycle state. No component is permitted to operate outside the active state, and no outcome is recognized unless it occurs within a completed cycle.
 
-Every action in the system is gated by cycle state. No component is allowed to operate outside the current state. This is intentional and non-negotiable.
+This structure is intentional and non-negotiable.
 
 ---
 
-### 6.1 Cycle States
+### 6.1 Cycle Definition
 
-Each vault progresses through the following states, in order:
+A **cycle** is a fixed, discrete execution window during which user-authorized strategy modules may operate inside a user’s vault.
 
-1. **Inactive**
-2. **Configured**
-3. **Active**
-4. **Settlement**
+Each cycle has:
+- A defined start time
+- A defined end time
+- Immutable parameters once execution begins
+- A single, final settlement event
+
+Cycles do not overlap.  
+Cycles do not roll forward.  
+Cycles do not partially settle.
+
+If a cycle does not complete, it does not produce results.
+
+---
+
+### 6.2 Canonical Cycle Duration
+
+By default, YieldLoop operates on **fixed calendar cycles** (e.g., one month).
+
+Key properties:
+- Cycle duration is disclosed prior to authorization
+- Duration is fixed for the life of the cycle
+- Duration changes (if allowed by governance) apply **prospectively only**
+- Different users may participate in different cycles, but each vault participates in only one active cycle at a time
+
+There are no discretionary extensions, early terminations, or priority exits.
+
+---
+
+### 6.3 Deposit Timing vs Execution Timing
+
+Deposits and execution are deliberately decoupled.
+
+Rules:
+- Users may deposit assets into their vault at any time
+- Deposits made while no cycle is active remain idle
+- Deposits made during an active cycle **do not participate** in that cycle
+- Mid-cycle deposits are queued automatically for the next cycle
+
+No funds enter execution unless explicitly authorized at the start of a cycle.
+
+This prevents partial exposure, accounting ambiguity, and mid-cycle manipulation.
+
+---
+
+### 6.4 Cycle States (Authoritative)
+
+Each vault progresses through the following states, in strict order:
+
+1. **Inactive**  
+2. **Configured**  
+3. **Active**  
+4. **Settlement**  
 5. **Post-Cycle**
 
 States cannot be skipped, reordered, or partially entered.
 
 ---
 
-### 6.2 Inactive State
+### 6.5 Inactive State
 
-This is the default state.
+Default vault state.
 
 Characteristics:
-- No execution allowed
+- No execution permitted
 - Vault fully accessible to the user
-- Assets may be deposited or withdrawn
-- No parameters are locked
+- Deposits and withdrawals allowed
+- No parameters locked
 
-Transitions:
-- Inactive → Configured (user sets parameters)
+Transition:
+- Inactive → Configured (user begins setup)
 
 ---
 
-### 6.3 Configured State
+### 6.6 Configured State
 
-The user has defined cycle parameters but has not started execution.
+The user has defined execution parameters but execution has not yet begun.
 
-Locked in this state:
+Locked once authorized:
 - Strategy selection
 - Allocation limits
 - Slippage limits
+- Execution frequency
 - Post-cycle handling preferences
 
 Still allowed:
 - Parameter edits
-- Cancel configuration
+- Cancellation
 - Return to Inactive
 
 Not allowed:
 - Execution
-- Parameter changes once cycle starts
+- Mid-cycle authorization changes
 
 Transitions:
-- Configured → Active (user authorizes cycle)
+- Configured → Active (user authorizes execution)
 - Configured → Inactive (user cancels)
 
 ---
 
-### 6.4 Active State
+### 6.7 Active State (Execution)
 
 Execution is live.
 
 Characteristics:
-- Strategy bots may operate
-- Vault is locked against withdrawals
+- Strategy modules may operate
+- Vault withdrawals are disabled
 - Parameters are immutable
-- System enforces all limits
+- Execution boundaries are strictly enforced
 
 Rules:
-- Bots may only act within authorization
-- If a bot fails, it halts
-- Other bots may continue if authorized
-- No human or admin intervention
+- Strategies may act only within explicit authorization
+- If a strategy fails, it halts
+- Other authorized strategies may continue independently
+- No human or administrative intervention is permitted
 
 Not allowed:
 - Withdrawals
 - Parameter changes
 - Strategy substitution
+- Emergency “fixes”
 
-Transitions:
-- Active → Settlement (time expires or execution halts)
+Transition:
+- Active → Settlement (cycle end or execution halt)
 
 ---
 
-### 6.5 Settlement State
+### 6.8 Settlement State
 
 Execution has ended. Accounting begins.
 
 Characteristics:
-- No execution allowed
+- No execution permitted
 - Vault remains locked
-- Settlement engine runs exactly once
+- Settlement logic runs exactly once
 
-Actions:
+Settlement actions:
 - Snapshot starting and ending balances
-- Calculate gas and protocol costs
-- Determine profit or loss
-- Apply platform fee (if profit exists)
-- Mint LOOP (if profit exists)
+- Deduct gas and protocol costs
+- Determine profit or non-profit outcome
+- Apply platform fees (if applicable)
+- Authorize LOOP minting (if applicable)
 
-Settlement is atomic.
+Settlement is:
+- Atomic
+- Deterministic
+- Final
+
 If settlement fails, the cycle does not advance.
 
-Transitions:
-- Settlement → Post-Cycle (successful settlement)
+Transition:
+- Settlement → Post-Cycle (successful completion)
 
 ---
 
-### 6.6 Post-Cycle State
+### 6.9 Post-Cycle State
 
 The cycle is complete.
 
 Characteristics:
 - Vault unlocks
-- Results are final
-- LOOP balances are visible
-- User regains control
+- Results are final and immutable
+- User regains full control
 
 Allowed actions:
-- Withdraw assets
-- Redeem LOOP
-- Reconfigure next cycle
-- Reauthorize execution
+- Withdraw assets (partial or full)
+- Withdraw LOOP (if minted)
+- Compound LOOP (if selected)
+- Configure a new cycle
 - Remain idle
 
 Not allowed:
-- Modifying past results
-- Reopening a settled cycle
+- Modifying settled results
+- Reopening or replaying a completed cycle
 
 Transitions:
 - Post-Cycle → Configured (new cycle)
@@ -768,82 +823,90 @@ Transitions:
 
 ---
 
-### 6.7 Zero or Negative Cycles
+### 6.10 Zero or Non-Positive Cycles
 
-If profit ≤ 0:
-- No platform fee
-- No LOOP minted
-- No system allocation
-- Cycle closes flat
+If net profit ≤ 0:
+- No platform fee is charged
+- No LOOP is minted
+- No system allocation occurs
+- The cycle closes flat
 
-This is a valid and expected outcome.
+This is a valid, expected, and correct outcome.
+
+Remaining user assets stay in the vault, reduced only by actual execution losses and costs.
 
 ---
 
-### 6.8 Failure Handling
+### 6.11 Failure Handling During Active State
 
-If any of the following occur during Active state:
-- Bot error
+If any of the following occur:
+- Strategy execution error
 - External protocol failure
 - Chain instability
-- Gas limit issues
+- Gas limit breach
 
 Then:
-- Execution halts
-- System moves to Settlement
-- Reality is recorded as-is
+1. Execution halts immediately
+2. The vault remains locked
+3. The system transitions directly to Settlement
+4. Reality is recorded as-is
 
-No retries.
-No smoothing.
+No retries.  
+No smoothing.  
 No overrides.
 
 ---
 
-### 6.9 Emergency Stops
+### 6.12 Emergency Halt Semantics
 
-Admins may:
+Administrators may:
 - Prevent new cycles from starting
-- Pause execution globally
+- Halt active execution globally
 
-Admins may NOT:
-- Intervene mid-cycle
-- Change parameters
-- Modify balances
-- Override settlement results
+Emergency halt sequence:
+1. Execution is stopped
+2. Vaults remain locked
+3. Settlement proceeds using current state
+4. Vaults unlock post-settlement
 
-Emergency stops preserve safety, not performance.
+Administrators may NOT:
+- Modify parameters
+- Re-route funds
+- Alter settlement outcomes
+- Resume execution mid-cycle
+
+Emergency controls exist to preserve safety, not performance.
 
 ---
 
-### 6.10 Why This Matters
+### 6.13 Withdrawal & Exit Policy (Canonical)
 
-This state machine ensures:
+Withdrawals are permitted only when a vault is **not** in Active or Settlement state.
+
+During Active and Settlement:
+- Withdrawals are disabled
+- Partial exits are not allowed
+
+After settlement:
+- Full withdrawal is permitted
+- Partial withdrawal is permitted
+- Account exit is immediate and unrestricted
+
+All withdrawal constraints are disclosed prior to authorization and cannot be altered mid-cycle.
+
+---
+
+### 6.14 Why This Matters
+
+This state machine enforces:
 - Finality
 - Auditability
 - Predictability
-- No hidden behavior
+- User sovereignty
 
-Every engineer should assume:
-> **If it didn’t happen inside the cycle, it doesn’t exist.**
+If something did not occur within a completed cycle, it does not exist.
 
----
-
-## 6.11 Withdrawal & Exit Policy
-
-YieldLoop operates on fixed execution cycles with explicit state boundaries.
-Withdrawals from a user vault are permitted only when the vault is not participating in an active execution cycle.
-
-During the Active and Settlement states, vault withdrawals are temporarily disabled. This restriction exists to preserve execution integrity, ensure accurate accounting, and prevent partial or inconsistent settlement.
-
-Once a cycle completes and settlement finalizes, the vault automatically enters the Post-Cycle state. At this point, the vault unlocks and the user regains full control.
-
-In the Post-Cycle state, users may:
-	•	Withdraw any portion of their assets
-	•	Withdraw all assets and fully exit the system
-	•	Reconfigure parameters for a new cycle
-	•	Remain idle without penalty
-
-Cycle duration, withdrawal constraints, and exit timing are disclosed prior to user authorization. No discretionary extensions, priority exits, or administrative overrides are permitted.
+That is the rule.
 
 ---
 ## 7. Ecosystem Walkthrough
