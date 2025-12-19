@@ -1,8 +1,156 @@
-### YieldLoop Whitepaper
+## YieldLoop Whitepaper
 
 Todd Koletsky
 12-18-25
 Version: v0.1.2
+
+
+# Forward — Who YieldLoop Is For (and Who It Is Not)
+
+YieldLoop was not built to compete for attention.  
+It was built to survive reality.
+
+This platform exists for a specific type of participant — and it is deliberately unsuitable for others.  
+Understanding this distinction before reading the rest of this document is essential.
+
+---
+
+## Who YieldLoop Is For
+
+YieldLoop is designed for people who understand one or more of the following truths.
+
+### 1. Those Who Do Not Want to Be Bothered — Regardless of Skill Level
+
+YieldLoop is for participants who:
+- Do not want to babysit positions
+- Do not want to chase yields
+- Do not want to react emotionally to charts
+- Do not want to micromanage strategies
+
+This includes:
+- Experienced DeFi users who are tired of constant intervention
+- Novices who want clarity and containment, not complexity
+- Professionals who prefer defined cycles and final outcomes
+
+Once a cycle is authorized, nothing is required of the user until settlement.
+
+---
+
+### 2. Novice DeFi Users Who Want Guardrails, Not Promises
+
+YieldLoop is suitable for users who are new to DeFi **only if** they accept that:
+- Loss is possible
+- Zero-result cycles are normal
+- No system guarantees profit
+
+What YieldLoop provides is not upside marketing.  
+It provides:
+- Isolated, non-custodial vaults
+- Explicit authorization boundaries
+- No leverage
+- No hidden mechanics
+- No moving goalposts
+
+The system is intentionally boring so mistakes are limited and visible.
+
+---
+
+### 3. Experienced Degens Who Are Done With Emissions and Games
+
+YieldLoop is for users who have:
+- Seen APYs disappear overnight
+- Watched emissions mask losses
+- Lived through liquidity death spirals
+- Learned that dashboards often lie
+
+This platform does not reward activity, volume, or hype.
+
+It rewards **only completed, verified profit** — and does nothing otherwise.
+
+---
+
+### 4. Long-Term Thinkers Who See LOOP for What It Is
+
+YieldLoop is for users who understand that:
+- LOOP is not a reward
+- LOOP is not an incentive
+- LOOP is not a growth promise
+
+LOOP is a **store of realized surplus** — an accounting representation of value that already existed before it was minted.
+
+People who understand this are not chasing returns.  
+They are accumulating proof.
+
+---
+
+## Who YieldLoop Is Not For
+
+YieldLoop is intentionally **not** built for the following participants.
+
+### 1. Anyone Looking for Guaranteed or Predictable Returns
+
+If you are seeking:
+- Stable yield
+- Smooth curves
+- Monthly expectations
+- “Passive income” narratives
+
+You should not use this system.
+
+YieldLoop explicitly allows for:
+- Flat cycles
+- Zero-profit cycles
+- Extended dormancy
+
+The system does not apologize for reality.
+
+---
+
+### 2. Yield Chasers and APY Optimizers
+
+YieldLoop does not:
+- Rank strategies
+- Optimize allocations
+- Auto-compound without consent
+- React to market momentum
+
+If your goal is to maximize short-term yield at all costs, this system will feel restrictive.
+
+That is intentional.
+
+---
+
+### 3. Users Who Expect Intervention or Overrides
+
+YieldLoop does not:
+- Step in mid-cycle
+- Adjust parameters after authorization
+- Smooth losses
+- “Fix” outcomes
+
+Once a cycle begins, it ends only one way: by settling the truth.
+
+---
+
+### 4. Anyone Unwilling to Accept Zero as a Valid Outcome
+
+A zero-result cycle is not a failure in YieldLoop.  
+It is a **correct outcome**.
+
+If you cannot tolerate inactivity, pauses, or unprofitable periods, this system will frustrate you.
+
+That is by design.
+
+---
+
+## Final Word
+
+YieldLoop is not built to impress.  
+It is built to endure.
+
+If that matters to you, continue reading.  
+If it does not, this platform is not for you.
+
 
 Table of Contents
 
@@ -38,7 +186,7 @@ Table of Contents
 24. Appendix C — Outcome Scenarios & Zero-Result Handling
 25. Appendix D — What LOOP Is / Is Not (definitions)
 26. Appendix E — Time, Cycles, and Cutoffs
-
+27. Appendix F — How Returns Work in YieldLoop — Cycles, Markets, and LOOP
 
 ## 1. Abstract
 
@@ -4167,3 +4315,127 @@ These timing rules exist to:
 YieldLoop prioritizes consistency over convenience.
 
 ---
+
+## Appendix F - How Returns Work in YieldLoop — Cycles, Markets, and LOOP
+
+This document explains how returns function in YieldLoop **without framing them as promises**.
+
+YieldLoop does not sell upside.  
+It enforces truth.
+
+---
+
+## 1. YieldLoop Does Not Produce Continuous Returns
+
+YieldLoop does not operate on:
+- APYs
+- Rolling balances
+- Projected performance
+- Smoothed outcomes
+
+Instead, it operates on **discrete execution cycles**.
+
+Each cycle ends with one of two outcomes:
+- **Positive**: verifiable surplus exists after all costs
+- **Non-positive**: surplus does not exist and is treated as zero
+
+There is no partial credit and no carryover.
+
+---
+
+## 2. Positive Cycles Follow Market Conditions
+
+YieldLoop does not attempt to outperform markets.  
+It participates **within** them.
+
+As a result:
+- Positive cycles tend to occur during favorable market conditions
+- Flat or zero cycles tend to occur during sideways or adverse conditions
+
+The system does not manufacture profit when markets do not offer it.
+
+This behavior is intentional.
+
+---
+
+## 3. History Is Informational, Not Predictive
+
+Once operational, YieldLoop may display historical cycle results.
+
+These records:
+- Show how the system behaved under past conditions
+- Demonstrate how often profit was achievable
+- Allow users to make their own judgments
+
+They do **not** imply:
+- Future performance
+- Expected frequency of positive cycles
+- Guaranteed outcomes
+
+History provides context, not guidance.
+
+---
+
+## 4. What Happens When a Cycle Is Positive
+
+When a cycle produces verified surplus:
+1. All gas, protocol, and execution costs are paid
+2. Platform fees are applied
+3. Remaining surplus is finalized
+4. That surplus is converted into LOOP
+
+LOOP is minted **only after** profit is real.
+
+If no surplus exists, nothing is minted.
+
+---
+
+## 5. LOOP as a Store of Value
+
+LOOP represents:
+- Retained, verified surplus
+- Already-earned value
+- A proportional record of system success
+
+LOOP is not created in anticipation of future performance.
+
+Because LOOP is minted only after surplus exists:
+- It cannot be inflated without value
+- Its internal accounting floor cannot be diluted by design
+
+LOOP may be redeemable under defined system conditions.  
+Any redemption reflects **history**, not expectation.
+
+---
+
+## 6. Why YieldLoop Is Slow by Design
+
+YieldLoop does not chase:
+- Growth
+- TVL
+- Volume
+- Market cycles
+
+It is built to:
+- Survive bad markets
+- Remain solvent without emissions
+- Tell the truth every cycle
+
+If positive cycles occur frequently, the system grows.  
+If they do not, the system waits.
+
+That is the model.
+
+---
+
+## Closing Note
+
+YieldLoop is not an answer to the question:
+
+“How do I make money quickly?”
+
+It is an answer to a different question:
+
+“How do we build a system that doesn’t lie about whether it worked?”
+
+If that distinction matters to you, this system may be worth your time.
