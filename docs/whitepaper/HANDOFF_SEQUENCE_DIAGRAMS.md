@@ -33,8 +33,10 @@ No sequence may be reordered.**
  
 User
 ↓ connect wallet
+
 VaultFactory
 ↓ createVault(user)
+
 UserVault
 ↓ owner = user
 ↓ state = Inactive
