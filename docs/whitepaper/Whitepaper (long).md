@@ -2,9 +2,9 @@
 
 Todd Koletsky
 
-12-18-25
+12-20-25
 
-Version: v0.1.2
+Version: v0.1.3
 
 
 # Forward — Who YieldLoop Is For (and Who It Is Not)
@@ -653,6 +653,8 @@ Each cycle has:
 - Immutable parameters once execution begins
 - A single, final settlement event
 
+A cycle closes the ledger and finalizes accounting, not necessarily the liquidation of all open positions, which may persist according to strategy logic.
+
 Cycles do not overlap.  
 Cycles do not roll forward.  
 Cycles do not partially settle.
@@ -774,6 +776,13 @@ Transition:
 ---
 
 ### 6.8 Settlement State
+
+Settlement operates exclusively on realized surplus.
+Unrealized gains, open exposure, and mark-to-market valuations are never treated as profit and are excluded from accounting.
+
+During an active cycle, realized surplus generated through completed actions may be segregated into user-designated reward or reinvestment balances according to pre-authorized settings. These balances are escrowed, auditable, and non-withdrawable until cycle completion.
+
+Cycle completion finalizes the ledger, authorizes reward claims, and determines LOOP minting. No profit exists outside this process.
 
 Execution has ended. Accounting begins.
 
