@@ -346,7 +346,7 @@ This aligns the system with long-term survival instead of short-term activity.
 
 When profit exists:
 - Fees are applied first
-- Remaining profit is converted into LOOP
+- A portion of verified retained surplus is minted into LOOP according to the Dynamic Mint Ratio (DMR). The remainder remains unminted and retained by the system.
 - LOOP represents completed, realized surplus
 
 There is no yield token emission, no pre-mint, and no inflation schedule.
@@ -1547,7 +1547,7 @@ Execution halts automatically at cycle end or on failure conditions.
 
 After execution ends:
 
-- All positions are finalized
+- All positions are accounted for and results are finalized.
 - Costs are accounted for
 - Start and end vault balances are compared
 - A definitive result is produced
@@ -1888,7 +1888,7 @@ Instead:
 - part compounds
 - part is withdrawn
 - the withdrawn portion is **re-deposited back into the system**
-- this repeats continuously
+- this repeats across successive execution cycles through settlement and reauthorization.
 
 All system deposit movements occur automatically through settlement logic and cycle authorization; no discretionary withdrawal or re-deposit decisions are made by operators.
 
@@ -4537,7 +4537,7 @@ When a cycle produces verified surplus:
 1. All gas, protocol, and execution costs are paid
 2. Platform fees are applied
 3. Remaining surplus is finalized
-4. That surplus is converted into LOOP
+4. A portion of verified retained surplus is minted into LOOP according to the Dynamic Mint Ratio (DMR). The remainder remains unminted and retained by the system.
 
 LOOP is minted **only after** profit is real.
 
