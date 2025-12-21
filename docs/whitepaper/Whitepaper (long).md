@@ -836,6 +836,8 @@ Transitions:
 - Post-Cycle → Configured (new cycle)
 - Post-Cycle → Inactive (do nothing)
 
+Redemption is only evaluated and permitted when a vault is in a post-cycle or redemption-available state and is never permitted during Active or Settlement states.
+
 ---
 
 ### 6.10 Zero or Non-Positive Cycles
@@ -1582,7 +1584,7 @@ If a cycle is not positive:
 In parallel with users:
 
 - Platform fees are collected from positive cycles
-- Fees are converted into LOOP
+- Fees contribute to retained surplus, a portion of which may be minted into LOOP according to the Dynamic Mint Ratio.
 - Platform-owned LOOP is deposited into system vaults
 - System vaults participate in future cycles
 
@@ -1767,6 +1769,8 @@ If the system deposit performs poorly:
 - It shrinks
 - It does not get subsidized
 - It does not get replenished by minting
+
+The system deposit cannot incur losses beyond its own retained assets and never creates obligations against user funds.
 
 ---
 
@@ -3615,7 +3619,7 @@ The system may generate profit, break even, or incur losses.
 ### 8. Cycle End & Settlement
 
 20. At cycle completion:
-    - All positions are closed or settled
+    - All positions are accounted for and settled for profit and loss purposes.
     - Gas costs, fees, and execution costs are accounted for
 21. Profit (if any) is calculated only after full settlement.
 22. If no verifiable profit exists, results are recorded as zero.
