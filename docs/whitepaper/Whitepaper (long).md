@@ -1496,7 +1496,7 @@ The post-launch referral program is:
 It rewards real growth without distorting the core execution engine.
 
 
-## 11. Ecosystem Walkthrough
+## 11. Post-Cycle Walkthrough & Platform Fees
 
 This section describes how all major components of YieldLoop interact over time.
 It is written for builders and reviewers who need to understand **system flow**, not marketing.
@@ -1564,7 +1564,8 @@ No smoothing or carryover occurs.
 
 If a cycle is positive:
 
-- Net profit is converted into LOOP
+- A portion of verified retained surplus is minted into LOOP according to the Dynamic Mint Ratio (DMR), with the remaining retained surplus remaining unminted and recycled via the system deposit.
+- Each unit of LOOP represents a proportional claim on historically realized surplus, not on total profit from a single cycle.
 - LOOP is fully backed by realized profit
 - LOOP is issued to the vault according to user-selected settings:
   - Withdraw
