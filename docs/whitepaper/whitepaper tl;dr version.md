@@ -1,237 +1,185 @@
-# YieldLoop — Plain-English Overview (Read This First)
-
-**Audience:** DeFi novices and burned-out traders who want discipline, finality, and truth — not promises.  
-**What this is:** A factual overview for people who will bounce quickly.
-
----
-
-## 0) One-Sentence Definition
-
-YieldLoop is a **cycle-based, non-custodial execution system** that **records profit only when it is finalized and provable**, and does nothing when it is not.
-
-No projections. No assumptions. No smoothing.
+# YieldLoop — DeFi, Finished Properly  
+**Quick Read (TL;DR)**  
+For people who are done pretending unfinished trades are “returns.”
 
 ---
 
-## 1) The Problem (What Keeps Breaking Everywhere Else)
+## The One-Liner
 
-Most “yield” platforms fail for one simple reason:
+**YieldLoop is a cycle-based DeFi system that only records profit when it’s real, finalized, and auditable — and refuses to fake anything when it isn’t.**
 
-They **treat expectations as results**.
+No APYs.  
+No projections.  
+No emissions.  
 
-This usually shows up as:
-- advertised APYs that aren’t final
-- incentives that mask losses
-- trades that never truly end
-- rolling dashboards instead of settlement
-- systems that require constant growth to survive
-
-When reality diverges, the definition of “success” quietly changes.
-
-YieldLoop was built to prevent that.
+Just completed cycles and settled truth.
 
 ---
 
-## 2) What YieldLoop Is (Mechanically)
+## Why This Exists (And Why It’s Different)
 
-YieldLoop is:
+Most DeFi platforms don’t actually know when a trade is finished.
 
-- **Non-custodial** — assets stay in your vault
-- **Cycle-based** — execution happens only inside fixed windows
-- **User-authorized** — nothing runs without your explicit approval
-- **Fail-closed** — when something breaks, execution stops and settlement begins
-- **Final** — results settle once and do not change
+They show:
+- Assumed yield  
+- Rolling balances  
+- Incentives masking losses  
+- Dashboards that look good until they don’t  
 
-The system is designed to remain valid during:
-- flat markets
-- down markets
-- slow periods
-- extended zero-result phases
+YieldLoop was built around one rule:
 
-Survival does not depend on growth.
+> **Nothing counts until the cycle ends.**
+
+That single rule changes everything.
 
 ---
 
-## 3) What YieldLoop Is NOT (Hard Boundaries)
+## What Actually Happens
 
-YieldLoop is not:
+YieldLoop runs **fixed execution cycles** inside **user-owned, non-custodial vaults**.
 
-- a guaranteed return product
-- an APY engine
-- a passive income promise
-- a managed trading service
-- a system that intervenes mid-cycle
-- a platform that redefines losses as “temporary”
+Each cycle:
+- Starts only with explicit user authorization  
+- Executes predefined strategies within hard limits  
+- Ends at a known time  
+- Settles once  
+- Produces a final, unchangeable result  
 
-If you are looking for certainty or monthly expectations, this system will frustrate you.
+At settlement, the math is brutal and simple:
 
-That is intentional.
+End Balance
+– Start Balance
+– Gas
+– Protocol Costs
 
----
+Two outcomes exist:
+- **Positive** → It was real  
+- **Zero or negative** → Treated as zero  
 
-## 4) “Set and Forget” — What That Actually Means Here
+No smoothing.  
+No carryover.  
+No re-labeling later.
 
-### The Actual User Flow
-
-1. Connect wallet  
-2. Open your personal vault  
-3. Deposit assets (idle until execution)  
-4. Configure allowed actions and limits  
-5. Authorize a fixed execution cycle  
-6. Walk away  
-7. Cycle ends → settlement runs  
-8. Final results are shown  
-9. You withdraw, compound, or reauthorize  
-
-### What You Don’t Do
-
-- No chart watching  
-- No mid-cycle changes  
-- No reacting to noise  
-- No babysitting positions  
-
-You define the rules once.  
-The system tells you the truth at the end.
+Every cycle ends.  
+Every result stands.
 
 ---
 
-## 5) The One Rule That Defines Everything
+## Where the Edge Comes From
 
-### Nothing counts until the cycle ends.
+YieldLoop doesn’t chase yield.
 
-YieldLoop does not treat mark-to-market movement as profit.
+It survives long enough for yield to matter **when it’s actually available**.
 
-At settlement, the system compares:
+- Flat markets? It goes quiet.  
+- Bad conditions? It records zero.  
+- Good conditions? It locks in what’s real.  
 
-- starting balance  
-- ending balance  
-- minus real execution costs  
-
-Only two outcomes exist:
-
-- **Net profit > 0** → it is real and recorded  
-- **Net profit ≤ 0** → it is treated as zero  
-
-No partial credit.  
-No carryover assumptions.  
-No smoothing.
+That restraint is the advantage.
 
 ---
 
-## 6) About APYs and Promises
+## “Set It, Forget It” — Without Blind Trust
 
-Other platforms promise APY because their numbers are never final.
+Users:
+1. Connect a wallet  
+2. Deposit into their own vault  
+3. Define limits and strategies  
+4. Authorize a cycle  
+5. Walk away  
 
-YieldLoop does not promise.
+During execution:
+- Funds are locked  
+- Nothing can be changed  
+- No live P&L feeds emotions  
 
-Instead, it makes this commitment:
+After settlement:
+- Withdraw  
+- Compound  
+- Or run another cycle  
 
-- **If profit is real and finalized, it will be reported.**
-- **If it is not, it will not be dressed up.**
-
-Same reality everyone operates in.  
-Different level of honesty.
-
----
-
-## 7) LOOP and the “Floor” (Read Carefully)
-
-LOOP is **not** a reward, incentive, or growth mechanism.
-
-It exists for one reason only:
-> To record **verified surplus that already happened**.
-
-### About the Accounting Floor
-
-YieldLoop does not target, manage, defend, or optimize a floor.
-
-The internal accounting floor is:
-- not a goal
-- not a KPI
-- not a promise
-- not a growth objective
-- not a market signal
-
-It is a **mechanical ratio**:
-
-verified retained surplus ÷ LOOP supply
-
-If execution performs well **over time**, that ratio *may* strengthen.
-
-If execution does not, it won’t.
-
-This behavior was **not the design goal**.
-It is a **side effect of refusing to mint or assume value that doesn’t exist**.
-
-The system would still be functioning correctly if the floor:
-- never rises
-- flattens for years
-- moves irregularly
-- stops changing entirely
-
-YieldLoop does not chase APY.
-When profit exists repeatedly, APY narratives tend to chase it.
+No babysitting.  
+No constant decisions.  
+No false signals.
 
 ---
 
-## 8) Risk (Stated Without Sugar)
+## LOOP & The Floor (The Part People Miss)
 
-Loss is possible.
-Zero-result cycles are normal.
-Flat periods are expected.
-External protocols can fail.
-There is no insurance and no guarantee.
+LOOP is not a reward token.
 
-YieldLoop does not protect you from loss.
+It is **proof that surplus already happened**.
 
-It protects you from **fiction**.
+- Minted only after real profit exists  
+- No emissions  
+- No pre-mint  
+- No inflation without value  
 
----
+The system intentionally mints LOOP *slower* than surplus accumulates when conditions allow.
 
-## 9) Who This Is Actually For
+That creates a strengthening internal accounting ratio over time — sometimes referred to as the **floor**.
 
-### DeFi Novices
-- want clear boundaries
-- accept that loss is possible
-- prefer final results over constant noise
-- do not want to babysit trades
-
-### Burned-Out Traders
-- tired of chasing yield
-- tired of incentives masking truth
-- tired of emotional micromanagement
-- want discipline, finality, and closure
-
-If you need optimism to stay engaged, this system is not for you.
+Not a promise.  
+Not price support.  
+Just math, applied after reality.
 
 ---
 
-## 10) The Real Difference
+## Why This Doesn’t Collapse
 
-Most platforms optimize for:
-- engagement
-- excitement
-- growth narratives
+YieldLoop does **not** require:
+- New users  
+- Constant volume  
+- Rising prices  
+- Emissions  
 
-YieldLoop optimizes for:
-- finality
-- auditability
-- survivability
-- truth
+If nothing works, the system idles.
 
-It is intentionally boring.
-
-Boring systems tend to still exist when exciting ones don’t.
+That’s not weakness.  
+That’s how it avoids lying to survive.
 
 ---
 
-## 11) If You Remember One Thing
+## Risks (Stated Up Front)
 
-YieldLoop does not promise returns.
+- Losses are possible  
+- Zero-result cycles are normal  
+- Markets can stay unproductive  
+- External protocols can fail  
 
-It promises this:
+YieldLoop doesn’t soften this.
 
-- **Real profit will be recorded when it exists.**
-- **No profit will be invented when it doesn’t.**
+It’s designed to **tell the truth clearly**, not to comfort you.
 
-Everything else is a consequence of that rule.
+---
+
+## Who This Is Actually For
+
+YieldLoop is for people who:
+- Are tired of chasing APYs  
+- Want final answers, not rolling stories  
+- Prefer discipline over excitement  
+- Understand that patience is a position  
+
+It is not for:
+- Guaranteed return seekers  
+- Yield gamblers  
+- Anyone who needs constant action  
+
+---
+
+## The Point
+
+YieldLoop isn’t trying to impress you.
+
+It’s trying to **end trades cleanly, record what’s real, and still be here when the noise is gone**.
+
+If that sparks curiosity, the whitepaper shows exactly how it works.
+
+If not, this system will happily ignore you.
+
+---
+
+**Nothing happens until a cycle ends.  
+Nothing is recorded unless it’s real.  
+That’s the line.**
