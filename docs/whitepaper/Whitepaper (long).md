@@ -2165,6 +2165,8 @@ The system may prioritize:
 
 No redemption schedule or price is implied.
 
+Redemption parameters may not be configured in a manner that permanently prevents eligible, claimable LOOP from redemption in principle.
+
 ---
 ## 14. Strategy Modules
 
@@ -2392,6 +2394,8 @@ Strategies are **tools**, not promises.
 
 They execute rules.
 They do not manage outcomes.
+
+Any automated or AI-assisted guidance, if present, is informational only. Such guidance operates outside execution logic and has no ability to modify strategy parameters, execution timing, allocation behavior, or settlement outcomes.
 
 
 ## 15. DApp / UI / UX
@@ -3972,6 +3976,32 @@ This state-based model exists to:
 - Eliminate ambiguity regarding control and responsibility
 
 YieldLoop prioritizes determinism, transparency, and constraint over flexibility.
+
+## 6. — Recovery State
+
+State Name: Recovery
+
+Description:
+The Recovery state is entered if settlement cannot complete after repeated retries or a defined timeout.
+
+Entry Conditions:
+- Settlement execution fails beyond permitted retry thresholds.
+- External dependencies prevent deterministic settlement completion.
+
+Permitted Actions:
+- User withdrawals from affected vaults.
+- Viewing finalized accounting data.
+
+Prohibited Actions:
+- Execution or re-execution of strategies.
+- LOOP minting.
+- Platform fee collection.
+
+Exit Conditions:
+- None. Recovery is terminal for the affected cycle.
+
+Purpose:
+Prevent indefinite fund lock while preserving accounting integrity.
 
 ---
 
