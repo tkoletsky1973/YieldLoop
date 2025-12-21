@@ -588,6 +588,8 @@ System deposit funds:
 
 This is the perpetual engine.
 
+System vaults represent the on-chain manifestation of retained surplus. These vaults participate in execution cycles under the same rules as user vaults but are restricted from withdrawal. Losses incurred by system vaults reduce retained surplus and do not create obligations against user funds.
+
 ---
 
 ### 5.7 DApp & Admin Interfaces
@@ -661,7 +663,7 @@ Each cycle has:
 - Immutable parameters once execution begins
 - A single, final settlement event
 
-A cycle closes the ledger and finalizes accounting, not necessarily the liquidation of all open positions, which may persist according to strategy logic.
+A cycle closes the ledger and finalizes accounting value, not necessarily forced liquidation of all open positions. Any positions that persist beyond cycle end are deterministically valued at settlement using protocol-defined valuation rules and are treated as finalized for accounting purposes.
 
 Cycles do not overlap.  
 Cycles do not roll forward.  
@@ -899,6 +901,8 @@ Then:
 No retries.  
 No smoothing.  
 No overrides.
+
+Settlement after execution halt does not attempt to normalize, rebalance, or compensate partial execution. Incomplete actions are treated as non-events for accounting purposes.
 
 ---
 
@@ -1717,6 +1721,19 @@ Two outcomes are possible:
 
 There is no partial credit.
 
+Finalized accounting refers to finalized valuation, not mandatory position closure. Positions that remain open after cycle end are valued using deterministic pricing rules, conservative oracle inputs, and protocol-defined haircuts. Once valued, these positions may persist operationally, but their accounting contribution to the completed cycle is immutable.
+
+### 12.2.1 
+
+All settlement valuation follows deterministic rules:
+
+- Spot assets are valued using a protocol-approved price source at a defined snapshot block.
+- LP positions are valued using underlying asset balances minus protocol-defined impermanent loss and slippage assumptions.
+- Lending positions are valued at redeemable principal plus accrued interest minus protocol-defined risk haircuts.
+- Any asset lacking a reliable price source is valued at zero for settlement purposes.
+
+These rules are conservative by design and applied uniformly. No discretionary overrides are permitted.
+
 ---
 
 ### 12.3 Positive Cycle Flow (User Side)
@@ -1930,6 +1947,8 @@ This is the “loop.”
 
 The system is feeding itself with *verified* value only.
 
+Retained surplus exists at the protocol level, not the user level. It is held in a system-owned accounting ledger and corresponding system vaults. Retained surplus is never commingled with user principal and never attributed to individual users until LOOP is minted and assigned.
+
 ---
 
 ## 13.5 LOOP Minting (How It Actually Happens)
@@ -1978,6 +1997,19 @@ The mint ratio m is not fixed. It is:
 As a result, retained surplus may grow faster than LOOP supply, causing the internal accounting floor per LOOP to strengthen over time when conditions allow.
 
 The Dynamic Mint Ratio does not guarantee floor appreciation, market price appreciation, or redemption availability. It exists solely to enforce issuance discipline and prevent dilution of retained value.
+
+
+The Dynamic Mint Ratio (DMR) operates within the following constraints:
+
+- The mint ratio m is bounded by protocol-defined minimum and maximum values.
+- Changes to m apply prospectively only and cannot affect completed cycles.
+- m may be adjusted based on system-defined pressure indicators, including but not limited to:
+  - Retained surplus growth rate
+  - System vault drawdown
+  - Volatility of realized outcomes
+  - Liquidity stress indicators
+
+DMR adjustments may be automated or governance-directed but must follow disclosed rules and rate-of-change limits. No adjustment may result in minting LOOP in excess of verified retained surplus.
 
 ---
 
@@ -3123,6 +3155,8 @@ Execution does not proceed on uncertain inputs.
 - Pre-flight gas estimation
 - Abort on partial completion
 - Settlement using last valid state
+
+If execution halts mid-cycle due to partial completion, settlement proceeds using the last verifiable on-chain state. Actions that completed successfully are accounted for. Actions that did not complete are ignored. No retries are performed to “finish” execution. The system records reality exactly as it exists at halt.
 
 ---
 
