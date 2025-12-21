@@ -3656,9 +3656,8 @@ During this period:
 
 ### 7. Cycle Execution (No-Action Period)
 
-17. During the active cycle:
-    - Strategies execute autonomously
-    - Authorized strategy modules may execute predefined, rule-based actions or abstain from action according to their encoded logic.
+17. Authorized strategy modules may execute predefined, rule-based actions or abstain from action according to their encoded logic.
+
 18. Users are not required to take any action.
 19. Inactivity does not penalize the user.
 
