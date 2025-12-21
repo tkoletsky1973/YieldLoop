@@ -211,6 +211,8 @@ This document explains how the system actually works, end to end, so it can be b
 
 When this document refers to the ‘floor,’ it refers to the internal accounting floor derived from retained surplus, not the external market price of LOOP, which may fluctuate independently.
 
+The internal accounting floor represents retained surplus per LOOP for accounting purposes only and does not constitute price support, liquidity assurance, redemption timing, or market defense.
+
 ## 2. Problem
 
 Most trading and yield platforms fail for the same reasons:
@@ -312,6 +314,8 @@ There is no rolling state and no continuous re-evaluation. Every cycle either ma
 
 ### 3.2 Profit Is Real or It Is Zero
 
+YieldLoop is not a managed trading system. It does not select strategies, adjust parameters, reallocate capital, or exercise discretion on behalf of users. All execution behavior is explicitly defined and authorized by the user prior to cycle start.
+
 At the end of a cycle, the system calculates profit using actual balances and actual costs.
 
 profit = end_balance
@@ -326,6 +330,8 @@ If profit is:
 There is no partial credit, smoothing, or carryover.
 
 LOOP issuance is governed by a dynamic mint ratio that prioritizes retained surplus as the system matures.
+
+
 
 ---
 
@@ -2018,6 +2024,8 @@ Each LOOP represents a proportional unit of already-existing surplus.
 Nothing more.  
 Nothing less.
 
+The accounting floor is not an economic guarantee. It does not imply liquidity, redemption availability, market price support, or protection against loss. It exists solely as a mechanical accounting ratio derived from finalized retained surplus.
+
 ---
 
 ## 13.9 Why the Floor Is Structurally Stable
@@ -2032,6 +2040,9 @@ It means the accounting cannot lie.
 
 Losses don’t get hidden.  
 They just result in no mint.
+
+A flat or non-rising accounting floor over extended periods does not indicate malfunction; it indicates insufficient verified retained surplus.
+
 
 ---
 
@@ -2398,6 +2409,8 @@ The following disclosures must be **visible and accessible at all times**, inclu
 - Loss of funds is possible, including total loss
 - Smart contract and protocol risks exist
 - Past results do not predict future outcomes
+- System failure, shutdown, or discontinuation does not guarantee profit, capital preservation, compensation, or redemption beyond available retained surplus.
+
 
 Users must be able to view these disclosures without authorizing execution.
 
@@ -2498,6 +2511,8 @@ Mandatory notice:
 > “Execution is active. Parameters cannot be changed and funds cannot be withdrawn until settlement completes.”
 
 No metrics, charts, or live P&L are shown.
+
+The absence of live performance metrics, projections, or interim profit indicators during execution is intentional. YieldLoop does not display speculative or mark-to-market data during active cycles. Results are shown only after settlement.
 
 ---
 
@@ -3198,6 +3213,12 @@ When something goes wrong, the system:
 - Refuses to guess
 
 Failure is contained, not hidden.
+
+---
+
+### 19.13 If YieldLoop ceases operation: 
+
+Permanently, no new execution cycles will occur. User vaults remain non-custodial and under user control. No future LOOP minting occurs. Settlement proceeds only for completed cycles. Unclaimed LOOP remains valid as a record of finalized surplus but redemption availability depends on remaining retained surplus and system solvency. Platform discontinuation does not create an obligation to unwind positions, compensate losses, or guarantee redemption beyond available surplus.
 
 
 ## 20. Assumptions & Constraints
