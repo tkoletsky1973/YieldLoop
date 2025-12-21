@@ -2112,12 +2112,13 @@ LOOP exists to represent historically verified, retained surplus, and redemption
 
 Redemption is subject to the following constraints:
 
-- Redemption is **never guaranteed**
-- Redemption is **never immediate by default**
-- Redemption is **never forced**
-- Redemption is **never subsidized**
-- Redemption is **always bounded by available retained surplus**
-- Redemption may be **rate-limited, paused, or disabled** to preserve system solvency
+- Redemption is never immediate by default
+- Redemption is never subsidized
+- Redemption is always bounded by available retained surplus
+- Redemption may be rate-limited or queued to preserve system solvency
+- Redemption availability applies only to LOOP that has been finalized and assigned to a user’s claimable balance
+
+Any LOOP minted into a user’s claimable balance represents finalized, user-owned surplus. Such LOOP is redeemable in principle and cannot be arbitrarily revoked, permanently frozen, or rendered non-redeemable. Redemption timing may be delayed or throttled by system-wide constraints, but claimable LOOP must remain eligible for redemption when sufficient retained surplus exists.
 
 Redemption does not represent a promise of liquidity, price, or timing.  
 It represents a controlled release of already-earned surplus when system conditions allow.
