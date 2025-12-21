@@ -713,6 +713,9 @@ Each vault progresses through the following states, in strict order:
 
 States cannot be skipped, reordered, or partially entered.
 
+
+Redemption availability is a conditional post-cycle substate and does not represent a separate execution state.
+
 ---
 
 ### 6.5 Inactive State
@@ -3655,7 +3658,7 @@ During this period:
 
 17. During the active cycle:
     - Strategies execute autonomously
-    - The system may rebalance, trade, or refrain from action based on internal logic
+    - Authorized strategy modules may execute predefined, rule-based actions or abstain from action according to their encoded logic.
 18. Users are not required to take any action.
 19. Inactivity does not penalize the user.
 
