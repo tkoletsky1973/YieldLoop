@@ -1850,6 +1850,8 @@ Everything else is noise.
 
 # 13. LOOP — System Accounting Token
 
+Redemption logic is enforced by a dedicated Redemption Controller that operates independently of execution and settlement.
+
 ## 13.1 What LOOP Actually Is
 
 LOOP is the system’s internal unit for tracking **real, verified surplus that the platform has already earned and retained**.
@@ -3913,6 +3915,24 @@ The user takes no action after cycle completion.
 - No penalty is applied
 
 Inaction is always a valid state.
+
+2.10 Recovery State (Exceptional)
+
+Description:
+Settlement failed beyond retry thresholds.
+
+Permitted Actions:
+- User withdrawals
+- View finalized accounting
+
+Prohibited Actions:
+- Execution
+- LOOP minting
+- Fee collection
+
+Purpose:
+Prevent indefinite fund lock while preserving accounting integrity.
+
 
 ---
 
