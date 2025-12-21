@@ -4255,7 +4255,7 @@ When redemption is enabled:
 - Redemption is optional
 - Redemption reflects historical surplus only
 - Redemption availability is conditional
-- Redemption may be paused or rate-limited based on system conditions; however, LOOP that has been finalized and assigned to a user’s claimable balance cannot be permanently disabled from redemption in principle.
+- Redemption may be paused or rate-limited based on system conditions; however, LOOP that has been finalized and assigned to a user’s claimable balance cannot be permanently disabled from redemption in principle. 
 
 Redemption is not guaranteed and may change as system design evolves.
 
