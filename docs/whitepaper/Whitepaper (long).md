@@ -818,6 +818,25 @@ Transition:
 
 ---
 
+### 6.8.1 Settlement Retry and Recovery (Fail-Closed Guarantee)
+
+Settlement is designed to be deterministic and final; however, the system must not permit user funds to become permanently locked due to settlement failure.
+
+Accordingly, the following rules apply:
+
+- Settlement execution is permissionless and may be retried by any caller.
+- If settlement fails due to transient conditions (e.g., gas limits, external dependency reverts), it may be retried until successful.
+- If settlement cannot complete after a governance-defined timeout or retry threshold, the vault enters a Recovery state.
+
+In the Recovery state:
+- No LOOP minting may occur.
+- No platform fees may be collected.
+- Execution is permanently halted for the affected cycle.
+- User vault withdrawals are re-enabled.
+- Accounting is finalized using the last verifiable state.
+
+The Recovery state exists solely to prevent indefinite fund lock while preserving accounting integrity. No recovery path may mint LOOP or retroactively alter outcomes.
+
 ### 6.9 Post-Cycle State
 
 The cycle is complete.
