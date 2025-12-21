@@ -325,6 +325,8 @@ If profit is:
 
 There is no partial credit, smoothing, or carryover.
 
+LOOP issuance is governed by a dynamic mint ratio that prioritizes retained surplus as the system matures.
+
 ---
 
 ### 3.3 Fees Only on Profit
@@ -1691,9 +1693,9 @@ There is no partial credit.
 If a cycle is positive:
 
 1. Net profit is finalized
-2. Profit is **converted into LOOP**
-3. LOOP is fully backed by realized profit
-4. LOOP is issued to the user vault
+2. A portion of verified surplus is converted into LOOP according to the current Dynamic Mint Ratio, with the remainder retained by the system.
+4. LOOP is fully backed by realized profit
+5. LOOP is issued to the user vault
 
 The user’s **pre-selected post-cycle setting** determines how issued LOOP is handled:
 
@@ -1915,6 +1917,35 @@ If no surplus exists, minting does not happen.
 
 ---
 
+13.5.1 — Dynamic Mint Ratio (DMR) and Rising-Floor Mechanics
+
+LOOP issuance is governed by a Dynamic Mint Ratio (DMR) that determines how much LOOP is minted relative to verified retained surplus at the end of each profitable execution cycle.
+
+Let:
+	•	R = verified retained surplus finalized at settlement for a cycle
+	•	m = current mint ratio, where 0 < m < 1
+
+The protocol mints:
+
+LOOP_minted = m × R
+
+The remaining surplus:
+
+Retained_surplus_unminted = (1 − m) × R
+This unminted retained surplus remains within the system and participates in future execution cycles via the system deposit mechanism.
+
+The mint ratio m is not fixed. It is:
+	•	Dynamically adjustable within governance-defined bounds
+	•	Applied prospectively only
+	•	Evaluated at settlement
+	•	Designed to decrease over time or under system pressure
+
+As a result, retained surplus may grow faster than LOOP supply, causing the internal accounting floor per LOOP to strengthen over time when conditions allow.
+
+The Dynamic Mint Ratio does not guarantee floor appreciation, market price appreciation, or redemption availability. It exists solely to enforce issuance discipline and prevent dilution of retained value.
+
+---
+
 ## 13.6 Initial Supply and Supply Lifecycle
 
 At launch, the LOOP token supply is **zero**.
@@ -1968,6 +1999,8 @@ There is no dilution without value.
 Internally, LOOP has a simple accounting floor:
 
 Accounting Floor = Total Verified Retained Surplus / Total LOOP Supply
+
+Because LOOP issuance may be intentionally throttled relative to retained surplus via the Dynamic Mint Ratio, the accounting floor per LOOP may strengthen over time as retained surplus grows faster than LOOP supply. This behavior is mechanical and does not imply guaranteed appreciation, price support, or redemption timing.
 
 This is not a market price.  
 This is not a guarantee.  
