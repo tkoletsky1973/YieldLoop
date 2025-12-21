@@ -5266,3 +5266,29 @@ Risk tier selection:
 
 All risk tiers may experience zero-profit or loss cycles.
 YieldLoop does not smooth, subsidize, or average outcomes across users or cycles.
+
+---
+
+## G5 — Market Regime Coverage and System Completeness
+
+YieldLoop is designed to operate across multiple market regimes without assuming continuous profitability.
+
+The platform does not guarantee positive returns in every cycle or every market condition.
+Instead, YieldLoop is engineered to ensure that at least one authorized Strategy Engine may remain viable in each broad market regime, while allowing other engines to reduce activity, hold capital, or pause execution entirely.
+
+The system recognizes the following high-level market regimes:
+- Bull markets with sustained upward price movement
+- Range-bound or volatile markets
+- Bear markets with sustained downward pressure
+- Crisis or liquidity-shock conditions
+
+Strategy Engines are not required to trade continuously.
+Engines may intentionally idle, pause, or skip execution when opportunity does not meet configured safety or return thresholds.
+
+Capital preservation and deterministic settlement take precedence over forced activity.
+Zero-profit cycles are considered a valid and expected outcome under this design.
+
+No Strategy Engine is permitted to rely on leverage, forced liquidation, emissions subsidies, or accounting assumptions to manufacture yield.
+YieldLoop prioritizes survivability, auditability, and honest accounting over continuous yield claims.
+
+This design ensures the system remains operable, transparent, and non-degenerate across market regimes, while allowing returns to emerge naturally when genuine opportunity exists.
