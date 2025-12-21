@@ -2,9 +2,9 @@
 
 Todd Koletsky
 
-12-20-25
+12-21-25
 
-Version: v0.1.3
+Version: v0.2
 
 
 # Forward — Who YieldLoop Is For (and Who It Is Not)
