@@ -189,6 +189,7 @@ Table of Contents
 25. Appendix D — What LOOP Is / Is Not (definitions)
 26. Appendix E — Time, Cycles, and Cutoffs
 27. Appendix F — How Returns Work in YieldLoop — Cycles, Markets, and LOOP
+28. Appendix G — Strategy Engine Specifications
 
 ## 1. Abstract
 
@@ -4725,3 +4726,543 @@ It is an answer to a different question:
 “How do we build a system that doesn’t lie about whether it worked?”
 
 If that distinction matters to you, this system may be worth your time.
+
+# Appendix G — Strategy Engine Specifications
+
+This appendix defines the deterministic strategy modules (“Strategy Engines”) that may be executed within a YieldLoop cycle.
+Each Strategy Engine is a bounded, auditable state machine with explicit inputs, safety constraints, execution rules, settlement logic, and failure behavior.
+Strategy Engines do not perform discretionary managed trading.
+Artificial intelligence may be used only to recommend configuration parameters and may never bypass user authorization or system guardrails.
+
+---
+
+## G1 — Spot Strategy Engine (SSE)
+
+### G1.1 Purpose
+The Spot Strategy Engine (SSE) allocates a defined portion of a user’s cycle capital into approved spot assets and manages those holdings using deterministic, rule-based execution.
+The SSE may rebalance or hold positions based on the authorized configuration but does not guarantee profits and does not smooth outcomes across cycles.
+
+### G1.2 Supported Assets (Initial Whitelist)
+- PAXG
+- BTC
+- ETH
+- XRP
+- BNB
+- SOL
+
+Additional assets may be added only through governance or administrative configuration and must meet liquidity, oracle reliability, and risk criteria.
+
+### G1.3 Inputs and Decision Rights
+
+#### G1.3.1 User Inputs (Cycle-Authorized)
+The following inputs are selected by the user and locked at cycle start:
+- Risk tier selection
+- Spot allocation percentage (portion of cycle capital routed to the SSE)
+- Asset allowlist (subset of supported assets)
+- Rebalancing mode: Disabled / Threshold-based / Scheduled
+- Global profit handling preference: Compound All / 50-50 / Withdraw All
+
+#### G1.3.2 Strategy Parameters (AI-Recommended, User-Approved)
+The following parameters may be proposed by AI systems or selected manually by the user.
+All parameters must be approved prior to cycle start:
+- Target allocation weights per asset
+- Maximum single-asset exposure limit
+- Rebalance threshold (basis-point deviation from target weights)
+- Minimum time between trades (trade cadence)
+- Optional risk-off behavior configuration (pause or hold rules)
+
+#### G1.3.3 Execution Parameters (System-Enforced)
+The following parameters are enforced by the system and cannot be overridden:
+- Maximum allowed slippage
+- Maximum allowed price impact
+- Minimum liquidity threshold for execution venues
+- Maximum gas cost per trade or per execution window
+- Approved venue, router, and aggregator allowlist
+- Mandatory MEV-protection requirements (minimum output, deadlines, protected routing where available)
+
+### G1.4 State Machine
+The Spot Strategy Engine operates as a deterministic state machine:
+
+Idle → Configured → Active → Paused → SettlementPending → Settled
+
+State transitions are recorded on-chain.
+Settlement logic must be idempotent, allowing safe retries without double-counting or duplicate payouts.
+
+### G1.5 Core Logic
+
+#### G1.5.1 Allocation (Cycle Start)
+1. Determine SSE capital allocation based on the authorized spot allocation percentage.
+2. Resolve target asset weights from the approved configuration.
+3. Execute spot purchases to reach target allocations, subject to all execution guardrails.
+4. If guardrails fail, the affected action is skipped and logged without degraded execution.
+
+#### G1.5.2 Rebalancing (Optional)
+Rebalancing may occur only if enabled and only when all conditions are satisfied.
+Rebalance triggers may include:
+- Asset weight deviation beyond the authorized threshold
+- Scheduled rebalance window
+- Risk-off or safety condition triggers
+
+All rebalancing actions are subject to execution guardrails and safety checks.
+
+### G1.6 Safety Guardrails
+
+#### G1.6.1 Portfolio Caps
+- Maximum single-asset exposure (hard cap)
+- Maximum trading frequency enforced via cooldowns
+- Drawdown-based behavior:
+  - Soft drawdown: suspend new buys and rebalancing
+  - Hard drawdown: pause engine execution without forced liquidation unless explicitly permitted by policy
+
+#### G1.6.2 Market Integrity Checks
+- Oracle validity and staleness checks
+- Cross-oracle deviation thresholds
+- Minimum liquidity and volume requirements
+- Spread and route-quality validation
+
+#### G1.6.3 Execution Protection
+- Mandatory minimum-output enforcement
+- Strict execution deadlines
+- Slippage and price-impact limits
+- MEV-aware execution routing
+- Failed checks result in skipped execution and audit logging
+
+#### G1.6.4 Kill Switch
+The SSE enters a paused state upon detection of:
+- Oracle failure or unreliability
+- Repeated transaction reverts
+- Abnormal gas conditions
+- Liquidity collapse or route anomalies
+- Administrative or emergency pause events
+
+### G1.7 Settlement and Valuation
+
+#### G1.7.1 Snapshot
+At cycle end, the SSE records:
+- Asset balances
+- Approved oracle prices with staleness metadata
+- Applicable valuation haircuts
+
+#### G1.7.2 Deterministic Valuation
+End-of-cycle valuation is computed using the approved oracle policy and haircut configuration.
+If a reliable oracle price is unavailable under policy rules, the asset is valued at zero for settlement purposes.
+
+#### G1.7.3 Profit and Loss Calculation
+Net Profit = End Value − Start Value − All Execution Costs
+
+- If Net Profit ≤ 0: no rewards or minting are generated by the SSE for the cycle.
+- If Net Profit > 0: profits are processed according to the user’s global cycle preference, and system-level minting logic may apply under the defined DMR rules.
+
+### G1.8 AI Integration and Audit Trail
+Artificial intelligence systems may recommend strategy parameters but may not execute trades or modify configurations without user authorization.
+AI systems cannot bypass safety guardrails or alter authorized configurations mid-cycle unless explicitly permitted by governance policy.
+
+All AI-assisted configurations must generate an audit trail including:
+- Input data summary
+- Recommendation output hash
+- Final user-approved configuration
+- Timestamp and cycle identifier
+
+
+## G2 — LP Farming Strategy Engine (LPSE)
+
+### G2.1 Purpose
+The LP Farming Strategy Engine (LPSE) allocates a defined portion of a user’s cycle capital into liquidity provider (LP) positions and manages those positions using deterministic, rule-based execution.
+The LPSE is designed to generate yield from swap fees and protocol incentives while enforcing strict controls around impermanent loss, liquidity quality, and protocol risk.
+The LPSE does not guarantee returns and does not subsidize losses.
+
+### G2.2 Supported Protocol Model
+LPSE supports LP deployments that meet the following baseline criteria:
+- Non-custodial, audited AMM or vault-based LP protocols
+- Transparent accounting of principal, fees, and rewards
+- Reliable oracle coverage for underlying assets
+- Permissionless exit capability
+
+Specific protocols may be allowlisted by governance or administrative configuration.
+
+### G2.3 Recommended LP Pair Classes (Initial)
+The following LP pair classes are permitted in the initial configuration, subject to governance approval:
+
+- BTC / ETH
+- ETH / BNB
+- BTC / USDC
+- ETH / USDC
+- USDC / USDT
+- USDC / DAI
+
+Pairs must meet minimum liquidity, volume, and volatility criteria to remain active.
+
+### G2.4 Inputs and Decision Rights
+
+#### G2.4.1 User Inputs (Cycle-Authorized)
+- Risk tier selection
+- LP allocation percentage (portion of cycle capital routed to LPSE)
+- LP pair allowlist (subset of approved pairs)
+- LP mode: Direct LP / Vault-managed LP (if supported)
+- Global profit handling preference: Compound All / 50-50 / Withdraw All
+
+#### G2.4.2 Strategy Parameters (AI-Recommended, User-Approved)
+- Target LP pair weights
+- Maximum exposure per LP pair
+- Impermanent loss tolerance thresholds
+- Minimum fee APR and/or incentive APR thresholds
+- Rebalance or redeploy cadence
+- Optional exit-on-condition rules
+
+#### G2.4.3 Execution Parameters (System-Enforced)
+- Minimum pool liquidity and volume thresholds
+- Maximum slippage on LP entry and exit
+- Maximum gas-cost thresholds
+- Approved protocol and router allowlists
+- Mandatory oracle validation for underlying assets
+
+### G2.5 State Machine
+Idle → Configured → Active → Paused → SettlementPending → Settled
+
+State transitions are recorded on-chain.
+Settlement logic must be idempotent and resilient to partial failures.
+
+### G2.6 Core Logic
+
+#### G2.6.1 Allocation (Cycle Start)
+1. Determine LPSE capital allocation based on authorized percentage.
+2. Resolve LP pair weights from approved configuration.
+3. Enter LP positions using approved protocols and routes.
+4. Stake or deploy LP tokens into yield-generating contracts where applicable.
+
+#### G2.6.2 Position Monitoring
+The LPSE continuously evaluates:
+- Fee generation rate
+- Incentive yield (if applicable)
+- Impermanent loss relative to hold baseline
+- Pool liquidity and volatility
+- Protocol health indicators
+
+#### G2.6.3 Rebalance and Exit
+LP positions may be partially or fully exited if:
+- Impermanent loss exceeds authorized thresholds
+- Fee and incentive yield fall below minimum thresholds
+- Liquidity degrades below safety minimums
+- Risk-off or emergency conditions are triggered
+
+Exited capital may be held idle or redeployed only if permitted by the authorized configuration.
+
+### G2.7 Safety Guardrails
+
+#### G2.7.1 Impermanent Loss Controls
+- Continuous IL estimation versus spot-hold baseline
+- Soft IL breach: suspend new LP entry
+- Hard IL breach: exit LP position subject to execution guards
+
+#### G2.7.2 Protocol and Market Integrity
+- Protocol allowlist and audit requirements
+- Oracle sanity checks for underlying assets
+- Pool composition and imbalance checks
+- Volume and spread validation
+
+#### G2.7.3 Execution Protection
+- Slippage and price-impact caps on LP entry/exit
+- Gas-cost ceilings
+- MEV-aware routing where applicable
+- Failed guardrail checks result in skipped actions and logged events
+
+#### G2.7.4 Kill Switch
+The LPSE enters a paused state upon:
+- Protocol exploit or emergency alerts
+- Oracle failure
+- Repeated transaction reverts
+- Liquidity collapse
+- Administrative or emergency pause events
+
+### G2.8 Settlement and Valuation
+
+#### G2.8.1 Snapshot
+At cycle end, the LPSE records:
+- LP token balances
+- Underlying asset composition
+- Accrued fees and incentives
+- Oracle prices and valuation haircuts
+
+#### G2.8.2 Deterministic Valuation
+LP positions are valued based on:
+- Underlying asset quantities
+- Approved oracle prices
+- Configured haircuts reflecting IL and protocol risk
+
+If valuation data is incomplete or unreliable, the affected LP position may be conservatively valued at zero.
+
+#### G2.8.3 Profit and Loss Calculation
+Net Profit = End Value − Start Value − All Execution and Protocol Costs
+
+- If Net Profit ≤ 0: no rewards or minting are generated by the LPSE for the cycle.
+- If Net Profit > 0: profits are processed according to the user’s global cycle preference, and system-level minting logic may apply under the defined DMR rules.
+
+### G2.9 AI Integration and Audit Trail
+AI systems may recommend LP pair selection, weighting, and exit thresholds but may not execute trades or bypass guardrails.
+All AI-assisted configurations require user authorization and generate a full audit trail including input summaries, recommendation hashes, and approved parameters.
+
+
+## G3 — Stable Yield Strategy Engine (SYSE)
+
+### G3.1 Purpose
+The Stable Yield Strategy Engine (SYSE) allocates a defined portion of a user’s cycle capital into stablecoin-based yield strategies.
+The SYSE prioritizes capital preservation, liquidity, and predictability over yield maximization.
+The engine operates deterministically and does not guarantee returns.
+
+### G3.2 Supported Stable Assets (Initial)
+- USDC
+- USDT
+- DAI
+- FDUSD (optional, governance-approved)
+- Other stables may be added only via governance and must meet strict solvency, liquidity, and oracle requirements.
+
+Algorithmic or reflexive stablecoins may be explicitly excluded by policy.
+
+### G3.3 Supported Yield Mechanisms
+The SYSE may deploy capital into one or more of the following mechanisms, subject to allowlisting:
+- Lending markets (overcollateralized, non-custodial)
+- Stablecoin vaults with transparent accounting
+- Low-volatility stable AMM pools
+- Protocol-native staking or savings modules
+
+Each mechanism must support permissionless exit and reliable valuation.
+
+### G3.4 Inputs and Decision Rights
+
+#### G3.4.1 User Inputs (Cycle-Authorized)
+- Risk tier selection
+- Stable allocation percentage (portion of cycle capital routed to SYSE)
+- Stable asset allowlist
+- Yield mechanism allowlist
+- Global profit handling preference: Compound All / 50-50 / Withdraw All
+
+#### G3.4.2 Strategy Parameters (AI-Recommended, User-Approved)
+- Target allocation weights across stable assets and yield mechanisms
+- Maximum exposure per protocol or vault
+- Minimum acceptable yield threshold
+- Redeployment cadence
+- Optional risk-off or capital-hold rules
+
+#### G3.4.3 Execution Parameters (System-Enforced)
+- Maximum protocol exposure caps
+- Minimum liquidity thresholds
+- Maximum gas-cost thresholds
+- Approved protocol and router allowlists
+- Mandatory oracle and peg validation requirements
+
+### G3.5 State Machine
+Idle → Configured → Active → Paused → SettlementPending → Settled
+
+All state transitions are recorded on-chain.
+Settlement logic must be idempotent and resilient to partial failures.
+
+### G3.6 Core Logic
+
+#### G3.6.1 Allocation (Cycle Start)
+1. Determine SYSE capital allocation based on authorized percentage.
+2. Resolve asset and mechanism weights from approved configuration.
+3. Deploy capital into selected yield mechanisms subject to all guardrails.
+
+#### G3.6.2 Position Monitoring
+The SYSE continuously evaluates:
+- Yield performance versus minimum thresholds
+- Liquidity availability
+- Protocol health indicators
+- Stablecoin peg deviation metrics
+
+#### G3.6.3 Reallocation and Exit
+Positions may be partially or fully exited if:
+- Yield falls below minimum thresholds
+- Liquidity deteriorates
+- Peg deviation exceeds authorized limits
+- Risk-off or emergency conditions are triggered
+
+Exited capital may be held idle or redeployed only if permitted by configuration.
+
+### G3.7 Safety Guardrails
+
+#### G3.7.1 Stablecoin Integrity Controls
+- Continuous peg monitoring
+- Soft peg deviation: suspend new deployment
+- Hard peg deviation: exit affected positions subject to execution guards
+
+#### G3.7.2 Protocol Risk Controls
+- Protocol allowlist and audit requirements
+- Exposure caps per protocol
+- Oracle sanity and staleness checks
+
+#### G3.7.3 Execution Protection
+- Slippage and price-impact caps
+- Gas-cost ceilings
+- MEV-aware routing where applicable
+- Failed checks result in skipped execution and audit logging
+
+#### G3.7.4 Kill Switch
+The SYSE enters a paused state upon:
+- Stablecoin depeg events
+- Protocol exploit alerts
+- Oracle failure
+- Repeated transaction reverts
+- Administrative or emergency pause events
+
+### G3.8 Settlement and Valuation
+
+#### G3.8.1 Snapshot
+At cycle end, the SYSE records:
+- Stable asset balances
+- Accrued interest or rewards
+- Oracle prices and peg status
+- Applicable valuation haircuts
+
+#### G3.8.2 Deterministic Valuation
+Stable assets are valued using approved oracle prices with peg validation.
+If a stable asset fails peg validation under policy rules, it may be conservatively valued at zero for settlement purposes.
+
+#### G3.8.3 Profit and Loss Calculation
+Net Profit = End Value − Start Value − All Execution and Protocol Costs
+
+- If Net Profit ≤ 0: no rewards or minting are generated by the SYSE for the cycle.
+- If Net Profit > 0: profits are processed according to the user’s global cycle preference, and system-level minting logic may apply under the defined DMR rules.
+
+### G3.9 AI Integration and Audit Trail
+AI systems may recommend stable allocation and yield mechanism selection but may not execute transactions or bypass guardrails.
+All AI-assisted configurations require user authorization and produce a complete audit trail including input summaries, recommendation hashes, and final approved parameters.
+
+
+---
+
+## G4 — Risk Tier Definitions and Default Strategy Templates
+
+Risk tiers define default constraints, allocations, and behavior across all Strategy Engines.
+Users may override defaults only within the bounds of system-enforced guardrails.
+
+### G4.1 Ultra Low Risk
+
+**Primary Objective:** Capital preservation  
+**Expected Behavior:** Minimal volatility, frequent zero-profit cycles  
+
+**Default Engine Allocation**
+- Stable Yield Engine (SYSE): 70–90%
+- Spot Strategy Engine (SSE): 10–30%
+- LP Farming Engine (LPSE): 0–10%
+
+**Spot Defaults**
+- Allowed assets: PAXG, BTC, ETH
+- Max single-asset exposure: 30%
+- Rebalancing: Disabled or infrequent
+- Drawdown behavior: Immediate soft drawdown on minor losses
+
+**LP Defaults**
+- Pairs limited to stable/stable or BTC/ETH only
+- Strict impermanent loss thresholds
+- LP allocation capped at minimal exposure
+
+**Stable Defaults**
+- Overcollateralized lending or low-volatility pools only
+- Tight peg deviation thresholds
+
+---
+
+### G4.2 Low Risk
+
+**Primary Objective:** Capital preservation with modest yield  
+**Expected Behavior:** Low volatility, intermittent profits  
+
+**Default Engine Allocation**
+- SYSE: 50–70%
+- SSE: 20–40%
+- LPSE: 10–20%
+
+**Spot Defaults**
+- Allowed assets: PAXG, BTC, ETH, BNB
+- Max single-asset exposure: 35%
+- Rebalancing: Threshold-based (wide bands)
+
+**LP Defaults**
+- BTC/ETH, ETH/USDC, BTC/USDC
+- Conservative IL thresholds
+
+**Stable Defaults**
+- Diversified stable mechanisms
+- Moderate yield floor requirements
+
+---
+
+### G4.3 Medium Risk
+
+**Primary Objective:** Balanced growth and yield  
+**Expected Behavior:** Mixed outcomes across cycles  
+
+**Default Engine Allocation**
+- SSE: 40–60%
+- LPSE: 20–40%
+- SYSE: 10–30%
+
+**Spot Defaults**
+- Allowed assets: BTC, ETH, BNB, SOL
+- Max single-asset exposure: 40%
+- Rebalancing: Threshold-based (moderate bands)
+
+**LP Defaults**
+- ETH/BNB, BTC/ETH, ETH/USDC
+- Moderate IL tolerance
+
+**Stable Defaults**
+- Used primarily as liquidity buffer and fallback
+
+---
+
+### G4.4 High Risk
+
+**Primary Objective:** Growth maximization  
+**Expected Behavior:** Higher volatility, higher variance outcomes  
+
+**Default Engine Allocation**
+- SSE: 50–70%
+- LPSE: 30–50%
+- SYSE: 0–20%
+
+**Spot Defaults**
+- Allowed assets: BTC, ETH, BNB, SOL, XRP
+- Max single-asset exposure: 50%
+- Rebalancing: Active
+
+**LP Defaults**
+- Volatile pairs allowed
+- Higher IL tolerance
+
+**Stable Defaults**
+- Minimal defensive allocation
+
+---
+
+### G4.5 Unrestricted Risk
+
+**Primary Objective:** Maximum upside  
+**Expected Behavior:** High volatility, large dispersion of outcomes  
+
+**Default Engine Allocation**
+- Any mix permitted within global system caps
+
+**Spot Defaults**
+- All supported assets allowed
+- High concentration permitted
+
+**LP Defaults**
+- All approved LP pairs permitted
+- IL exits only on hard breach
+
+**Stable Defaults**
+- Optional only
+
+---
+
+### G4.6 Risk Tier Enforcement
+Risk tier selection:
+- Sets default templates
+- Controls maximum overrides
+- Does not guarantee performance
+- Cannot bypass system-enforced guardrails
+
+All risk tiers may experience zero-profit or loss cycles.
+YieldLoop does not smooth, subsidize, or average outcomes across users or cycles.
