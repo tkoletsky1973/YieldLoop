@@ -2407,6 +2407,840 @@ That is long-term behavior by design.
 
 ---
 
+## 15.7 Periodic Cycle Digests
+
+YieldLoop publishes **Periodic Cycle Digests** to summarize completed system activity over fixed historical windows.  
+These digests exist to compress verified outcomes into human-readable form without introducing projections, expectations, or narrative framing.
+
+A Cycle Digest is a **historical accounting summary**, not a performance report.
+
+---
+
+### 15.7.1 Purpose
+
+The purpose of a Periodic Cycle Digest is to:
+
+- Provide bounded, time-based visibility into system behavior
+- Reduce cognitive load when reviewing large volumes of completed cycles
+- Preserve auditability while improving interpretability
+- Expose both productive and dormant periods without bias
+
+Cycle Digests do not influence execution, incentives, or accounting.  
+They are observational artifacts derived exclusively from finalized data.
+
+---
+
+### 15.7.2 Source of Truth
+
+All data included in a Cycle Digest **must be derived solely from cycles already recorded in the Public Proof Feed**.
+
+No Digest may include:
+- Active or pending cycles
+- Estimated or interpolated values
+- Data not finalized at settlement
+
+If a cycle does not appear in the Proof Feed, it is ineligible for inclusion in any Digest.
+
+---
+
+### 15.7.3 Digest Period Definition
+
+Each Cycle Digest corresponds to a **fixed, non-overlapping historical period**, such as:
+
+- Calendar month
+- Calendar quarter
+- Calendar year
+
+Rules:
+- Period boundaries are predefined and objective
+- Periods may not overlap
+- A period may contain zero completed cycles
+- A Digest may be published only after the period has fully ended
+
+Once published, a Digest is immutable.
+
+---
+
+### 15.7.4 Required Digest Fields
+
+Each Cycle Digest must record, at minimum, the following finalized values for the defined period:
+
+- Digest period identifier (e.g., “Q1 2026”)
+- Number of completed cycles
+- Number of profitable cycles
+- Number of zero-result cycles
+- Total capital processed
+- Total verified profit
+- Total platform fees collected
+- Total LOOP minted
+- Average Dynamic Mint Ratio applied
+- Accounting floor at period start
+- Accounting floor at period end
+- Net accounting floor change during the period
+
+If no cycles complete during a period, all values must resolve explicitly to zero or null as appropriate.
+
+---
+
+### 15.7.5 Inclusion of Dormancy and Zero Periods
+
+Periods with:
+- No completed cycles
+- No verified profit
+- No LOOP minting
+- No accounting floor change
+
+**must still produce a Digest**.
+
+Omission of inactive or non-productive periods is prohibited.
+
+Dormancy is treated as valid system behavior and must remain visible.
+
+---
+
+### 15.7.6 Presentation Constraints
+
+Cycle Digests must adhere to the following constraints:
+
+- Presented as static, read-only records
+- Clearly labeled as historical summaries
+- Timestamped at publication
+- Linked to the underlying Proof Feed entries
+
+Permitted formats include:
+- Static tables
+- Immutable documents
+- Snapshot-style reports
+
+Not permitted:
+- Real-time updates
+- Rolling averages
+- Trend extrapolation
+- Predictive commentary
+- Selective highlighting
+
+---
+
+### 15.7.7 Explicit Prohibitions
+
+A Cycle Digest must never display or imply:
+
+- Annualized yields or APY
+- Expected future performance
+- Forward-looking incentives
+- Success rates framed as probabilities
+- Rankings, scores, or comparative performance claims
+
+If a value cannot be known with certainty at the end of the period, it must not appear.
+
+---
+
+### 15.7.8 Relationship to Other System Artifacts
+
+- The Public Proof Feed records **cycle-level truth**
+- Cycle Digests provide **period-level summaries**
+- Neither artifact may override or reinterpret the other
+
+Cycle Digests do not replace the Proof Feed.  
+They exist to summarize it without distortion.
+
+---
+
+### 15.7.9 Design Rationale
+
+Most financial systems publish summaries that obscure failure and emphasize continuity.  
+YieldLoop publishes summaries that preserve finality and expose inactivity.
+
+By enforcing fixed periods, mandatory publication, and zero-biased inclusion, Cycle Digests ensure that:
+
+- Long-term behavior is observable
+- Accounting remains honest
+- Trust compounds through repetition, not persuasion
+
+Cycle Digests are not designed to attract attention.  
+They are designed to withstand scrutiny.
+
+---
+
+## 15.8 Threshold Events and Supply Constraint Disclosure
+
+YieldLoop defines and discloses **Threshold Events** to make non-linear system behavior observable without introducing prediction, incentive, or control.
+
+Threshold Events are **mechanical consequences** of accumulated outcomes.  
+They are not targets, promises, or objectives.
+
+---
+
+### 15.8.1 Purpose
+
+The purpose of Threshold Event disclosure is to:
+
+- Make structural system constraints observable over time
+- Explain stepwise behavior without implying expectation
+- Prevent narrative speculation from substituting for mechanism
+- Allow third parties to reason about non-linear effects independently
+
+Threshold Events do not alter execution, accounting, or governance behavior.  
+They expose conditions, not intentions.
+
+---
+
+### 15.8.2 Definition of a Threshold Event
+
+A Threshold Event occurs when a **predefined, system-level condition** is crossed as a result of completed and settled cycles.
+
+Examples include (non-exhaustive):
+
+- Dynamic Mint Ratio (DMR) entering a lower issuance band
+- LOOP supply growth decelerating due to retained surplus constraints
+- Accounting floor changing discontinuously following settlement
+- System deposit participation increasing relative to user participation
+- Extended periods of zero-result cycles resolving into renewed surplus
+
+Threshold Events may occur infrequently and irregularly.
+
+---
+
+### 15.8.3 Source of Truth
+
+All Threshold Events must be derived **exclusively** from:
+
+- Completed cycle settlements
+- Proof Feed records
+- Deterministic protocol parameters
+
+No Threshold Event may be triggered by:
+- Governance votes
+- Manual intervention
+- Discretionary overrides
+- External market conditions alone
+
+If a condition cannot be verified deterministically, it cannot qualify as a Threshold Event.
+
+---
+
+### 15.8.4 Disclosure Rules
+
+When a Threshold Event occurs, the system may disclose:
+
+- The event identifier
+- The triggering condition
+- The settlement boundary at which it occurred
+- The affected parameter range (e.g., mint ratio band)
+- The system state before and after the event
+
+Disclosure must be:
+- Historical
+- Factual
+- Non-interpretive
+
+Threshold Event disclosures may appear alongside Cycle Digests or as separate immutable notices.
+
+---
+
+### 15.8.5 Explicit Non-Implications
+
+Disclosure of a Threshold Event does **not** imply:
+
+- Future performance
+- Continued occurrence
+- Reversibility or irreversibility
+- User advantage or disadvantage
+- Strategic recommendation
+
+Threshold Events describe **what changed**, not **what will happen next**.
+
+---
+
+### 15.8.6 Prohibited Framing
+
+Threshold Events must never be framed as:
+
+- Milestones
+- Achievements
+- Targets
+- Success indicators
+- Signals to act
+
+Language implying anticipation, momentum, or inevitability is prohibited.
+
+If a Threshold Event attracts attention, it must do so through third-party interpretation, not system messaging.
+
+---
+
+### 15.8.7 Relationship to Token Supply and Minting
+
+Threshold Events may coincide with observable effects on LOOP supply dynamics, including:
+
+- Reduced issuance rates
+- Increased scarcity pressure
+- Stepwise changes in accounting floor behavior
+
+These effects are **emergent**, not engineered.
+
+The protocol does not optimize for Threshold Events.  
+It records them when they occur.
+
+---
+
+### 15.8.8 Relationship to Other System Artifacts
+
+- Proof Feed records **cycle-level outcomes**
+- Cycle Digests summarize **period-level behavior**
+- Threshold Event disclosures expose **structural transitions**
+
+No artifact supersedes another.  
+Each exists to expose a different layer of finalized truth.
+
+---
+
+### 15.8.9 Design Rationale
+
+Non-linear systems produce attention when observers detect constraint.
+
+Most platforms hide constraints to preserve narrative control.  
+YieldLoop exposes them to preserve integrity.
+
+By disclosing Threshold Events without commentary or expectation, the system allows:
+
+- Independent analysis
+- Uncoordinated discovery
+- Accidental interest without inducement
+
+Threshold Events are not designed to create demand.  
+They are designed to remain honest when demand appears.
+
+---
+
+## 15.9 Third-Party Observation and Independent Analysis
+
+YieldLoop explicitly permits and anticipates **third-party observation, replication, and independent analysis** of system behavior.  
+This section defines the boundaries under which external interpretation may occur without implying endorsement, coordination, or incentive.
+
+Independent analysis is a consequence of transparency, not a system function.
+
+---
+
+### 15.9.1 Purpose
+
+The purpose of enabling third-party observation is to:
+
+- Allow independent verification of system behavior
+- Prevent narrative capture by any single interpreter
+- Encourage adversarial review and skepticism
+- Ensure that conclusions about YieldLoop emerge externally, not internally
+
+YieldLoop does not curate interpretation.  
+It exposes finalized data and allows others to decide what it means.
+
+---
+
+### 15.9.2 Permitted Sources of Observation
+
+Third parties may observe and analyze YieldLoop using:
+
+- The Public Proof Feed
+- Periodic Cycle Digests
+- Threshold Event disclosures
+- On-chain data corresponding to settled cycles
+- Immutable historical records
+
+No additional or privileged data sources exist.
+
+All observers access the same finalized information.
+
+---
+
+### 15.9.3 Non-Endorsement of Interpretation
+
+YieldLoop does not endorse, validate, or adopt:
+
+- External models
+- Forecasts
+- Price targets
+- Performance claims
+- Investment theses
+
+Any interpretation produced by a third party is solely attributable to that party.
+
+The existence of public data does not imply correctness of conclusions drawn from it.
+
+---
+
+### 15.9.4 Prohibition on Coordinated Signaling
+
+YieldLoop must not:
+
+- Highlight third-party analyses selectively
+- Amplify favorable interpretations
+- Suppress unfavorable interpretations
+- Coordinate messaging with analysts or commentators
+
+The system remains silent with respect to interpretation.
+
+Visibility must remain symmetric.
+
+---
+
+### 15.9.5 Acceptable Forms of External Analysis
+
+External observers may legitimately perform:
+
+- Historical aggregation
+- Comparative analysis
+- Constraint-based modeling
+- Scenario exploration using past data
+- Independent publication or commentary
+
+Such analysis must rely exclusively on finalized, historical inputs.
+
+Forward inference remains the responsibility of the observer.
+
+---
+
+### 15.9.6 Disallowed Implications
+
+Neither YieldLoop nor its interfaces may imply that:
+
+- Third-party analysis is correct
+- External models represent expected behavior
+- Observed trends will continue
+- Historical outcomes imply future results
+
+The system does not ratify interpretation.
+
+---
+
+### 15.9.7 Relationship to System Neutrality
+
+By allowing unrestricted observation while refusing participation in interpretation, YieldLoop maintains:
+
+- Neutrality
+- Non-promotion
+- Regulatory defensibility
+- Long-term credibility
+
+Truth is exposed.  
+Meaning is outsourced.
+
+---
+
+### 15.9.8 Design Rationale
+
+Most platforms attempt to control narrative by controlling data access.  
+YieldLoop does the opposite.
+
+By exposing finalized truth and withdrawing from interpretation, the system ensures that:
+
+- Interest arises organically
+- Skepticism remains possible
+- Discovery is uncoordinated
+- Accidental attention is not manufactured
+
+If YieldLoop attracts analysis, it will do so because observers find something worth analyzing.
+
+That outcome is neither engineered nor resisted.
+
+---
+
+## 15.10 System Closure and Non-Promise Framing
+
+YieldLoop explicitly defines how system information, disclosures, and artifacts must **terminate without implication**.  
+This section exists to prevent historical truth from being misconstrued as future assurance.
+
+Closure is not a UI decision.  
+It is a structural requirement.
+
+---
+
+### 15.10.1 Purpose
+
+The purpose of system closure framing is to:
+
+- Ensure that completed outcomes do not imply continuation
+- Prevent historical success from being treated as expectation
+- Eliminate narrative drift over time
+- Preserve the distinction between evidence and promise
+
+YieldLoop records what has happened.  
+It does not suggest what will happen.
+
+---
+
+### 15.10.2 Closure at the Cycle Level
+
+Each execution cycle enforces closure by design:
+
+- Execution ends definitively
+- Settlement finalizes deterministically
+- Outcomes resolve to profit or zero
+- No state carries forward implicitly
+
+Once a cycle closes, it has no influence over subsequent cycles except through retained surplus explicitly governed by protocol rules.
+
+Past cycles do not create entitlement.
+
+---
+
+### 15.10.3 Closure at the Period Level
+
+Periodic Cycle Digests enforce closure across time windows:
+
+- Each period is discrete
+- Each Digest summarizes only completed history
+- No Digest implies continuity into the next period
+- Period boundaries reset interpretive context
+
+A positive period does not imply a positive subsequent period.  
+A dormant period does not imply recovery.
+
+---
+
+### 15.10.4 Closure at the Structural Level
+
+Threshold Events and supply constraints:
+
+- Are disclosed only after occurrence
+- Describe state transitions, not trajectories
+- Do not imply repetition or acceleration
+- Do not signal strategic timing
+
+Structural disclosure exists to prevent speculation from replacing mechanism.
+
+---
+
+### 15.10.5 Explicit Non-Promises
+
+Neither YieldLoop nor any system artifact may imply:
+
+- Ongoing profitability
+- Minimum performance
+- Probabilistic success
+- Directional expectation
+- Temporal guarantees
+
+Language implying continuation, momentum, or inevitability is prohibited.
+
+If a user infers expectation, that inference is external to the system.
+
+---
+
+### 15.10.6 User Responsibility for Interpretation
+
+All interpretation beyond recorded facts is the responsibility of the observer.
+
+YieldLoop provides:
+
+- Finalized data
+- Deterministic rules
+- Historical records
+
+YieldLoop does not provide:
+
+- Advice
+- Forecasts
+- Guidance
+- Strategy selection
+- Risk assessment beyond disclosed constraints
+
+Understanding is permitted.  
+Expectation is not supplied.
+
+---
+
+### 15.10.7 Relationship to Trust
+
+Trust in YieldLoop arises from repetition of closure, not continuity of outcomes.
+
+By ending every cycle, every period, and every disclosure cleanly, the system ensures that:
+
+- Confidence is earned incrementally
+- Skepticism remains valid
+- No dependency on belief forms
+
+Trust compounds only through time and evidence.
+
+---
+
+### 15.10.8 Design Rationale
+
+Most financial systems rely on implied continuity to retain users.  
+YieldLoop relies on enforced endings to remain honest.
+
+By closing every narrative surface, the system prevents:
+
+- Soft promises
+- Behavioral nudging
+- Expectation anchoring
+
+YieldLoop does not ask users to believe.  
+It asks them to observe.
+
+---
+
+## 15.11 Non-Induced Adoption and Emergent Interest
+
+YieldLoop is designed to allow adoption and attention to emerge **without inducement, coordination, or promise**.  
+This section explains why interest may arise despite the absence of promotional mechanics—and why that outcome does not violate the system’s constraints.
+
+Adoption, if it occurs, is incidental to truth exposure.
+
+---
+
+### 15.11.1 Purpose
+
+The purpose of this section is to clarify:
+
+- How interest may form without marketing incentives
+- Why visibility does not imply inducement
+- How transparency can coexist with neutrality
+- Why emergent adoption is structurally permitted
+
+YieldLoop does not seek adoption.  
+It permits observation.
+
+---
+
+### 15.11.2 Conditions for Emergent Interest
+
+Emergent interest may occur when external observers detect:
+
+- Repeated completion of execution cycles
+- Persistent accounting finality across time
+- Scarce and throttled token issuance
+- Stepwise changes in accounting floor behavior
+- Structural constraints that resist dilution
+
+None of these conditions are engineered to attract users.  
+They are consequences of system rules applied consistently.
+
+---
+
+### 15.11.3 Absence of Inducement Mechanisms
+
+YieldLoop explicitly excludes inducement mechanisms such as:
+
+- Emissions or inflationary rewards
+- Time-based incentives
+- Referral-driven bonuses
+- Performance-based marketing claims
+- Forward-looking statements or projections
+
+Interest that arises does so **despite** the absence of these mechanisms.
+
+---
+
+### 15.11.4 Observer-Led Discovery
+
+Any narrative regarding YieldLoop’s potential, performance, or implications must originate externally.
+
+The system does not:
+- Promote interpretations
+- Highlight favorable outcomes
+- Suppress unfavorable outcomes
+- Respond to speculative commentary
+
+Discovery, if it occurs, is uncoordinated and observer-led.
+
+---
+
+### 15.11.5 Accidental Attention and System Integrity
+
+If YieldLoop attracts attention or participation beyond its initial scope, such attention does not alter:
+
+- Execution rules
+- Accounting logic
+- Token issuance constraints
+- Disclosure boundaries
+- Governance limitations
+
+The system does not adapt to interest.  
+Interest adapts to the system.
+
+---
+
+### 15.11.6 Regulatory and Ethical Implications
+
+By refusing inducement and preserving interpretive neutrality, YieldLoop maintains:
+
+- Separation between disclosure and promotion
+- Clear boundaries between observation and solicitation
+- Ethical consistency across growth phases
+
+Emergent adoption does not convert historical disclosure into future promise.
+
+---
+
+### 15.11.7 Design Rationale
+
+Most platforms design for attention and attempt to justify it later.  
+YieldLoop designs for correctness and accepts attention only if it survives scrutiny.
+
+If YieldLoop grows, it will do so because:
+
+- Finality repeats
+- Constraints hold
+- Accounting remains honest
+- Time passes
+
+No other explanation is required.
+
+YieldLoop does not manufacture belief.  
+It allows belief to fail or succeed on its own.
+
+---
+
+## 15.12 Observable Constraints and Bounded Optionality
+
+YieldLoop exposes **system constraints** while limiting **user optionality** to predefined, non-manipulable ranges.  
+This section defines how flexibility may exist without introducing discretion, inducement, or manual control.
+
+Constraint visibility is permitted.  
+Constraint violation is not.
+
+---
+
+### 15.12.1 Purpose
+
+The purpose of observable constraints is to:
+
+- Allow external reasoning about system limits
+- Prevent hidden levers or discretionary control
+- Preserve mechanical neutrality
+- Eliminate the perception of operator influence
+
+YieldLoop does not optimize outcomes.  
+It constrains behavior.
+
+---
+
+### 15.12.2 Definition of Bounded Optionality
+
+Bounded optionality refers to parameters that may vary **only within predefined ranges** and **only through deterministic or automated processes**.
+
+Examples include (non-exhaustive):
+
+- Dynamic Mint Ratio operating within fixed bounds
+- Strategy parameter ranges selected prior to authorization
+- Execution frequency caps
+- Capital exposure limits
+- Redemption rate limits (if enabled)
+
+Optionality exists only where explicitly bounded.
+
+---
+
+### 15.12.3 Prohibition on Manual Control
+
+No participant—including administrators, operators, or governance actors—may:
+
+- Manually adjust parameters outside defined ranges
+- Override system constraints
+- Intervene mid-cycle
+- Select outcomes or timing
+- Influence token issuance directly
+
+All variability must be:
+
+- Predefined
+- Deterministic
+- Automated
+- Prospectively applied
+
+If human judgment is required, the action is invalid.
+
+---
+
+### 15.12.4 Emergency Mode Constraints
+
+Emergency mechanisms, if present, are constrained to **preservation only**.
+
+Emergency actions may include:
+
+- Halting execution
+- Preventing further authorization
+- Freezing new cycles
+- Entering Recovery State
+
+Emergency actions must not:
+
+- Modify settled outcomes
+- Mint or burn tokens
+- Reallocate capital
+- Create advantage or disadvantage
+- Alter accounting logic
+
+Emergency mode exists to stop damage, not to create outcomes.
+
+---
+
+### 15.12.5 Visibility of Constraint Ranges
+
+Where practical, YieldLoop may disclose:
+
+- Parameter bounds
+- Constraint ranges
+- Invariant rules
+- Trigger conditions (non-exhaustive)
+
+Such disclosure must be:
+
+- Descriptive, not prescriptive
+- Historical or static
+- Free of optimization guidance
+
+Visibility exists to prevent speculation about hidden control.
+
+---
+
+### 15.12.6 Relationship to Trust and Adoption
+
+Trust in YieldLoop arises from the absence of discretionary power.
+
+By limiting optionality to bounded ranges and exposing constraints openly, the system ensures that:
+
+- Outcomes cannot be engineered
+- Success cannot be forced
+- Failure cannot be hidden
+- Operators cannot intervene selectively
+
+Users do not trust YieldLoop because it is flexible.  
+They trust it because it is not.
+
+---
+
+### 15.12.7 Non-Implication of Optimization
+
+The existence of bounded optionality does not imply:
+
+- Optimization intent
+- Adaptive intelligence
+- Market responsiveness
+- Performance tuning
+- Strategic superiority
+
+Bounded optionality constrains risk.  
+It does not pursue gain.
+
+---
+
+### 15.12.8 Design Rationale
+
+Most systems hide discretion and advertise flexibility.  
+YieldLoop hides nothing and restricts everything.
+
+By enforcing visible constraints and bounded optionality, the system:
+
+- Prevents narrative manipulation
+- Resists governance capture
+- Survives scrutiny
+- Allows accidental interest without inducement
+
+YieldLoop does not promise outcomes.  
+It promises limits.
+
+---
+
 ## 16. Final Word — What This System Optimizes For
 
 YieldLoop does not optimize for yield.
