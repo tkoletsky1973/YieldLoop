@@ -292,6 +292,8 @@ There is no smoothing, no carryover, no assumed yield, and no rolling state.
 
 Every cycle ends. Every result is final.
 
+YieldLoop may expose execution state indicators (e.g., active, halted, pending settlement) that convey process status without economic implication.
+
 ---
 
 ### 1.1 What YieldLoop Does
@@ -354,6 +356,14 @@ If it does not, it tells the truth.
 That constraint is not a limitation.
 
 It is the design.
+
+### 1.4 What YieldLoop Guarantees (Regardless of Outcome):
+
+	•	Your principal is never charged a fee.
+	•	A cycle always ends.
+	•	Settlement always occurs or resolves conservatively.
+	•	Zero is the worst valid outcome.
+	•	No hidden dilution, emissions, or retroactive changes exist.
 
 ---
 
