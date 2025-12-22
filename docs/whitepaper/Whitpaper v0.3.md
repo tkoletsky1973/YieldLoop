@@ -1958,6 +1958,126 @@ The UI is not there to sell the system.
 It is there to prevent misunderstanding.
 
 ---
+## 12.9 Public Proof Feed (Completed Cycles Ledger)
+
+YieldLoop exposes a public, read-only record of completed execution cycles (the **Proof Feed**).  
+This feed exists to provide verifiable evidence of finalized outcomes without exposing live execution, projections, or user-specific positions.
+
+The Proof Feed is not a performance dashboard.  
+It is an accounting artifact.
+
+Only cycles that have fully completed execution and settlement may appear in the Proof Feed.  
+No active, pending, halted, or estimated activity is ever shown.
+
+---
+
+### 12.9.1 Purpose and Scope
+
+The Proof Feed exists to enforce external verifiability of YieldLoop’s core guarantees:
+
+- That every execution cycle ends
+- That profit is recognized only after settlement
+- That zero is a valid and visible outcome
+- That no outcome is implied before it is finalized
+
+The Proof Feed allows third parties to independently observe the system’s behavior over time without requiring trust in projections, dashboards, or narratives.
+
+---
+
+### 12.9.2 Inclusion Rules
+
+A cycle is eligible to appear in the Proof Feed **only** if all of the following are true:
+
+- Execution has permanently stopped
+- Settlement has completed deterministically
+- Final balances and costs have been snapshotted
+- Profit has been either verified or rejected
+
+Cycles that resolve to zero, enter Recovery State, or produce no surplus **must** appear in the Proof Feed.  
+Omission of non-profitable cycles is prohibited.
+
+---
+
+### 12.9.3 Recorded Data
+
+Each entry in the Proof Feed represents exactly one completed cycle and records, at minimum, the following finalized data:
+
+- Cycle identifier
+- Vault type (user or system-owned)
+- Base settlement asset
+- Cycle start timestamp
+- Cycle end timestamp
+- Cycle duration
+- Starting vault balance
+- Ending vault balance
+- Total costs incurred
+- Net result (positive or zero)
+- Verified profit amount (zero if non-positive)
+- Platform fee applied (zero if non-positive)
+- LOOP minted (zero if non-positive)
+- Dynamic Mint Ratio applied
+- Accounting floor immediately after settlement
+
+All values recorded in the Proof Feed are immutable once published.
+
+---
+
+### 12.9.4 Presentation Constraints
+
+The Proof Feed must adhere to the following constraints:
+
+- Entries are ordered chronologically by settlement completion
+- No aggregation, smoothing, or averaging is permitted
+- No derived metrics, performance indicators, or projections are permitted
+- No filtering that biases toward profitable outcomes is permitted
+- No real-time or mid-cycle data is permitted
+
+The Proof Feed may be paginated or scrollable but must remain complete and historically intact.
+
+---
+
+### 12.9.5 Explicit Prohibitions
+
+The Proof Feed must never display or imply:
+
+- Annualized yields or APY
+- Expected, estimated, or projected performance
+- Live profit or loss
+- “Current cycle” indicators
+- Success rates or win percentages
+- Forward-looking incentives or promises
+
+If a value cannot be known with certainty at settlement, it must not appear.
+
+---
+
+### 12.9.6 Relationship to the User Interface
+
+The Proof Feed is distinct from user-specific vault views.
+
+- User interfaces may display individual vault results after settlement
+- The Proof Feed displays only finalized, non-interactive historical records
+- No action may be taken from the Proof Feed
+- No authorization, execution, or configuration may originate from it
+
+The Proof Feed exists solely to expose completed truth.
+
+---
+
+### 12.9.7 Design Rationale
+
+Most financial systems expose motion and hide finality.  
+YieldLoop does the opposite.
+
+By exposing only what has finished, the Proof Feed ensures that:
+
+- Accounting cannot drift
+- Narratives cannot substitute for outcomes
+- Trust accumulates through repetition of closure
+
+The Proof Feed does not optimize engagement.  
+It optimizes verifiability.
+---
 
 ## 13. Optional Programs (Isolated From the Core Engine)
 
