@@ -294,6 +294,8 @@ Every cycle ends. Every result is final.
 
 YieldLoop may expose execution state indicators (e.g., active, halted, pending settlement) that convey process status without economic implication.
 
+Redemption rules may restrict timing and rate, but may not introduce discretionary denial or retroactive impairment of valid LOOP.
+
 ---
 
 ### 1.1 What YieldLoop Does
