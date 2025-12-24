@@ -369,6 +369,127 @@ It is the design.
 
 ---
 
+## 1.5 — The YieldLoop Mental Model (Read This First)
+
+YieldLoop is not a strategy, a fund, or a yield product.
+
+It is a **truth-enforcing execution and accounting machine**.
+
+If you understand the following model, you understand the entire system.
+
+---
+
+### The Core Shape of YieldLoop
+
+Everything in YieldLoop follows the same structure:
+
+**Vault → Cycle → Settlement → Final Outcome**
+
+Nothing exists outside that sequence.
+
+---
+
+### Vaults: Absolute Isolation
+
+Each user operates inside a **dedicated, non-custodial vault**.
+
+- Your assets never mix with other users
+- Your execution cannot affect anyone else
+- No shared pools exist
+- No losses are socialized
+- No gains are redistributed
+
+If your vault fails, it fails alone.  
+If it succeeds, it succeeds alone.
+
+---
+
+### Cycles: The Unit of Truth
+
+Nothing in YieldLoop is continuous.
+
+Execution happens only inside a **fixed-duration cycle** that the user explicitly authorizes.
+
+A cycle:
+- Has a defined start
+- Has a defined end
+- Locks all parameters
+- Cannot be modified once started
+- Must always terminate
+
+If a cycle does not end, **nothing counts**.
+
+---
+
+### Settlement: Where Reality Is Forced
+
+When execution stops, the system settles exactly once.
+
+At settlement:
+- Starting balances are compared to ending balances
+- All gas and protocol costs are deducted
+- Unrealized value is ignored
+- Ambiguity resolves conservatively
+
+There is no interpretation.
+There is no smoothing.
+There is no carryover.
+
+---
+
+### The Only Two Valid Outcomes
+
+After settlement, **only one of two outcomes may exist**:
+
+1. **Verified Profit Exists**
+2. **No Verified Profit Exists (Zero)**
+
+There is no middle state.
+
+If profit does not survive all costs and accounting rules, it is treated as zero.
+Zero is not an error.
+Zero is not a failure.
+Zero is a correct and final result.
+
+---
+
+### Where LOOP Appears (and Where It Does Not)
+
+LOOP exists **only after** a profitable cycle has fully settled.
+
+- LOOP is minted only from verified, retained surplus
+- LOOP does not exist during execution
+- LOOP does not represent yield, incentives, or future expectations
+- LOOP cannot appear if a cycle resolves to zero
+
+If YieldLoop produces no surplus, LOOP does not grow.
+
+---
+
+### What Never Happens in YieldLoop
+
+To understand YieldLoop, it is equally important to understand what is **structurally impossible**:
+
+- No pooled user funds
+- No assumed or projected yield
+- No emissions or inflation
+- No mid-cycle intervention
+- No parameter changes once execution begins
+- No retroactive adjustments
+- No forced activity during bad conditions
+
+If something requires pretending profit exists before settlement, YieldLoop does not allow it.
+
+---
+
+### One Sentence Summary
+
+**YieldLoop executes what was authorized, forces execution to stop, settles honestly, and records only what survived reality.**
+
+Everything else in this document is a consequence of that rule.
+
+---
+
 ## 2. The Core Problem
 
 Most DeFi systems do not fail because markets are difficult.
@@ -2077,6 +2198,104 @@ By exposing only what has finished, the Proof Feed ensures that:
 
 The Proof Feed does not optimize engagement.  
 It optimizes verifiability.
+
+---
+
+### 12.10 — Who Should Not Use YieldLoop
+
+YieldLoop is deliberately restrictive by design.
+It prioritizes accounting truth, finality, and survivability over comfort, predictability, or engagement.
+
+This system is **not suitable** for everyone.
+
+You should **not** use YieldLoop if any of the following are true:
+
+---
+
+#### You Expect Predictable or Continuous Income
+
+YieldLoop does not provide:
+- Guaranteed returns
+- Predictable yield
+- Income smoothing
+- Regular payouts
+
+Cycles may resolve to zero.
+Extended periods of zero-result cycles are normal and expected.
+
+If you require consistent income, this system will frustrate you.
+
+---
+
+#### You Expect APYs, Projections, or Performance Estimates
+
+YieldLoop does not display:
+- APYs
+- Expected returns
+- Forward-looking metrics
+- Performance projections
+
+If you need estimates to justify participation, YieldLoop cannot provide them.
+
+---
+
+#### You Are Uncomfortable With Finality
+
+Once a cycle is authorized:
+- Parameters cannot be changed
+- Execution cannot be stopped for convenience
+- Capital cannot be partially exited
+- Outcomes cannot be revised after settlement
+
+If you expect flexibility during execution, this system is not for you.
+
+---
+
+#### You Expect Active Management or Optimization
+
+YieldLoop does not:
+- Optimize strategies
+- Reallocate capital dynamically
+- React to market conditions
+- Adjust parameters mid-cycle
+- “Rescue” underperforming execution
+
+Execution follows what was authorized — nothing more.
+
+---
+
+#### You Expect Tokens to Represent Promises
+
+LOOP does not represent:
+- Future yield
+- Guaranteed redemption
+- Price appreciation
+- Loss protection
+- Participation rights
+
+If you interpret tokens as promises rather than records of past outcomes, you should not participate.
+
+---
+
+#### You Are Unwilling to Accept Zero as a Valid Outcome
+
+Zero-result cycles are not errors.
+They are correct results when profit does not survive all costs.
+
+If a zero outcome feels unacceptable, punitive, or broken, YieldLoop is not suitable.
+
+---
+
+### Explicit Warning
+
+YieldLoop exists to record reality — not to soften it.
+
+If you are seeking reassurance, predictability, or narratives that smooth over outcomes,
+you should not use this system.
+
+YieldLoop will not adapt to user expectations.
+Users must adapt to its rules.
+
 ---
 
 ## 13. Optional Programs (Isolated From the Core Engine)
