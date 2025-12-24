@@ -1815,6 +1815,81 @@ It tries to be correct.
 
 ---
 
+### 10.10 — Sources of Surplus (Non-Promissory)
+
+YieldLoop does not create profit.
+It records profit **only if it occurs**.
+
+Any surplus recognized by the system must originate from completed external economic activity.
+There are no internal mechanisms that manufacture value, smooth outcomes, or substitute accounting entries for real gains.
+
+The following are the **only categories** from which a cycle may produce verified surplus.
+
+---
+
+#### Market Exchange Activity
+
+Surplus may occur from completed spot-market actions, including:
+- Executed trades that close at a higher realized value than entry after all costs
+- Price discrepancies across venues
+- Bid–ask spread capture
+
+Price movement is not assumed.
+Trades are not guaranteed to close profitably.
+Unclosed or unrealized positions are excluded from settlement.
+
+---
+
+#### Protocol-Level Yield
+
+Surplus may occur from external protocols that:
+- Produce claimable rewards or fees
+- Transfer those rewards into the vault before settlement
+- Do not require leverage, borrowing, or rehypothecation
+
+Unclaimed, pending, or projected rewards are excluded.
+If yield cannot be reduced to a vault balance at settlement, it does not exist for accounting purposes.
+
+---
+
+#### Asset Reversion to Base Value
+
+Surplus may occur when:
+- Assets acquired during execution revert to a higher base-asset value at settlement
+- Conversion occurs using deterministic valuation rules
+
+Mark-to-market estimates are not sufficient.
+Only balances present in the vault at settlement are eligible.
+
+---
+
+#### Explicit Exclusions
+
+The following **cannot** generate surplus under any circumstances:
+- Emissions or inflationary rewards
+- Token incentives or rebates
+- Subsidized yield
+- Assumed appreciation
+- Accounting carryover from prior cycles
+- Internal revaluation of LOOP
+
+If surplus does not survive settlement rules, it is treated as zero.
+
+---
+
+### Interpretation Rule
+
+This section describes **possible origins of surplus**, not likelihood, frequency, or expectation.
+
+YieldLoop does not optimize for these sources.
+It does not rank them.
+It does not adapt execution to pursue them.
+
+If surplus occurs, it is recorded.
+If it does not, the cycle resolves to zero.
+
+---
+
 ## 11. Failure Modes & Recovery
 
 YieldLoop does not attempt to prevent failure.
