@@ -2410,6 +2410,43 @@ Live telemetry may inform users about *what is happening*, but never about *what
 
 Final outcomes are defined **only** by settlement.
 
+### 12.12 — Live Execution Telemetry (Non-Authoritative)
+
+YieldLoop may expose live execution telemetry during an active or halted cycle.
+This telemetry exists solely to provide visibility into system state and execution progress.
+
+Live telemetry is not accounting.
+
+The following data may be displayed during a cycle:
+- Current vault state (e.g., Active Execution, Halted Execution, Pending Settlement)
+- Time elapsed and time remaining in the authorized cycle
+- Vault balances at the moment of observation
+- Completed execution actions and timestamps
+- Historical snapshots of prior execution states
+
+The following data is explicitly prohibited from being displayed during execution:
+- Live or estimated profit and loss (P&L)
+- Yield, APY, ROI, or performance metrics
+- Implied or projected outcomes
+- LOOP eligibility, accrual, or issuance indicators
+- Any representation that suggests profit exists prior to settlement
+
+All values shown during execution are non-final and non-authoritative.
+They do not imply profit, loss, entitlement, or success.
+
+Economic meaning exists only at settlement.
+
+No accounting, fee assessment, or LOOP minting may occur unless and until:
+- Execution has fully stopped, and
+- Settlement has completed deterministically
+
+If a cycle resolves to a non-positive outcome, all live telemetry displayed during execution is rendered economically irrelevant.
+
+This separation is mandatory and exists to prevent assumed profit, narrative drift, and mid-cycle misinterpretation.
+Live telemetry may inform users about what is happening, but never about what it means.
+
+Final outcomes are defined only by settlement.
+
 ---
 
 ## 13. Optional Programs (Isolated From the Core Engine)
