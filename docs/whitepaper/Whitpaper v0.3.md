@@ -2,8 +2,8 @@
 ## A Cycle-Based Profit and Accounting System for DeFi
 
 **By:** Todd Koletsky  
-**Date:** December 21, 2025  
-**Version:** v0.3  
+**Date:** December 27, 2025  
+**Version:** v0.3.1
 
 ---
 
