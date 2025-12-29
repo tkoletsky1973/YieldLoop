@@ -1344,6 +1344,27 @@ Redemption represents access to **already-earned** surplus, not future performan
 
 ---
 
+### 7.9.1 Redemption Function Existence and Activation
+
+The protocol MUST expose a redemption mechanism for LOOP once LOOP supply is non-zero.
+
+Redemption is not promised in timing or liquidity, but the **ability to request redemption**
+is a required protocol feature once verified retained surplus has produced LOOP.
+
+Rules:
+
+- The redemption function MUST exist whenever LOOP exists.
+- The redemption function MUST NOT exist prior to the first successful LOOP mint.
+- Redemption availability is conditional on retained surplus liquidity, not on UI discretion.
+- Redemption requests MAY be immediately fulfilled, partially fulfilled, queued, or rate-limited
+  according to protocol-defined solvency rules.
+- Redemption requests MUST NOT be arbitrarily denied, revoked, or invalidated once accepted.
+
+Redemption represents access to **already-earned retained surplus**, not a claim on future cycles,
+future profits, or expected performance.
+
+---
+
 ### 7.10 Why LOOP Exists
 
 Most systems hide failure behind tokens.
@@ -2087,6 +2108,53 @@ During execution, the UI intentionally withholds speculative information.
 Results are shown **only after settlement**.
 
 ---
+
+### 12.4.1 LOOP Redemption Interface (Conditional Visibility)
+
+The user interface MUST expose a LOOP redemption panel once LOOP supply is non-zero.
+
+This panel represents a **request mechanism**, not a promise of immediacy.
+
+#### Visibility Rules
+
+- If LOOP supply is zero:
+  - The redemption panel MUST NOT be visible.
+  - No redemption rate or floor value is displayed.
+
+- If LOOP supply is greater than zero:
+  - The redemption panel MUST become visible automatically.
+  - Visibility MUST NOT depend on discretionary UI toggles or admin action.
+
+#### Required Panel Elements
+
+The redemption interface MUST display the following, without interpretation or projection:
+
+- User LOOP balance
+- Total verified retained surplus (system-wide, base-asset terms)
+- Accounting floor per LOOP (if defined)
+- Currently redeemable surplus (liquid)
+- Pending or queued redemption amount (if applicable)
+
+#### User Actions
+
+The panel MUST allow the user to:
+
+- Submit a redemption request for a specified amount of LOOP
+- Receive immediate fulfillment up to available redeemable surplus, if permitted
+- Queue the remaining portion automatically if liquidity is insufficient
+
+If redemption cannot be fulfilled immediately, the UI MUST state this explicitly.
+
+The UI MUST NOT:
+
+- Display guaranteed redemption timing
+- Display projected redemption values
+- Imply market price, peg, or obligation
+- Mask queue placement as execution failure
+
+Redemption is an accounting release, not an incentive mechanism.
+
+--- 
 
 ### 12.5 Active Cycle Visibility
 
