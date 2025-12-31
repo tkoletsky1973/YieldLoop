@@ -826,13 +826,14 @@ Accounting is not allowed to lie.
 Settlement is the point at which YieldLoop forces reality.
 
 Nothing that occurs during execution is considered final until settlement completes.  
-No balance, gain, or loss is recognized as real unless it survives this process.
+No balance change, trade outcome, or reward is recognized as real unless it survives this process.
+
+YieldLoop enforces finality without forcing liquidation.
+
+**Profit is recognized only when value is realized into the designated settlement asset at or before settlement.**  
+**Positions remaining open at cycle end are recorded as inventory, not as gains or losses, and do not affect profit verification.**
 
 This section defines how profit is determined, how zero outcomes occur, and why finality is absolute.
-
-Profit is recognized only when value is realized into the designated settlement asset at or before settlement.
-
-Positions remaining open at cycle end are recorded as inventory, not as gains or losses, and do not affect profit verification.
 
 ---
 
@@ -857,29 +858,36 @@ No execution is permitted during settlement.
 
 ### 7.2 What Settlement Measures
 
-Settlement compares the vault’s state at two points in time:
-- The starting balances at cycle authorization
-- The ending balances when execution has fully stopped
+Settlement records the vault’s state at two points in time:
+- Starting balances at cycle authorization
+- Ending balances when execution has fully stopped
 
-During settlement:
-- All assets held by the vault are snapshotted
-- All execution-related costs are deducted
-- All protocol, gas, and execution expenses are accounted for
-- Unrealized or non-claimable value is excluded
+Settlement produces two outputs:
 
-Only assets verifiably held by the vault at settlement time are considered.
+1) **Realized Settlement Outcome (Authoritative)**
+- Measures only the vault’s balance of the designated **settlement asset** (e.g., USDT, USDC, BNB)
+- Deducts all execution-related costs
+- Determines whether verified profit exists
+
+2) **Inventory Report (Non-Authoritative)**
+- Lists all non-settlement assets still held by the vault at cycle end
+- Records quantities and provenance for audit and transparency
+- Does not count as profit or loss
+- Is not marked to market for profit verification purposes
+
+All assets held by the vault are snapshotted for recordkeeping, but **only realized settlement assets are eligible to determine verified profit**.
 
 ---
 
 ### 7.3 Net Result Calculation
 
-Settlement produces a single net result.
+Settlement produces a single authoritative net result based on realized settlement assets.
 
 Conceptually:
 
-Ending Value  
-− Starting Value  
-− All Costs  
+(Ending Settlement Asset Balance)  
+− (Starting Settlement Asset Balance)  
+− (All Execution Costs denominated in the settlement asset)
 
 The outcome is evaluated strictly.
 
@@ -887,9 +895,16 @@ If the net result is positive:
 - Verified profit exists
 
 If the net result is zero or negative:
+- Verified profit does not exist
 - The outcome is treated as zero
 
-There is no partial credit.
+Inventory assets held at cycle end:
+- Do not increase the net result
+- Do not reduce the net result
+- Do not qualify as profit
+- Do not constitute a recognized loss
+
+They are simply recorded as inventory and carried forward as vault-held assets, subject to user authorization for future cycles.
 
 ---
 
@@ -897,14 +912,15 @@ There is no partial credit.
 
 Profit is recognized only if it:
 - Exists after all costs
+- Is realized into the designated settlement asset
 - Can be determined deterministically
-- Survives valuation without ambiguity
+- Survives settlement without ambiguity
 
 Profit that:
-- Exists only temporarily
-- Depends on unrealized value
+- Exists only temporarily mid-cycle
+- Depends on unrealized inventory value
 - Requires interpretation
-- Cannot be resolved conclusively
+- Cannot be resolved conclusively in settlement-asset terms
 
 does not count.
 
@@ -917,9 +933,9 @@ Settlement prefers rejecting profit over assuming it.
 A zero-result cycle is not an error.
 
 Zero means:
-- Execution occurred
-- Accounting completed
-- No verified surplus remained after costs
+- Execution occurred (or halted)
+- Settlement completed
+- No verified surplus remained in realized settlement assets after costs
 
 In a zero-result cycle:
 - No platform fees are charged
@@ -935,8 +951,8 @@ Zero is final and requires no justification.
 
 Settlement must be deterministic.
 
-If any required input:
-- Cannot be valued
+If any required input for the **realized settlement outcome**:
+- Cannot be accounted for
 - Is ambiguous
 - Is unavailable
 - Produces inconsistent results
@@ -944,10 +960,17 @@ If any required input:
 the system resolves conservatively.
 
 Conservative resolution means:
-- Profit is rejected
+- Verified profit is rejected
 - The cycle resolves to zero
-- User funds remain intact
+- User funds remain in the vault
 - Execution does not resume
+
+Conservative resolution applies to **profit verification**, not to inventory pricing.
+
+Inventory assets may be recorded without affecting profit even if:
+- Their market value is uncertain
+- Their pricing sources differ
+- Their liquidity is limited
 
 Truth is preferred over optimism.
 
@@ -980,7 +1003,7 @@ YieldLoop enforces finality to preserve trust.
 
 By forcing execution to end and accounting to close:
 - Risk cannot accumulate silently
-- Losses cannot be deferred indefinitely
+- Losses cannot be deferred indefinitely through accounting tricks
 - Profit cannot be implied without proof
 
 Finality is not punitive.
