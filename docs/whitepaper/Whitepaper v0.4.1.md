@@ -828,7 +828,7 @@ Settlement is the point at which YieldLoop forces reality.
 Nothing that occurs during execution is considered final until settlement completes.  
 No balance change, trade outcome, or reward is recognized as real unless it survives this process.
 
-YieldLoop enforces finality without forcing liquidation.
+YieldLoop enforces finality **without forcing liquidation**.
 
 **Profit is recognized only when value is realized into the designated settlement asset at or before settlement.**  
 **Positions remaining open at cycle end are recorded as inventory, not as gains or losses, and do not affect profit verification.**
@@ -904,7 +904,7 @@ Inventory assets held at cycle end:
 - Do not qualify as profit
 - Do not constitute a recognized loss
 
-They are simply recorded as inventory and carried forward as vault-held assets, subject to user authorization for future cycles.
+They are recorded as inventory and may remain in the vault after cycle close.
 
 ---
 
