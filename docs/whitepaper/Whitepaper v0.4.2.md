@@ -435,33 +435,75 @@ Assets remain idle and withdrawable until the user explicitly authorizes a cycle
 
 ---
 
-### 4.2 Execution Cycles
+## 4.2 Execution Cycles (Accounting Scope)
 
-Execution occurs only inside **explicit, user-authorized cycles**.
+Execution in YieldLoop is organized into **discrete cycles that serve strictly as accounting boundaries**.
+
+A cycle defines the **time-bounded window over which execution activity is measured, settled, and finalized for accounting purposes**. Cycles exist to enforce clarity, determinism, and finality in profit recognition. They do **not** exist to manage, revoke, or terminate asset state or user intent.
 
 A cycle:
-- Has a fixed duration
-- Locks all parameters at authorization
-- Allows only predefined actions
-- Cannot be modified once started
-- Must always end
 
-Execution may produce activity, trades, or realized proceeds, but none of these are considered final until settlement completes.
+- Has a defined start and end time  
+- Establishes the accounting window for profit verification  
+- Determines when settlement occurs  
+- Produces exactly one finalized accounting result  
+- Closes immutably once settlement completes  
+
+At cycle end:
+
+- Accounting finalizes  
+- Profit recognition stops  
+- Fees (if any) are assessed only on verified profit  
+- Surplus accounting representations (e.g., LOOP) may be created  
+- The cycle ledger is permanently closed  
+
+Cycle completion **does not**:
+
+- Force liquidation of open positions  
+- Invalidate existing asset holdings  
+- Alter user-selected strategy parameters  
+- Revoke previously authorized execution intent  
+
+Open positions that are not closed within a cycle are carried forward as **inventory**. Inventory is recorded separately for transparency and auditability and does not participate in profit or loss recognition for the completed cycle.
+
+Execution cycles bound **accounting truth**, not ownership, intent, or asset continuity.
 
 ---
 
-### 4.3 Strategy Modules
+## 4.3 Strategy Mandates and Execution Continuity
 
-Strategies are **constrained execution modules**, not advice engines.
+When a user selects a strategy and authorizes execution, they establish a **standing execution mandate** under the chosen parameters.
 
-A strategy:
-- Operates only within an active cycle
-- Can act only within predefined bounds
-- Cannot adapt, optimize, or intervene dynamically
-- Must halt immediately on failure or constraint violation
+This mandate defines:
 
-Strategies do not know whether they are profitable.  
-They execute what was authorized and nothing more.
+- The strategy type  
+- Execution rules and bounds  
+- Asset scope  
+- Compounding or routing preferences  
+- Risk and exposure constraints  
+
+These parameters remain **valid and in force** unless the user explicitly changes or revokes them.
+
+Execution authority does **not** automatically expire at the end of an accounting cycle. Instead:
+
+- Cycles delimit **when execution outcomes are measured**, not whether execution intent persists  
+- Strategy configuration remains unchanged across cycles by default  
+- Execution may continue under the same mandate into subsequent cycles without reconfiguration  
+
+No new behavior is introduced automatically. No strategy may exceed or alter its originally authorized bounds. The system does not adapt, escalate, or mutate strategy behavior across cycles.
+
+Users retain full control to:
+
+- Modify strategy parameters  
+- Change compounding or routing preferences  
+- Close positions manually  
+- Disable execution entirely  
+
+Absent such action, the system continues to operate **exactly as previously authorized**, with each cycle producing an independent accounting outcome.
+
+Cycles close books.  
+Strategies persist by user choice.  
+Nothing changes unless the user says it does.
 
 ---
 
