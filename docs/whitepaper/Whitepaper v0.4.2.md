@@ -863,194 +863,157 @@ Accounting is not allowed to lie.
 
 ---
 
-## 7. Settlement, Profit, and Finality
+## 7. Settlement, Profit, and Deferred Realization
 
-Settlement is the point at which YieldLoop forces reality.
+### 7.0 Core Rules
 
-Nothing that occurs during execution is considered final until settlement completes.  
-No balance change, trade outcome, or reward is recognized as real unless it survives this process.
-
-YieldLoop enforces finality **without forcing liquidation**.
-
-**Profit is recognized only when value is realized into the designated settlement asset at or before settlement.**  
-**Positions remaining open at cycle end are recorded as inventory, not as gains or losses, and do not affect profit verification.**
-
-This section defines how profit is determined, how zero outcomes occur, and why finality is absolute.
-
----
-
-### 7.1 When Settlement Occurs
-
-Settlement begins only after execution has fully stopped.
-
-Execution may end because:
-- The cycle duration has expired
-- A strategy has halted due to failure or constraint violation
-- Execution completed normally
-
-Settlement:
-- Occurs exactly once per cycle
-- Cannot begin early
-- Cannot be skipped
-- Cannot be repeated
-
-No execution is permitted during settlement.
+- Execution occurs only inside authorized cycles.
+- Settlement occurs exactly once per cycle.
+- Settlement is final and immutable.
+- Profit is recognized only when value is realized.
+- Unrealized positions may persist across cycles.
+- Unrealized positions do not count as profit.
+- Unrealized positions do not count as loss.
+- No mark-to-market accounting is permitted.
+- No retroactive accounting is permitted.
 
 ---
 
-### 7.2 What Settlement Measures
+### 7.1 Definitions
 
-Settlement records the vault’s state at two points in time:
-- Starting balances at cycle authorization
-- Ending balances when execution has fully stopped
+- **Settlement Asset**  
+  The single accounting asset selected at cycle authorization (e.g., USDT, USDC, BNB).
 
-Settlement produces two outputs:
+- **Realized Value**  
+  Value that exists as a balance of the settlement asset at settlement time.
 
-1) **Realized Settlement Outcome (Authoritative)**
-- Measures only the vault’s balance of the designated **settlement asset** (e.g., USDT, USDC, BNB)
-- Deducts all execution-related costs
-- Determines whether verified profit exists
+- **Inventory**  
+  Any asset or position not converted into the settlement asset at settlement time.
 
-2) **Inventory Report (Non-Authoritative)**
-- Lists all non-settlement assets still held by the vault at cycle end
-- Records quantities and provenance for audit and transparency
-- Does not count as profit or loss
-- Is not marked to market for profit verification purposes
-
-All assets held by the vault are snapshotted for recordkeeping, but **only realized settlement assets are eligible to determine verified profit**.
+- **Inventory Lot**  
+  A discrete position with:
+  - Identifiable acquisition transaction(s)
+  - Deterministic cost basis denominated in settlement asset
+  - Persisted state across cycles until realized or withdrawn
 
 ---
 
-### 7.3 Net Result Calculation
+### 7.2 Settlement Inputs
 
-Settlement produces a single authoritative net result based on realized settlement assets.
+For each cycle, settlement operates on the following immutable inputs:
 
-Conceptually:
-
-(Ending Settlement Asset Balance)  
-− (Starting Settlement Asset Balance)  
-− (All Execution Costs denominated in the settlement asset)
-
-The outcome is evaluated strictly.
-
-If the net result is positive:
-- Verified profit exists
-
-If the net result is zero or negative:
-- Verified profit does not exist
-- The outcome is treated as zero
-
-Inventory assets held at cycle end:
-- Do not increase the net result
-- Do not reduce the net result
-- Do not qualify as profit
-- Do not constitute a recognized loss
-
-They are recorded as inventory and may remain in the vault after cycle close.
+- `S0` — Settlement asset balance at cycle authorization
+- `S1` — Settlement asset balance after execution halts
+- `C` — Total execution costs denominated in settlement asset
+- `R` — Sum of realized proceeds from inventory lots closed during the cycle
+- `B` — Sum of cost basis for inventory lots closed during the cycle
 
 ---
 
-### 7.4 Profit Recognition Rules
+### 7.3 Inventory Persistence Rules
 
-Profit is recognized only if it:
-- Exists after all costs
-- Is realized into the designated settlement asset
-- Can be determined deterministically
-- Survives settlement without ambiguity
-
-Profit that:
-- Exists only temporarily mid-cycle
-- Depends on unrealized inventory value
-- Requires interpretation
-- Cannot be resolved conclusively in settlement-asset terms
-
-does not count.
-
-Settlement prefers rejecting profit over assuming it.
+- Inventory may persist across cycles without limitation.
+- Inventory persistence does not imply execution.
+- Inventory persistence does not imply profit.
+- Inventory is inert outside an active cycle.
+- Inventory may only be acted upon inside a newly authorized cycle.
+- Inventory may not change state outside execution.
 
 ---
 
-### 7.5 Zero Outcomes Are Valid
+### 7.4 Inventory Cost Basis
 
-A zero-result cycle is not an error.
-
-Zero means:
-- Execution occurred (or halted)
-- Settlement completed
-- No verified surplus remained in realized settlement assets after costs
-
-In a zero-result cycle:
-- No platform fees are charged
-- No surplus is recorded
-- No accounting representations are created
-- The cycle closes normally
-
-Zero is final and requires no justification.
+- Every inventory lot must have a deterministic cost basis.
+- Cost basis is recorded in settlement-asset units.
+- Cost basis is derived exclusively from executed on-chain receipts.
+- Oracles, averages, or estimates are prohibited.
+- If cost basis cannot be determined deterministically, the lot is ineligible for profit recognition.
 
 ---
 
-### 7.6 Determinism and Conservative Resolution
+### 7.5 Realization Events
 
-Settlement must be deterministic.
+A realization event occurs only when all of the following are true:
 
-If any required input for the **realized settlement outcome**:
-- Cannot be accounted for
-- Is ambiguous
-- Is unavailable
-- Produces inconsistent results
+- The position is actively closed during an authorized cycle.
+- Proceeds are converted into the settlement asset.
+- The close completes before settlement begins.
+- All execution costs are attributable deterministically.
 
-the system resolves conservatively.
-
-Conservative resolution means:
-- Verified profit is rejected
-- The cycle resolves to zero
-- User funds remain in the vault
-- Execution does not resume
-
-Conservative resolution applies to **profit verification**, not to inventory pricing.
-
-Inventory assets may be recorded without affecting profit even if:
-- Their market value is uncertain
-- Their pricing sources differ
-- Their liquidity is limited
-
-Truth is preferred over optimism.
+Partial closes are permitted and must split inventory lots accordingly.
 
 ---
 
-### 7.7 Finality and Immutability
+### 7.6 Profit Calculation
 
-Once settlement completes:
-- Results are immutable
-- Accounting entries are permanent
-- Outcomes cannot be modified
-- The cycle cannot be reopened
+For each cycle:
 
-There are no appeals, rollbacks, or reinterpretations.
-
-Finality applies equally to:
-- Profitable cycles
-- Zero-result cycles
-- Failed or halted execution
-
-Every cycle ends with a final answer.
+Net_Inventory_PnL = R - B
+Net_Cash_PnL      = (S1 - S0) - C
+Net_Result        = Net_Inventory_PnL + Net_Cash_PnL
 
 ---
 
-### 7.8 Why Finality Is Enforced
+### 7.7 Binary Outcome Rule
 
-Most systems avoid finality to avoid admitting failure.
+- If `Net_Result > 0`  
+  → **Verified profit exists**
 
-YieldLoop enforces finality to preserve trust.
+- If `Net_Result ≤ 0`  
+  → **Verified profit does not exist**  
+  → Result is treated as zero
 
-By forcing execution to end and accounting to close:
-- Risk cannot accumulate silently
-- Losses cannot be deferred indefinitely through accounting tricks
-- Profit cannot be implied without proof
+No partial credit is permitted.
 
-Finality is not punitive.
+---
 
-It is the mechanism that makes truth unavoidable.
+### 7.8 Zero-Result Cycles
+
+A zero-result cycle:
+
+- Is a valid and final outcome
+- Does not charge platform fees
+- Does not mint accounting representations
+- Does not alter inventory state
+- Does not imply failure
+
+Zero is an accounting truth, not an error condition.
+
+---
+
+### 7.9 Finality Rules
+
+- Settlement closes the cycle ledger permanently.
+- Realized profit cannot be revised.
+- Unrealized inventory cannot be retroactively counted.
+- Later profitability of inventory does not affect past cycles.
+- Each cycle stands alone as a closed accounting unit.
+
+---
+
+### 7.10 Prohibited Behaviors
+
+The system must reject any attempt to:
+
+- Recognize unrealized gains as profit
+- Reprice inventory during settlement
+- Carry profit backward across cycles
+- Offset past losses with future gains
+- Assume profitability based on market movement
+- Close positions outside an authorized cycle
+
+Any prohibited behavior invalidates profit recognition for the cycle.
+
+---
+
+### 7.11 Governing Principle
+
+> Profit is not a condition.  
+> Profit is an event.  
+> Events occur only inside cycles.  
+> Cycles end.  
+> Accounting closes.
+
 
 ---
 
