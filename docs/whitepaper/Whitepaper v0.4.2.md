@@ -3,7 +3,7 @@
 
 **Author:** Todd Koletsky  
 **Date:** December 31, 2025  
-**Version:** v0.4.1
+**Version:** v0.4.2
 
 ---
 
