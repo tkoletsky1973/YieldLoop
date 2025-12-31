@@ -830,6 +830,10 @@ No balance, gain, or loss is recognized as real unless it survives this process.
 
 This section defines how profit is determined, how zero outcomes occur, and why finality is absolute.
 
+Profit is recognized only when value is realized into the designated settlement asset at or before settlement.
+
+Positions remaining open at cycle end are recorded as inventory, not as gains or losses, and do not affect profit verification.
+
 ---
 
 ### 7.1 When Settlement Occurs
