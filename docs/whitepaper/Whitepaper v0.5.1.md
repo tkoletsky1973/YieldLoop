@@ -647,7 +647,7 @@ YieldLoop enforces a **minimum external deposit amount**.
 
 Any deposit made into a vault — whether in USDT or LOOP — must meet a minimum value threshold.
 
-At launch, the minimum external deposit is expected to be **approximately $100 USDT (or equivalent in LOOP)**,subject to prospective adjustment via governance or publicly disclosed platform policy, effective only for future cycles.
+At launch, the minimum external deposit is expected to be **approximately $100 USDT (or equivalent in LOOP)**, subject to prospective adjustment via governance or publicly disclosed platform policy, effective only for future cycles.
 
 This minimum exists to:
 - ensure execution and settlement are economically viable
@@ -1221,7 +1221,7 @@ This selection establishes a standing instruction for profit handling.
 
 ---
 
-### 8.0.1 Timing of Profit Handling
+### 8.1.1 Timing of Profit Handling
 
 Profit handling modes in YieldLoop apply **only at monthly settlement**.
 
@@ -1368,7 +1368,7 @@ The minimum ECW requirement exists to:
 If the ECW balance is below the minimum:
 - a vault cannot be authorized for a new cycle
 
-
+This requirement mirrors the ECW minimum described in §4.7 and applies uniformly.
 
 ---
 
@@ -2313,6 +2313,8 @@ When redemption demand exceeds capacity:
 
 Temporary unavailability defers redemption timing; it does not fabricate liquidity, and it does not create debt.
 
+Redemption pacing, pauses, or queues may be enacted only through predefined protocol rules or prospectively disclosed governance actions and may not target individual users or requests.
+
 ---
 
 ### 14.9 What Happens if Surplus Liquidity Declines
@@ -2596,6 +2598,8 @@ All governance changes:
 
 No change applies silently.
 
+Redemption pacing, pauses, or queues may be enacted only through predefined protocol rules or prospectively disclosed governance actions and may not target individual users or requests.
+
 ---
 
 ### 16.3 Immutable System Constraints
@@ -2702,6 +2706,8 @@ Benefits:
 Eligibility does not guarantee compensation or selection.
 
 Any governance bounties are discretionary compensation for specific work or contributions, not a return on a Supporter contribution, and may be zero.
+
+Any Supporter-related fee discounts apply only to the user’s platform performance fee portion after settlement and do not alter profit calculation, LOOP minting rules, or system deposit allocations.
 
 ---
 
