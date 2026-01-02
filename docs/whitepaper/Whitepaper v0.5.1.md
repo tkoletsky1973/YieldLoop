@@ -1079,6 +1079,8 @@ At settlement:
 
 There is no trade-level profit recognition and no rolling settlement.
 
+(See §8.1.1 and §12.9 for settlement-time treatment.)
+
 ---
 
 ### 5.6 Strategy Halting Conditions
@@ -2483,7 +2485,7 @@ The accounting redemption parity of LOOP is defined as:
 This parity defines how retained surplus is recorded and how conversion is calculated when redemption occurs.  
 It does not guarantee immediate, continuous, or unconditional redemption.
 
-LOOP is a **receipt of retained, verified surplus**, redeemable at par value subject only to **liquidity availability and fairness rules**.
+LOOP is a receipt of retained, verified surplus, eligible for conversion at par value subject to liquidity availability and fairness rules..
 
 YieldLoop does not promise price appreciation and does not imply LOOP “goes up.”  
 It promises that LOOP represents accounted surplus and is redeemable at **par** when liquidity is available.
