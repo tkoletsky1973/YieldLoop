@@ -31,143 +31,182 @@
 
 ---
 
-## 1. Forward — What YieldLoop Is (and Is Not)
+# 1. Forward — What YieldLoop Is (and Is Not)
 
 YieldLoop exists to solve a narrow but critical problem in decentralized finance:
 
-**How can capital be deployed into trading and yield strategies without lying about outcomes, hiding risk, or manufacturing returns that do not exist?**
+**How can capital be deployed into execution-based strategies without lying about outcomes, hiding risk, or manufacturing returns that do not exist?**
 
-Most DeFi systems fail this test. They smooth results, project yields, emit tokens to mask losses, or quietly shift risk onto users. YieldLoop explicitly refuses to do that.
+Most DeFi systems fail this test. They project yield, smooth losses, emit tokens to mask drawdowns, or quietly shift risk onto users. YieldLoop explicitly refuses to do that.
 
 This system is built around **execution truth, settlement finality, and explicit consent**.
 
 ---
 
-### 1.1 What YieldLoop *Is*
+## 1.1 What YieldLoop Is
 
 YieldLoop is a **monthly, cycle-based execution and settlement system** that allows users to:
 
-- Deposit capital into an isolated vault  
-- Select explicit trading or yield strategies (or allow AI to suggest them)  
-- Approve all parameters in advance  
-- Commit funds to a fixed, calendar-based execution window  
-- Set how verified outcomes are handled before execution begins  
-- Receive outcomes that resolve cleanly at settlement to either:
-  - **verified net profit**, or  
-  - **no verified net profit** (which may be a zero result or a verified loss)
+- deposit capital into an isolated, non-pooled vault  
+- select deterministic trading or yield strategies (or accept AI-assisted suggestions)  
+- approve all parameters in advance  
+- pre-fund execution costs  
+- commit capital to a fixed calendar execution window  
+- define how verified outcomes are handled **before execution begins**
+
+Each cycle resolves cleanly to **what actually occurred**, and nothing more.
 
 YieldLoop does not promise profit.  
 It promises **honest accounting**.
 
 Every cycle has:
-- a defined start
-- a defined end
-- deterministic settlement
-- no mid-cycle interference
-- no retroactive adjustments
+- a defined start,
+- a defined end,
+- deterministic settlement,
+- no mid-cycle interference,
+- and no retroactive adjustment.
 
 If profit exists, it is proven.  
 If it does not, nothing is fabricated.
 
 ---
 
-### 1.2 What YieldLoop *Is Not*
+## 1.2 What YieldLoop Is Not
 
 YieldLoop is **not**:
 
 - a savings account  
 - a yield guarantee  
 - an APY product  
+- a discretionary fund  
 - a passive income scheme  
 - a continuously adjustable vault  
 - a token emission protocol  
 
-It does not:
+YieldLoop does **not**:
+
 - project returns  
 - smooth losses  
 - redistribute value between users  
-- borrow against user funds  
+- borrow against user funds or future profit  
 - subsidize execution costs  
 - rescue failing strategies  
+- guarantee execution or activity  
 
-YieldLoop is intentionally allowed to do **nothing** if conditions are unfavorable.
+YieldLoop is intentionally allowed to do **nothing** when conditions are unfavorable.
 
 Inactivity is not a failure state.  
 Dishonesty is.
 
 ---
 
-### 1.3 Cycles as the Unit of Truth
+## 1.3 Cycles as the Unit of Truth
 
 YieldLoop treats **time-bounded cycles** as the only valid unit of measurement.
 
 Each cycle:
-- begins at a fixed calendar boundary  
-- executes under locked parameters  
-- ends with a single settlement event
-- All cycle boundaries and settlement timing are defined in UTC.
+- begins at a fixed calendar boundary,
+- executes under locked parameters,
+- ends once, and only once, with settlement.
 
 There is no rolling profit, no live PnL, and no mark-to-market accounting.
 
-Profit is only recognized if it survives:
-- execution
-- costs
-- settlement
+Profit is recognized **only if it survives execution, costs, and settlement**.  
+Anything unrealized is classified as **inventory** and excluded from profit.
 
-Anything unrealized remains inventory and is excluded from profit.
-
-#### Cycle Enrollment Timing
-
-Capital deposited into YieldLoop does not enter execution immediately.  
-Deposits are enrolled into the next available calendar cycle only.
-
-YieldLoop does not permit late entry, partial-cycle participation, or mid-cycle capital adjustments.  
-All capital committed to a cycle is known, fixed, and locked before execution begins.
+Capital deposited into YieldLoop is enrolled **only into the next available cycle**.  
+There is no mid-cycle entry, no partial participation, and no rolling enrollment.
 
 ---
 
-### 1.4 Explicit Consent Over Convenience
+## 1.4 Explicit Consent Over Convenience
 
 Every meaningful action in YieldLoop requires **explicit user approval**:
 
 - strategy selection  
 - parameter bounds  
+- capital allocation  
 - profit handling mode  
-- gas and execution cost funding  
+- execution cost funding  
 - cycle authorization  
 
 Once a cycle begins:
-- funds are locked
-- strategies cannot be modified
-- withdrawals are disabled
-- no party can intervene  
+- funds are locked,
+- parameters are immutable,
+- withdrawals are disabled,
+- no user, administrator, governance body, or AI may intervene.
 
-This constraint is not a limitation — it is the foundation of fairness.
-
-No user receives special treatment.  
-No administrator can override outcomes.
+This constraint is not a limitation.  
+It is the foundation of fairness.
 
 ---
 
-### 1.5 Why This Design Exists
+## 1.5 Accounting Recognition vs. User Outcomes
+
+YieldLoop distinguishes between **accounting recognition** and **user outcomes**.
+
+**Accounting recognition is binary**:
+- a cycle either produces **Verified Net Profit**, or  
+- it produces **No Verified Net Profit**.
+
+This binary classification governs:
+- fee eligibility,
+- LOOP minting,
+- system deposits,
+- profit handling logic.
+
+**User outcomes are not binary.**
+
+A completed cycle may result in:
+- a net gain,
+- a flat result,
+- or a realized loss.
+
+Losses are not reclassified as “zero,” smoothed, or concealed.  
+They are realized, disclosed, and final when they occur.
+
+Binary accounting exists to prevent fabrication of profit — not to obscure loss.
+
+---
+
+## 1.6 Interpretive Boundaries
+
+YieldLoop is intentionally designed to resist misclassification.
+
+Accordingly, the following statements define the system’s interpretive boundaries:
+
+- YieldLoop is **not a savings account**, yield product, or income guarantee.  
+- YieldLoop does **not** provide discretionary investment management.  
+- YieldLoop does **not** promise execution, activity, or profitability.  
+- YieldLoop does **not** smooth outcomes, fabricate results, or subsidize losses.  
+- YieldLoop does **not** guarantee redemption timing, liquidity, or continuity.  
+- Losses, inactivity, and non-execution are **valid and disclosed outcomes**.
+
+YieldLoop executes only what users explicitly approve, only within fixed bounds, and only when conditions permit.
+
+If conditions do not permit honest execution, the system is allowed to do nothing.
+
+These boundaries override convenience, optics, and narrative pressure.
+
+---
+
+## 1.7 Why This Design Exists
 
 YieldLoop was designed under a simple premise:
 
 > **A system that cannot say “no” will eventually lie.**
 
 By enforcing:
-- hard time boundaries  
-- deterministic settlement  
-- explicit zero-profit / loss outcomes  
-- pre-funded execution costs  
-- and explicit redemption rules  
+- hard time boundaries,
+- deterministic settlement,
+- explicit zero-profit and loss outcomes,
+- pre-funded execution costs,
+- and non-demandable redemption rules,
 
 YieldLoop prioritizes survival, auditability, and long-term trust over short-term appeal.
 
 This document defines the rules of that system.  
-Nothing implied, nothing hidden, nothing softened.
-
-The sections that follow describe **exactly how those rules are enforced**.
+Nothing implied. Nothing hidden. Nothing softened.
 
 ---
 
@@ -178,6 +217,8 @@ These principles are enforced by system design, not discretion.
 They apply uniformly to all users, strategies, and cycles.
 
 If any future modification violates these invariants, it is not YieldLoop.
+
+These principles exist to prevent misinterpretation before it occurs, not to justify behavior after the fact.
 
 ---
 
@@ -977,19 +1018,21 @@ If a strategy cannot operate safely within its approved bounds, it must halt.
 
 ### 5.2 Position Lifecycle and Cycle Boundaries
 
-Strategy engines execute **within a cycle**, but are **not required to force position closure** at cycle end.
+Strategy engines operate within fixed cycle boundaries but are **not required to force position closure** at cycle end.
 
-Prior to cycle completion, strategies must make a **best-effort attempt** to close open positions **only if** closure can occur:
+A strategy engine may initiate a position closure **only if all of the following conditions are satisfied at the time of evaluation**:
 
-- within approved execution parameters  
-- without violating defined risk constraints  
-- without forcing a loss solely for timing or accounting reasons  
+- the closure transaction is permitted under approved execution parameters,
+- sufficient market liquidity exists to complete the transaction within defined slippage bounds,
+- execution does not violate approved risk constraints,
+- sufficient Execution Cost Wallet (ECW) funding exists to safely complete the transaction.
 
-YieldLoop explicitly forbids liquidation **for the purpose of manufacturing a realized result**.
+If any condition is not satisfied:
+- the closure action is not attempted,
+- no forced liquidation occurs,
+- the position remains open and is classified as inventory at cycle end.
 
-If closure cannot occur safely and deterministically, the position remains open.
-
-Truth takes precedence over cosmetic finality.
+Position closure is never initiated solely to satisfy accounting, reporting, or calendar timing.
 
 ---
 
@@ -1911,6 +1954,8 @@ Transient failures include conditions such as:
 - transaction reverts due to routing or timing
 - temporary protocol or RPC instability
 
+Retries are permitted only where explicitly defined and never escalate execution risk, slippage tolerance, or capital exposure.
+
 For transient failures:
 - the affected execution step may be retried once after a defined cooldown
 - parameters remain unchanged
@@ -2077,7 +2122,9 @@ Inventory exists due to real execution constraints (liquidity, reverts, protocol
 
 ### 12.7 Forced Close Attempt and Inventory Exception
 
-Strategies must be designed to **attempt closure** before cycle end.
+Strategies evaluate position closure at defined evaluation points prior to cycle end.
+
+If closure conditions are not satisfied at the time of evaluation, the position is not closed and is classified as inventory. YieldLoop does not retry closure beyond defined evaluation rules and does not escalate risk to achieve realization.
 
 However, closure may fail due to:
 
