@@ -985,6 +985,44 @@ Upon vault closure:
 
 ---
 
+## 4.10.1 User-Initiated Account Closure
+
+A user may request to close their account at the **end of any completed cycle**.
+
+Account closure is defined as the permanent withdrawal of all withdrawable balances from the user’s vault and the termination of the vault’s participation in future YieldLoop cycles.
+
+Upon account closure:
+
+- all **principal** held in the vault becomes withdrawable,
+- all **realized profits or losses** are finalized per settlement,
+- any **withdrawable profit** resulting from the selected profit handling mode is made available,
+- any **unused Execution Cost Wallet (ECW) balance** is returned to the user,
+- any **LOOP balances** remain under the user’s control and are independent of vault status.
+
+Account closure **cannot occur mid-cycle**.
+
+Vault state determines when closure may occur:
+
+- **Idle or Configured**
+  - The user may withdraw all balances and close the account immediately.
+
+- **Authorized or Executing**
+  - Funds are locked.
+  - The user must wait until the active cycle completes and settlement finalizes.
+
+- **Settled**
+  - The user may withdraw all withdrawable balances and close the account without restriction.
+
+Open positions classified as **inventory** at the time of closure must either:
+
+- remain held by the user outside the YieldLoop execution system, or
+- be explicitly liquidated where possible under applicable protocol rules prior to closure.
+
+YieldLoop does not impose penalties, delays, or discretionary restrictions on account closure beyond the fixed cycle boundary.
+
+
+---
+
 ## 5. Strategy Engines
 
 Strategy engines are the **only components authorized to deploy user capital** during an active YieldLoop cycle.  
@@ -1317,21 +1355,18 @@ This ensures:
 
 ---
 
-### 7.5 Locked Funds and Fairness
+### 7.5 Locked Funds and Exit Rights
 
-Funds committed to an authorized cycle are **locked** until settlement.
+Funds committed to an authorized cycle are **locked only for the duration of that cycle**.
 
-There is:
-- no emergency withdrawal
-- no partial exit
-- no discretionary release
+Once settlement completes:
 
-This lock:
-- is time-bounded
-- applies uniformly to all users
-- is disclosed before authorization
+- all withdrawable balances unlock,
+- no further execution may occur without renewed authorization,
+- the user retains full discretion to withdraw all principal and rewards,
+- the user may exit the YieldLoop system entirely.
 
-The lock exists to preserve deterministic settlement and prevent preferential treatment.
+YieldLoop imposes no rolling lockups, no evergreen commitments, and no discretionary delays beyond the fixed cycle boundary.
 
 ---
 
