@@ -358,6 +358,19 @@ They define the boundary between:
 - and a discretionary fund  
 
 YieldLoop exists on one side of that boundary — deliberately.
+
+### 2.11 Explicit Prohibitions
+
+YieldLoop will never:
+- force mid-cycle withdrawals
+- intervene to rescue failing strategies
+- socialize losses across users
+- fabricate profit or smooth outcomes
+- unlock capital early for discretionary reasons
+- modify parameters during execution
+- retroactively alter settlements
+
+
 ---
 
 ## 3. System Overview
@@ -416,6 +429,10 @@ If execution conditions are not satisfied:
 - execution halts conservatively
 
 YieldLoop does not rely on discretionary human intervention for execution.
+
+Execution is permissionless and infrastructure-agnostic.
+
+Any party may operate a keeper or transaction submitter. YieldLoop does not guarantee execution frequency, execution timing, or continuous availability of keeper infrastructure. Failure or absence of a keeper does not create an obligation for the platform, does not invalidate a cycle, and does not alter settlement rules.
 
 ---
 
@@ -787,6 +804,15 @@ Each vault stands alone.
 
 This isolation is fundamental to system integrity, auditability, and user trust.
 
+### 4.10 Vault Closure
+
+A vault is considered closed when the user withdraws all principal, realized balances, inventory (if liquidated), and Execution Cost Wallet funds, and no active authorization exists.
+
+Upon vault closure:
+- any unused ECW balance is returned to the user
+- inventory must be explicitly liquidated or withdrawn where possible
+- LOOP balances remain independent and are not affected by vault status
+
 ---
 
 ## 5. Strategy Engines
@@ -1019,6 +1045,10 @@ AI outputs:
 All approved parameters are recorded and enforced deterministically.
 
 The AI layer cannot introduce nondeterminism into YieldLoop.
+
+All off-chain interfaces — including dashboards, notifications, AI suggestions, alerts, emails, or visual telemetry — are informational only.
+
+They do not authorize execution, modify on-chain state, alter parameters, initiate trades, or affect settlement outcomes. On-chain state alone governs execution and accounting.
 
 ---
 
@@ -1739,6 +1769,8 @@ For structural failures:
 
 YieldLoop does not permit unlimited retries, recursive execution, or discretionary recovery.
 
+A strategy that halts, retries once, skips execution, or carries inventory is not considered a failed cycle.
+
 ---
 
 ### 11.9 Guardrails Are Not Configurable
@@ -2248,6 +2280,8 @@ Redemption:
 - never creates debt and never borrows from any source  
 
 If redemption cannot be fulfilled immediately due to liquidity constraints, the request is deferred under the queue rules in §14.8.
+
+LOOP redemption is a conversion of accounted, retained surplus and does not represent a withdrawal of deposited principal or a claim on user vault assets.
 
 ---
 
@@ -2877,6 +2911,12 @@ Participation constitutes explicit acknowledgment that:
 - transparency does not imply safety  
 
 YieldLoop prioritizes **truthful outcomes over comforting narratives**.
+
+### 17.11 Fiat On-Ramp and Off-Ramp Providers
+
+Fiat on-ramp and off-ramp services (including but not limited to providers such as Stripe or Transak) are operated by independent third parties.
+
+YieldLoop does not custody fiat funds and does not control fiat processing times, approvals, rejections, or availability. Delays or failures in fiat conversion do not alter cycle execution, settlement finality, LOOP accounting, or redemption rules.
 
 ---
 
