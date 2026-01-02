@@ -822,6 +822,8 @@ This requirement applies uniformly to:
 - subsequent top-up deposits
 - deposits made for future cycles
 
+All values described as ‘approximately’ are illustrative, non-binding examples and may be adjusted prospectively via governance or publicly disclosed policy, effective only for future cycles.
+
 ---
 
 ### 4.4 Vault States
