@@ -51,10 +51,10 @@ YieldLoop is a **monthly, cycle-based execution and settlement system** that all
 - Select explicit trading or yield strategies (or allow AI to suggest them)  
 - Approve all parameters in advance  
 - Commit funds to a fixed, calendar-based execution window  
-- Set how verified profits are handled before execution begins  
-- Receive outcomes that resolve cleanly to either:
-  - verified profit, or  
-  - zero  
+- Set how verified outcomes are handled before execution begins  
+- Receive outcomes that resolve cleanly at settlement to either:
+  - **verified net profit**, or  
+  - **no verified net profit** (which may be a zero result or a verified loss)
 
 YieldLoop does not promise profit.  
 It promises **honest accounting**.
@@ -115,11 +115,12 @@ Profit is only recognized if it survives:
 
 Anything unrealized remains inventory and is excluded from profit.
 
-Cycle Enrollment Timing
-Capital deposited into YieldLoop does not enter execution immediately.
+#### Cycle Enrollment Timing
+
+Capital deposited into YieldLoop does not enter execution immediately.  
 Deposits are enrolled into the next available calendar cycle only.
 
-YieldLoop does not permit late entry, partial-cycle participation, or mid-cycle capital adjustments.
+YieldLoop does not permit late entry, partial-cycle participation, or mid-cycle capital adjustments.  
 All capital committed to a cycle is known, fixed, and locked before execution begins.
 
 ---
@@ -130,7 +131,7 @@ Every meaningful action in YieldLoop requires **explicit user approval**:
 
 - strategy selection  
 - parameter bounds  
-- profit split choice  
+- profit handling mode  
 - gas and execution cost funding  
 - cycle authorization  
 
@@ -156,7 +157,7 @@ YieldLoop was designed under a simple premise:
 By enforcing:
 - hard time boundaries  
 - deterministic settlement  
-- zero-result outcomes  
+- explicit zero-profit / loss outcomes  
 - pre-funded execution costs  
 - and explicit redemption rules  
 
@@ -198,26 +199,26 @@ Anything not settled is not profit.
 
 ### 2.2 Binary Profit Recognition
 
-YieldLoop enforces **binary profit recognition**, not binary performance.
+Every cycle resolves to **one of two accounting outcomes**:
 
-Each cycle settles exactly once and produces one of the following accounting outcomes:
-
-1. **Verified Net Profit Exists**
+1. **Verified Net Profit Exists**  
 2. **No Verified Net Profit Exists**
 
-A cycle that produces no verified profit may result in:
-- a zero outcome, or
-- a loss outcome
+There are no partial profits, no estimated gains, and no projected returns.
 
-YieldLoop does not fabricate gains to offset losses, does not smooth adverse results, and does not assume recovery.
+If profit does not survive:
+- execution  
+- gas and trade costs  
+- protocol fees  
+- settlement rules  
 
-Profit is recognized only if it survives:
-- execution,
-- gas and trade costs,
-- protocol fees, and
-- settlement rules.
+It does not exist.
 
-If verified profit does not exist at settlement, it does not exist at all.
+A cycle with no verified profit may still include:
+- open inventory, or  
+- realized loss  
+
+These outcomes are valid and explicitly permitted.
 
 ---
 
@@ -230,9 +231,9 @@ YieldLoop does not:
 - offset losses with emissions  
 
 Profit must be earned through execution.  
-If conditions do not allow profit, the system remains idle or resolves to zero.
+If conditions do not allow profit, the system remains idle or resolves to no-profit.
 
-This is intentional.
+This behavior is intentional.
 
 ---
 
@@ -243,7 +244,7 @@ No capital is ever placed at risk without **prior, explicit approval**.
 Users must approve:
 - strategy selection  
 - execution parameters  
-- profit split handling  
+- profit handling mode  
 - gas and execution cost funding  
 - cycle authorization  
 
@@ -267,8 +268,8 @@ Once a cycle begins:
 
 This applies equally to:
 - profitable cycles  
-- losing cycles  
-- stalled cycles  
+- loss cycles  
+- idle or halted cycles  
 
 The system does not react emotionally to outcomes.
 
@@ -301,7 +302,7 @@ YieldLoop enforces strict separation between:
 - accounting records  
 - platform fees  
 - system deposits  
-- LOOP token mechanics  
+- LOOP accounting and redemption  
 
 No component may silently depend on another.
 
@@ -357,7 +358,6 @@ They define the boundary between:
 - and a discretionary fund  
 
 YieldLoop exists on one side of that boundary — deliberately.
-
 ---
 
 ## 3. System Overview
@@ -795,11 +795,11 @@ Strategy engines are the **only components authorized to deploy user capital** d
 They operate exclusively within user-approved bounds and are subject to strict safety constraints.
 
 No strategy is allowed to:
-- assume profit
-- borrow capital
-- use leverage
-- roll positions across cycles without reauthorization
-- override settlement rules
+- assume profit  
+- borrow capital  
+- use leverage  
+- roll positions across cycles without reauthorization  
+- override settlement rules  
 
 If a strategy cannot operate within its constraints, it must halt.
 
@@ -813,21 +813,22 @@ However, YieldLoop **does not permit forced liquidation at a loss** solely to sa
 
 If a position cannot be closed profitably or safely within approved execution bounds before the cycle end:
 
-- the position remains open
-- the exposure is classified as **inventory**
-- the inventory is carried forward conservatively
-- no profit is recognized from the position
-- no mark-to-market valuation is applied
+- the position remains open  
+- the exposure is classified as **inventory**  
+- the inventory is carried forward conservatively  
+- no profit is recognized from the position  
+- no mark-to-market valuation is applied  
 
 Carried inventory:
-- remains isolated within the user vault
-- does not execute further without future authorization
-- does not generate profit until realized
-- does not affect settlement of the closing cycle
+- remains isolated within the user vault  
+- does not execute further without future authorization  
+- does not generate profit until realized  
+- does not affect settlement of the closing cycle  
 
 YieldLoop prioritizes truthful accounting over cosmetic closure.
 
 ---
+
 ### 5.1 Strategy Design Philosophy
 
 All strategy engines share the same foundational principles:
@@ -847,25 +848,25 @@ Strategies are tools, not promises.
 Capture defined price movements within a bounded range.
 
 **Supported behaviors:**
-- Buy-low / sell-high
-- Fixed percentage take-profit targets
-- Grid trading within defined bands
-- Optional martingale-style scaling (explicitly capped)
+- Buy-low / sell-high  
+- Fixed percentage take-profit targets  
+- Grid trading within defined bands  
+- Optional martingale-style scaling (explicitly capped)  
 
 **Required parameters:**
-- Capital allocation percentage
-- Entry conditions
-- Take-profit thresholds
-- Maximum scaling depth (if enabled)
-- Hard stop-loss bounds
+- Capital allocation percentage  
+- Entry conditions  
+- Take-profit thresholds  
+- Maximum scaling depth (if enabled)  
+- Hard stop-loss bounds  
 
 **Safety guardrails:**
-- No leverage
-- No borrowing
-- Maximum drawdown enforced
-- Maximum position size enforced
-- Forced halt if bounds are breached
-- No open positions allowed past cycle end
+- No leverage  
+- No borrowing  
+- Maximum drawdown enforced  
+- Maximum position size enforced  
+- Forced halt if bounds are breached  
+- No open positions allowed past cycle end  
 
 ---
 
@@ -875,22 +876,22 @@ Capture defined price movements within a bounded range.
 Exploit deterministic price discrepancies across approved venues.
 
 **Supported behaviors:**
-- DEX-to-DEX arbitrage
-- Stable asset imbalance routing
-- Explicit route allowlists only
+- DEX-to-DEX arbitrage  
+- Stable asset imbalance routing  
+- Explicit route allowlists only  
 
 **Required parameters:**
-- Approved venues
-- Minimum spread threshold
-- Maximum capital allocation
-- Maximum retries per opportunity
+- Approved venues  
+- Minimum spread threshold  
+- Maximum capital allocation  
+- Maximum retries per opportunity  
 
 **Safety guardrails:**
-- Spread must exist **before** execution
-- No speculative routing
-- No chained arbitrage
-- Immediate halt if spread collapses
-- No execution if gas cost exceeds expected return
+- Spread must exist **before** execution  
+- No speculative routing  
+- No chained arbitrage  
+- Immediate halt if spread collapses  
+- No execution if gas cost exceeds expected return  
 
 ---
 
@@ -900,21 +901,21 @@ Exploit deterministic price discrepancies across approved venues.
 Earn protocol-native yield during the active cycle.
 
 **Supported behaviors:**
-- Liquidity provision to allowlisted protocols
-- Fixed-duration farming
-- Single-cycle exposure only
+- Liquidity provision to allowlisted protocols  
+- Fixed-duration farming  
+- Single-cycle exposure only  
 
 **Required parameters:**
-- Approved protocol
-- Capital allocation
-- Entry and exit timing
+- Approved protocol  
+- Capital allocation  
+- Entry and exit timing  
 
 **Safety guardrails:**
-- No auto-compounding
-- No emissions masking losses
-- All rewards must settle into USDT
-- Forced exit before cycle end
-- If yield does not survive costs → zero-result cycle
+- No auto-compounding  
+- No emissions masking losses  
+- All rewards must settle into USDT  
+- Forced exit before cycle end  
+- If yield does not survive costs → zero-result cycle  
 
 ---
 
@@ -924,20 +925,20 @@ Earn protocol-native yield during the active cycle.
 Preserve capital while seeking conservative yield.
 
 **Supported behaviors:**
-- Stable asset routing
-- Conservative yield mechanisms
-- Fixed exposure
+- Stable asset routing  
+- Conservative yield mechanisms  
+- Fixed exposure  
 
 **Required parameters:**
-- Asset selection
-- Capital allocation
-- Duration constraints
+- Asset selection  
+- Capital allocation  
+- Duration constraints  
 
 **Safety guardrails:**
-- Stable assets only
-- No derivatives
-- No leverage
-- Same settlement rules as all other strategies
+- Stable assets only  
+- No derivatives  
+- No leverage  
+- Same settlement rules as all other strategies  
 
 There is no special treatment for “safe” strategies.
 
@@ -947,9 +948,9 @@ There is no special treatment for “safe” strategies.
 
 Users may allocate capital across multiple strategies within a single cycle, subject to:
 
-- Total allocation ≤ 100%
-- Explicit approval of each allocation
-- Strategy-specific minimums and maximums
+- Total allocation ≤ 100%  
+- Explicit approval of each allocation  
+- Strategy-specific minimums and maximums  
 
 Unallocated capital remains idle and unexposed.
 
@@ -959,16 +960,16 @@ Unallocated capital remains idle and unexposed.
 
 Users may optionally allow the AI layer to:
 
-- suggest strategy selection
-- propose parameter ranges
-- estimate execution cost requirements
-- identify constraint conflicts
+- suggest strategy selection  
+- propose parameter ranges  
+- estimate execution cost requirements  
+- identify constraint conflicts  
 
 AI suggestions:
-- are non-binding
-- must be explicitly approved
-- cannot modify parameters once authorized
-- cannot intervene mid-cycle
+- are non-binding  
+- must be explicitly approved  
+- cannot modify parameters once authorized  
+- cannot intervene mid-cycle  
 
 AI assists configuration — it does not control execution.
 
@@ -977,10 +978,10 @@ AI assists configuration — it does not control execution.
 ### 5.8 Strategy Halting Conditions
 
 A strategy must halt if:
-- execution cost funds are exhausted
-- defined risk bounds are breached
-- required market conditions no longer exist
-- protocol or venue constraints are violated
+- execution cost funds are exhausted  
+- defined risk bounds are breached  
+- required market conditions no longer exist  
+- protocol or venue constraints are violated  
 
 Halting a strategy does not invalidate the cycle.  
 Settlement proceeds based on realized results.
@@ -991,12 +992,12 @@ Settlement proceeds based on realized results.
 
 The following behaviors are explicitly forbidden:
 
-- leverage of any kind
-- borrowing from any source
-- derivatives trading
-- rolling positions across cycles
-- socialized loss handling
-- discretionary intervention
+- leverage of any kind  
+- borrowing from any source  
+- derivatives trading  
+- rolling positions across cycles  
+- socialized loss handling  
+- discretionary intervention  
 
 Any strategy requiring these behaviors is incompatible with YieldLoop.
 
@@ -1004,7 +1005,7 @@ Any strategy requiring these behaviors is incompatible with YieldLoop.
 
 Strategy engines define **what YieldLoop is allowed to do with user capital**.
 
-The next section defines **how AI may assist without violating determinism or consent**.
+Say **Next** when you want **Section 6 — AI-Assisted Configuration**.
 
 ---
 
