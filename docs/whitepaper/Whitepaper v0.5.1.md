@@ -476,6 +476,92 @@ Keepers are optional infrastructure providers; their presence or absence does no
 
 ---
 
+### 3.1.2 Execution Availability and Non-Execution
+
+YieldLoop does not guarantee that execution actions will occur during a cycle.
+
+Execution is performed by permissionless transaction submitters (“keepers”) who may submit valid execution transactions when contract-defined conditions permit. The presence, frequency, or reliability of keepers is not guaranteed by the platform and does not create a service obligation.
+
+A cycle may validly resolve with:
+
+- partial execution,
+- minimal execution,
+- or **no execution at all**.
+
+Non-execution is not a failure state.
+
+If no keeper submits a valid execution transaction for a vault during a cycle:
+
+- no trades are initiated,
+- no capital is placed at risk,
+- no execution costs are incurred,
+- settlement proceeds deterministically at cycle end.
+
+Such a cycle may resolve with:
+- zero verified profit, or
+- unchanged principal balances.
+
+YieldLoop does not fabricate execution, simulate trades, or assume activity to satisfy accounting or appearance.
+
+---
+
+### Execution Attempt Definition
+
+YieldLoop does not require a minimum number of trades, actions, or execution attempts for a cycle to be considered valid.
+
+Execution is defined strictly as:
+- a successfully submitted and executed on-chain transaction,
+- that satisfies all contract-defined conditions and guardrails.
+
+Failed, reverted, or skipped transactions:
+- do not constitute execution,
+- do not create obligations,
+- do not invalidate a cycle.
+
+---
+
+### No Duty to Execute
+
+YieldLoop explicitly disclaims any duty to:
+- ensure that execution occurs,
+- ensure that a minimum level of activity is reached,
+- ensure profitability or engagement,
+- intervene to stimulate execution.
+
+The system is permitted to remain idle.
+
+Idleness preserves integrity when conditions are unfavorable or infrastructure participation is absent.
+
+---
+
+### Fairness and Determinism Under Non-Execution
+
+Non-execution:
+- affects only the vaults for which no execution occurs,
+- does not advantage or disadvantage other users,
+- does not alter settlement rules,
+- does not trigger special handling or compensation.
+
+Settlement under non-execution follows the same deterministic rules as any other cycle.
+
+---
+
+### Incentives and Infrastructure Neutrality
+
+YieldLoop may, but is not required to:
+- offer protocol-defined incentives for keeper participation,
+- publish recommended execution tooling,
+- operate reference keeper infrastructure.
+
+Any such measures:
+- do not alter execution rules,
+- do not guarantee availability,
+- do not create performance obligations.
+
+Execution remains permissionless and infrastructure-agnostic by design.
+
+---
+
 ### 3.2 User Vaults
 
 Each user interacts with YieldLoop through an **isolated vault**.
@@ -1236,6 +1322,35 @@ Authorization converts **configuration into commitment**.
 
 The next section defines **how profits are handled once a cycle completes**.
 
+---
+
+### 7.8 Standing Authorization and Cycle Re-Enrollment
+
+YieldLoop distinguishes between **configuration persistence** and **cycle authorization**.
+
+Strategy selections, parameters, capital allocations, and profit handling modes may persist across cycles.  
+Authorization to deploy capital, however, always applies to a **specific cycle**.
+
+To balance explicit consent with operational continuity, YieldLoop supports **standing authorization**.
+
+Under standing authorization:
+
+- the user explicitly opts in to authorize execution for the next cycle using the **unchanged, previously approved configuration**,
+- authorization is applied automatically at the next enrollment boundary,
+- no parameters may change without renewed explicit approval,
+- standing authorization may be revoked or modified **only during an enrollment window**.
+
+Standing authorization:
+- is optional,
+- is disabled by default unless explicitly enabled by the user,
+- applies only when configuration remains identical.
+
+If any configuration element changes — including strategy selection, parameters, capital allocation, profit handling mode, or ECW requirements — standing authorization is invalidated and fresh approval is required.
+
+Standing authorization never applies mid-cycle and never bypasses execution locks.
+
+---
+
 ## 8. Profit Handling Modes
 
 YieldLoop allows users to define a **persistent profit handling mode** that governs how verified profits are treated across trades and cycles.
@@ -1354,6 +1469,8 @@ Once a cycle is authorized:
 - it applies to all settlements within that cycle
 
 The profit handling mode may be changed only before authorizing a future cycle.
+
+Profit handling modes may persist across cycles but do not authorize execution unless a cycle is explicitly authorized or covered by standing authorization.
 
 ---
 
@@ -1532,6 +1649,8 @@ Users may authorize a vault for a cycle **only during the enrollment window** pr
 - Authorization completed after cycle start applies to the **next cycle**  
 
 There is no late entry and no partial-cycle participation.
+
+A vault participates in a cycle only if explicitly authorized for that cycle, either through manual authorization or valid standing authorization.
 
 ---
 
