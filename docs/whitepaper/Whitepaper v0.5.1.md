@@ -115,6 +115,13 @@ Profit is only recognized if it survives:
 
 Anything unrealized remains inventory and is excluded from profit.
 
+Cycle Enrollment Timing
+Capital deposited into YieldLoop does not enter execution immediately.
+Deposits are enrolled into the next available calendar cycle only.
+
+YieldLoop does not permit late entry, partial-cycle participation, or mid-cycle capital adjustments.
+All capital committed to a cycle is known, fixed, and locked before execution begins.
+
 ---
 
 ### 1.4 Explicit Consent Over Convenience
@@ -189,24 +196,28 @@ Anything not settled is not profit.
 
 ---
 
-### 2.2 Binary Outcomes Only
+### 2.2 Binary Profit Recognition
 
-Every cycle resolves to **one of two outcomes**:
+YieldLoop enforces **binary profit recognition**, not binary performance.
 
-1. **Verified Profit Exists**
-2. **No Verified Profit Exists (Zero-Result Cycle)**
+Each cycle settles exactly once and produces one of the following accounting outcomes:
 
-There are no partial wins, no estimated gains, and no projected returns.
+1. **Verified Net Profit Exists**
+2. **No Verified Net Profit Exists**
 
-If profit does not survive:
-- execution  
-- gas and trade costs  
-- protocol fees  
-- settlement rules  
+A cycle that produces no verified profit may result in:
+- a zero outcome, or
+- a loss outcome
 
-It does not exist.
+YieldLoop does not fabricate gains to offset losses, does not smooth adverse results, and does not assume recovery.
 
-Zero-result cycles are a **correct outcome**, not a failure.
+Profit is recognized only if it survives:
+- execution,
+- gas and trade costs,
+- protocol fees, and
+- settlement rules.
+
+If verified profit does not exist at settlement, it does not exist at all.
 
 ---
 
@@ -375,6 +386,36 @@ YieldLoop consists of the following core components:
 - **LOOP Accounting and Redemption Module**
 
 Each is described briefly below and in detail in later sections.
+
+---
+
+### 3.1.1 Execution Model (Keepers and Automation)
+
+YieldLoop execution is performed by **automated transaction submitters** (“keepers”).
+
+Smart contracts do not initiate transactions autonomously.  
+All execution actions require a valid transaction to be submitted to the blockchain.
+
+Keepers are responsible only for:
+- submitting execution transactions when permitted by contract rules
+- calling strategy functions within approved bounds
+- respecting execution timing and safety constraints
+
+Keepers:
+- do not control strategy logic
+- do not select parameters
+- do not assume profitability
+- cannot move funds outside approved paths
+- cannot override settlement or guardrails
+
+Execution functions are deterministic and permissioned by contract state.  
+Any keeper submitting a valid transaction receives the same result.
+
+If execution conditions are not satisfied:
+- transactions revert, or
+- execution halts conservatively
+
+YieldLoop does not rely on discretionary human intervention for execution.
 
 ---
 
@@ -673,25 +714,51 @@ This lock is:
 
 ### 4.7 Execution Cost Wallet (ECW)
 
-Each vault includes a separate **Execution Cost Wallet (ECW)** used exclusively to fund execution-related costs.
+Each user vault includes a dedicated **Execution Cost Wallet (ECW)** used exclusively to fund execution-related costs.
 
 The ECW:
-- must be funded prior to cycle authorization
-- pays gas, trade fees, and execution overhead
-- is not principal
-- cannot borrow from user deposits, profits, or system reserves
+- is pre-funded by the user
+- pays blockchain gas costs and execution-related fees
+- is strictly separate from principal and profits
+- cannot borrow from any other balance
+- cannot create debt under any circumstance
 
-At launch, the minimum ECW balance is expected to be **approximately $10 USDT**, subject to adjustment by the YieldLoop team or future governance.
+#### Minimum Funding Requirement
 
-If the ECW balance falls below the required minimum:
-- the vault cannot be authorized for a new cycle
+At launch, each vault must maintain a **minimum ECW balance of approximately $10 USDT (or equivalent)**.
 
-If ECW funds are exhausted during execution:
-- execution halts immediately
-- settlement proceeds
+A vault cannot be authorized for a cycle unless this minimum is met.
+
+#### Low-Balance and Exhaustion Behavior
+
+If the ECW balance falls below a defined low threshold (expected to be approximately **$2.50 USDT equivalent**):
+
+- execution for that vault may pause
+- no new trades are initiated
+- existing positions are not forcibly closed
+
+If the ECW balance is fully exhausted:
+
+- all execution halts immediately
+- no borrowing occurs
 - no debt is created
+- settlement proceeds using realized results only
 
-Unused ECW balances remain under user control after settlement.
+Execution halting due to ECW exhaustion is a valid system outcome.
+
+#### User Notification
+
+Low ECW balance conditions may trigger off-chain notifications (e.g., email or in-app alerts).  
+Notification mechanisms do not affect on-chain behavior.
+
+#### ECW Balances After Settlement
+
+After settlement completes:
+- any unused ECW balance remains under user control
+- ECW funds may be withdrawn or reused for future cycles
+
+If a vault is permanently closed:
+- unused ECW balances are refunded to the user
 
 ---
 
@@ -738,6 +805,29 @@ If a strategy cannot operate within its constraints, it must halt.
 
 ---
 
+### 5.0.1 Position Closure and Carryover Rules
+
+Strategy engines are designed to **attempt orderly position closure** prior to cycle end.
+
+However, YieldLoop **does not permit forced liquidation at a loss** solely to satisfy a time boundary.
+
+If a position cannot be closed profitably or safely within approved execution bounds before the cycle end:
+
+- the position remains open
+- the exposure is classified as **inventory**
+- the inventory is carried forward conservatively
+- no profit is recognized from the position
+- no mark-to-market valuation is applied
+
+Carried inventory:
+- remains isolated within the user vault
+- does not execute further without future authorization
+- does not generate profit until realized
+- does not affect settlement of the closing cycle
+
+YieldLoop prioritizes truthful accounting over cosmetic closure.
+
+---
 ### 5.1 Strategy Design Philosophy
 
 All strategy engines share the same foundational principles:
@@ -1020,10 +1110,21 @@ The next section defines **when configuration becomes a binding commitment**.
 
 ## 7. Authorization and Commitment
 
-Authorization is the point at which a user’s configuration becomes a **binding execution contract**.
+Authorization in YieldLoop does **not** initiate execution.
 
-Until authorization occurs, no capital is at risk.  
-After authorization, the system is obligated to execute exactly as approved — and nothing more.
+YieldLoop operates on fixed, global calendar cycles.  
+Execution begins and ends at the same time for all participating vaults.
+
+Authorization represents **binding pre-approval of configuration**, not permission to start a cycle.
+
+By authorizing a vault, a user:
+- approves strategy selection and parameters
+- approves capital allocation
+- approves profit handling mode
+- approves Execution Cost Wallet funding
+- commits deposited capital to the **next available cycle**
+
+Authorization locks configuration in advance so execution can proceed deterministically when the global cycle begins.
 
 ---
 
@@ -1162,6 +1263,21 @@ This selection establishes a standing instruction for profit handling.
 
 ---
 
+### 8.0.1 Timing of Profit Handling
+
+Profit handling modes in YieldLoop apply **only at monthly settlement**.
+
+During an active cycle:
+- strategies may close individual trades
+- realized funds may be reused for further execution within the same cycle
+- no profits are withdrawn, split, or compounded externally
+
+Profit handling is evaluated **once per cycle**, after settlement finalizes and verified net profit (if any) is determined.
+
+YieldLoop does not apply profit handling on a per-trade, per-day, or rolling basis.
+
+---
+
 ### 8.2 Compound All
 
 Under the **Compound All** mode:
@@ -1291,6 +1407,32 @@ Execution never runs on credit.
 
 ---
 
+### 9.3.1 ECW Gas Conversion and Execution Pause Behavior
+
+Execution costs funded through the Execution Cost Wallet (ECW) may be converted as required to pay on-chain gas and execution-related fees.
+
+The system may:
+- convert ECW balances into the native gas asset as needed
+- maintain small operational gas buffers for execution continuity
+
+At no point does YieldLoop:
+- subsidize gas costs
+- borrow gas from other users
+- execute trades without sufficient ECW funding
+
+If available ECW funding is insufficient to safely execute a permitted action:
+
+- the action is skipped
+- execution for the affected vault pauses
+- no new trades are initiated
+- existing positions are not forcibly closed
+
+Execution resumes only when sufficient ECW funding is restored.
+
+Execution pauses due to ECW insufficiency are a valid and expected outcome.
+
+---
+
 ### 9.4 ECW Exhaustion During Execution
 
 If the ECW balance is exhausted during an active cycle:
@@ -1408,15 +1550,23 @@ Early halting does not invalidate the cycle.
 
 ---
 
-### 10.5 Cycle End Behavior
+### 10.5 Cycle End and Execution Boundary
 
-At the end of the cycle:
+At the end of a monthly cycle:
 
-- all execution stops  
-- no new trades may be initiated  
-- settlement begins  
+- no new trades may be initiated
+- no new execution actions may begin
+- all strategy evaluation halts for the closing cycle
 
-Execution does not continue past the cycle boundary under any circumstance.
+Existing positions are **not forcibly closed** to satisfy the cycle boundary.
+
+Any exposure that remains open at cycle end:
+- is classified as inventory
+- is carried forward conservatively
+- is excluded from profit recognition
+- does not initiate new execution without future authorization
+
+Cycle finality applies to **accounting and profit recognition**, not forced position closure.
 
 ---
 
@@ -1615,15 +1765,40 @@ If losses occur, they are reflected honestly at settlement.
 
 ---
 
-### 11.8 No Automatic Recovery or Retry Logic
+### 11.8 Failure Classification, Retry, and Skip Behavior
 
-YieldLoop does not:
-- retry failed strategies automatically  
-- average down losses  
-- roll positions forward implicitly  
-- assume recovery in future cycles  
+YieldLoop distinguishes between **transient execution failures** and **structural execution failures**.
 
-All recovery actions require **explicit reauthorization**.
+#### Transient Failures
+Transient failures include conditions such as:
+- temporary liquidity insufficiency
+- gas price spikes beyond approved bounds
+- transaction reverts due to routing or timing
+- temporary protocol or RPC instability
+
+For transient failures:
+- the affected execution step may be retried once after a defined cooldown
+- parameters remain unchanged
+- no additional risk is assumed
+
+If the retry fails:
+- the execution step is skipped
+- execution continues where permitted
+- the cycle is not invalidated
+
+#### Structural Failures
+Structural failures include conditions such as:
+- violated strategy constraints
+- repeated deterministic reverts
+- invalid or unsafe protocol conditions
+- guardrail breaches
+
+For structural failures:
+- the affected strategy halts for the remainder of the cycle
+- other authorized strategies may continue
+- settlement proceeds normally
+
+YieldLoop does not permit unlimited retries, recursive execution, or discretionary recovery.
 
 ---
 
@@ -1783,17 +1958,20 @@ Truth overrides optics.
 
 ### 12.8 Inventory Carry-Forward Rules
 
-After settlement completes, inventory may be handled only as follows:
+Inventory carries forward automatically.
 
-- **Hold:** remain idle, no action taken  
-- **Liquidate:** close inventory exposure under a future, explicitly authorized cycle  
-- **Reconfigure:** apply a future strategy to inventory only with explicit authorization  
+If a position remains open at cycle end:
+- it remains inside the user vault
+- it is carried forward as inventory without mark-to-market valuation
+- it is excluded from profit recognition for the closing cycle
 
-Inventory:
+Inventory does not require reauthorization to **exist** or to **remain held**.
 
-- does **not** automatically roll into a new cycle  
-- does **not** execute without reauthorization  
-- does **not** count as profit until realized  
+Reauthorization is required only to:
+- initiate new execution actions involving inventory, or
+- deploy additional strategies against inventory in a future cycle.
+
+Until reauthorized for execution, inventory may remain idle indefinitely.
 
 ---
 
