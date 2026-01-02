@@ -200,7 +200,7 @@ Anything not settled is not profit.
 
 ### 2.2 Binary Profit Recognition
 
-Every cycle resolves to **one of two accounting outcomes**:
+Every cycle resolves to one of two **accounting recognition states**, while user outcomes may include gains, flat results, or losses.
 
 1. **Verified Net Profit Exists**  
 2. **No Verified Net Profit Exists**
@@ -220,6 +220,43 @@ A cycle with no verified profit may still include:
 - realized loss  
 
 These outcomes are valid and explicitly permitted.
+
+---
+
+### 2.2.1 Accounting Recognition vs. User Outcomes
+
+YieldLoop distinguishes between **accounting recognition** and **user outcomes**.
+
+**Accounting recognition is binary**:
+- A cycle either produces **Verified Net Profit (VNP > 0)**, or
+- It produces **No Verified Net Profit (VNP ≤ 0)**.
+
+This binary classification governs:
+- fee eligibility
+- LOOP minting
+- system deposits
+- profit handling logic
+
+**User outcomes, however, are not binary.**
+
+A completed cycle may result in one of three user-visible outcomes:
+
+1. **Net Gain**  
+   - Realized balance exceeds starting principal after all costs and fees.
+
+2. **Net Flat**  
+   - No verified profit and no realized loss.
+
+3. **Net Loss**  
+   - Realized balance is less than starting principal after all costs and fees.
+
+Unrealized positions are classified separately as **inventory** and are excluded from profit recognition regardless of outcome.
+
+YieldLoop does not reclassify losses as “zero.”  
+Losses are realized, disclosed, and final when they occur.
+
+Binary accounting exists to prevent fabrication of profit — not to obscure loss.
+
 
 ---
 
@@ -1899,6 +1936,8 @@ A “no verified profit” cycle may include:
 
 Both are permitted. Neither is hidden.
 
+Binary profit recognition does not imply binary performance; realized losses are explicitly permitted, disclosed, and final.
+
 ---
 
 ### 12.6 Inventory Definition
@@ -2890,6 +2929,8 @@ Users are responsible for:
 - selecting or approving strategies  
 - monitoring their vault state  
 - complying with applicable laws and regulations  
+
+A cycle that produces no verified profit may still produce a realized loss; YieldLoop does not conceal, offset, or reframe losses.
 
 ---
 
