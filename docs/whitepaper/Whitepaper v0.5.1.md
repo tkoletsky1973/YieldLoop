@@ -256,10 +256,6 @@ If profit does not survive:
 
 It does not exist.
 
-A cycle with no verified profit may still include:
-- open inventory, or  
-- realized loss  
-
 These outcomes are valid and explicitly permitted.
 
 ---
