@@ -2207,11 +2207,9 @@ The next section defines **how LOOP is minted, what it represents, and how redem
 ## 14. LOOP Token and Redemption
 
 LOOP is the **accounting and redemption token** of the YieldLoop system.  
-It represents **verified, retained economic surplus** that has been explicitly moved into a dedicated redemption treasury after cycle settlement.
+It represents **verified, retained economic surplus** produced by completed cycles and recorded under deterministic rules.
 
-LOOP is not yield, not a promise, and not a claim on future execution.
-
-LOOP exists only because profit actually occurred and was retained.
+LOOP is **not** yield, not a promise, and not a claim on future execution.
 
 ---
 
@@ -2221,180 +2219,166 @@ LOOP exists to:
 
 - record verified surplus created by completed cycles  
 - represent retained value in a transferable accounting unit  
-- enable redemption into USDT under explicit availability rules  
-- separate **execution capital** from **surplus accounting**  
+- enable redemption into USDT under explicit liquidity constraints  
+- separate execution capital from surplus accounting  
 
-LOOP is a *receipt of success*, not the incentive for it.
+LOOP exists only because profit actually occurred and was retained.
 
 ---
 
 ### 14.2 Preconditions for LOOP Minting
 
-LOOP may be minted **only after settlement** and **only if all conditions below are met**:
+LOOP may be minted **only after settlement** and only if all conditions below are met:
 
 1. the cycle produced **Verified Net Profit (VNP > 0)**  
 2. platform performance fees have been applied and deducted  
-3. a portion of post-fee profit is designated as **retained surplus**  
-4. a portion of retained surplus is actually transferred into the **Redemption Treasury**  
-5. settlement has finalized and is immutable  
+3. a portion of post-fee net profit is designated as **retained surplus**  
+4. settlement has finalized and is immutable  
 
 If any condition is not met, **no LOOP is minted**.
-
-LOOP is never:
-- pre-minted  
-- emitted on a schedule  
-- minted against principal  
-- minted against unrealized inventory  
 
 ---
 
 ### 14.3 Definition of Retained Surplus
 
-**Retained Surplus (RS)** is the portion of post-fee verified profit that remains within the system after profit handling decisions.
+**Retained Surplus (RS)** is the portion of **post-fee verified profit** that remains inside the system after the user’s profit handling choice is applied.
 
 RS may originate from:
-- user profit handling modes (e.g., Compound All or the retained portion of Split 50/50)  
-- platform-level retention rules (if any)  
+- user-selected profit handling modes (e.g., Compound All or the retained portion of Split 50/50)  
+- platform-level retention rules (if any are defined)  
 - system deposit allocations (where applicable)
 
-RS is always derived from **real, settled profit** — never from principal.
-
-Retained Surplus is **accounting surplus**, not guaranteed liquidity.
+RS is always derived from **real profit**, never from principal.
 
 ---
 
-### 14.4 Redemption Treasury (Backing Pool)
+### 14.4 Redeemable Surplus Pool (RSP)
 
-The **Redemption Treasury (RT)** is the on-chain pool backing LOOP redemption.
+The **Redeemable Surplus Pool (RSP)** is the on-chain pool that backs LOOP redemption.
 
-The RT:
+The RSP:
 - holds **USDT (or equivalent stable assets) only**  
-- increases only through **verified retained surplus** transferred in after settlement  
-- decreases only through **LOOP redemption** or explicitly disclosed treasury operations  
+- increases **only** through retained, verified surplus  
+- decreases **only** through LOOP redemption or explicitly authorized system deployment  
 - is auditable and segregated from user vaults  
 
-Assets in the RT are never:
-- borrowed against  
-- used to subsidize execution losses  
-- used to fabricate profit  
-
-The RT exists to provide **real backing**, not narrative support.
+Assets in the RSP are never borrowed against and are never used to subsidize execution losses.
 
 ---
 
-### 14.5 Treasury-Backed Minting (1 LOOP = 1 USDT at Mint)
+### 14.5 LOOP Minting Rule (1:1 With Retained Surplus)
 
-LOOP minting is **treasury-backed and deterministic**.
+LOOP minting is deterministic and non-discretionary.
 
-When a settlement designates `X USDT` of retained surplus to be transferred into the Redemption Treasury:
+At settlement, if `RS > 0`:
 
-- exactly `X LOOP` is minted  
-- minting occurs **only after** the treasury transfer is finalized  
-- minting is **1:1** at creation time:
+**LOOP Minted = RS**
 
-**LOOP Minted = USDT Deposited into RT**
+(Where RS is denominated in USDT-equivalent units at settlement.)
 
 This ensures:
-- no LOOP supply exists without stable backing  
-- no dilution without value  
-- no circular accounting based on market price  
-
-LOOP is an accounting token whose legitimacy comes from **treasury deposits**, not market speculation.
-
----
-
-### 14.6 Redemption Mechanics (1 LOOP Redeems for 1 USDT When Available)
-
-LOOP is redeemable for USDT **only when Redemption Treasury liquidity is available**.
-
-A valid redemption:
-
-- burns the redeemed LOOP  
-- transfers an equal amount of USDT from the RT  
-- creates **no debt** and no negative balances  
-
-**Redemption Rate:**  
-When processed, redemption is **1 LOOP → 1 USDT**.
-
-YieldLoop does not compute redemption value as “pool ÷ supply.”  
-Instead, the system enforces a simpler rule:
-
-> LOOP is minted only when USDT is placed into the RT, and LOOP is burned only when USDT leaves the RT.
+- LOOP supply expands **only** when real, verified surplus is retained  
+- no dilution without corresponding retained value  
+- no arbitrary emissions  
+- no narrative-based token printing  
 
 ---
 
-### 14.7 Redemption Availability, Pauses, and Fairness
+### 14.6 Redemption Value (Fixed)
 
-Redemption is constrained by operational reality.
+The redemption value of LOOP is fixed:
 
-Redemption may be subject to:
-- treasury liquidity availability  
+**1 LOOP = 1 USDT**
+
+LOOP is a **receipt of retained, verified surplus**, redeemable at par value subject only to **liquidity availability and fairness rules**.
+
+YieldLoop does not promise price appreciation and does not imply LOOP “goes up.”  
+It promises that LOOP represents accounted surplus and is redeemable at **par** when liquidity is available.
+
+---
+
+### 14.7 Redemption Mechanics
+
+LOOP is redeemable for USDT subject to system constraints.
+
+Redemption:
+
+- converts LOOP into USDT at **1 LOOP = 1 USDT**  
+- draws exclusively from the Redeemable Surplus Pool  
+- permanently removes redeemed LOOP from circulation  
+- never creates debt and never borrows from any source  
+
+If redemption cannot be fulfilled immediately due to liquidity constraints, the request is deferred under the queue rules in §14.8.
+
+---
+
+### 14.8 Redemption Availability, Queues, and Fairness
+
+Redemption availability may be subject to:
+
+- liquidity constraints  
 - rate limits  
-- explicit redemption windows  
-- temporary pauses during stress, maintenance, or safety events  
+- defined redemption windows  
+- conservative system pauses during instability  
 
-If redemption demand exceeds current capacity:
+When redemption demand exceeds capacity:
 
-- requests are placed into a **queue**  
-- fulfillment occurs **FIFO by request timestamp** (or equivalent deterministic ordering)  
-- no preferential treatment is permitted  
+- requests are queued by **request epoch**  
+- fulfillment occurs in strict **FIFO by epoch**, with **pro-rata** distribution inside an epoch if required  
+- no preferential treatment is applied  
+- no administrator may reorder requests for advantage  
 
-A pause defers redemption; it does not rewrite accounting history.
-
-Users must treat redemption timing as **conditional**, not guaranteed.
-
----
-
-### 14.8 What Happens if Treasury Liquidity Is Insufficient
-
-If the RT does not have enough USDT to process all pending redemptions:
-
-- redemptions are partially fulfilled or delayed  
-- LOOP remains outstanding and transferable  
-- no synthetic liquidity is created  
-- no borrowing occurs  
-- no “temporary IOU” token is issued  
-
-LOOP does not become invalid — it becomes **temporarily illiquid**, which is explicitly allowed.
+Temporary unavailability defers redemption timing; it does not fabricate liquidity, and it does not create debt.
 
 ---
 
-### 14.9 No Forced Minting, No Forced Redemption
+### 14.9 What Happens if Surplus Liquidity Declines
+
+If the Redeemable Surplus Pool becomes depleted or illiquid:
+
+- redemption **timing may slow, queue, or pause**  
+- LOOP remains an accounting record of retained surplus  
+- no artificial support is provided  
+- no borrowing occurs to satisfy redemptions  
+
+YieldLoop does not mask deterioration. If liquidity is not available, the system says so.
+
+---
+
+### 14.10 No Forced Minting, No Forced Redemption
 
 YieldLoop does not:
 
 - force LOOP minting  
 - force LOOP redemption  
 - guarantee redemption timing  
-- guarantee continuous liquidity  
-- guarantee that the treasury will always be sufficient for all redemptions at once  
+- guarantee redemption windows remain open  
 
-All actions remain bounded by verified surplus and available treasury liquidity.
+LOOP minting occurs only when retained surplus exists.  
+Redemption occurs only when pool liquidity is available.
 
 ---
 
-### 14.10 Separation From Speculation
+### 14.11 Separation From Speculation
 
 Any external trading or speculative use of LOOP:
 
 - is not supported by guarantees  
 - does not influence redemption rules  
 - does not alter accounting reality  
-- does not create claims beyond what the treasury can honor  
+- does not create claims beyond redemption at par under queue rules  
 
-YieldLoop does not manage LOOP price.  
-It manages **surplus truth**.
+LOOP is designed to be slow, boring, and verifiable.
 
 ---
 
-### 14.11 Why LOOP Exists
+### 14.12 Why LOOP Exists
 
 LOOP exists to ensure:
 
 - retained value is measurable  
-- treasury backing is explicit  
 - redemption is possible without lies  
-- accounting remains auditable  
+- accounting remains honest  
 - growth is earned, not implied  
 
 LOOP is the **receipt of success**, not the incentive for it.
@@ -2786,269 +2770,273 @@ YieldLoop is governed by rules first — people second.
 
 ## 17. Risk Disclosure and User Responsibility
 
-YieldLoop is a **non-custodial execution platform**, not a savings account, investment product, or guarantee of returns.
+YieldLoop is an execution and accounting system for decentralized finance.  
+It does **not** eliminate risk, guarantee outcomes, or insure capital.
 
-Users are solely responsible for the risks they accept when authorizing execution.
-
----
-
-### 17.1 No Guarantee of Profit
-
-YieldLoop does not guarantee:
-- profit
-- yield
-- capital preservation
-- positive outcomes in any cycle
-
-Execution outcomes depend on:
-- market conditions
-- strategy behavior
-- execution timing
-- external protocol performance
-
-Losses, including total loss of deployed capital, are possible.
+All participation occurs at the user’s sole discretion and risk.
 
 ---
 
-### 17.2 Market Risk
+### 17.1 No Guarantees
 
-Markets may:
-- move rapidly
-- gap unexpectedly
-- behave irrationally
-- remain unfavorable for extended periods
+YieldLoop makes **no guarantees** regarding:
 
-YieldLoop does not predict markets and does not override execution rules to avoid loss.
+- profitability  
+- frequency of profit  
+- redemption timing  
+- continuous liquidity  
+- strategy success  
+- market behavior  
 
----
-
-### 17.3 Execution Risk
-
-Execution may be affected by:
-- slippage
-- liquidity constraints
-- failed transactions
-- protocol instability
-- blockchain congestion
-
-Execution risk is inherent and unavoidable.
+A cycle may result in profit, zero outcome, or loss.
 
 ---
 
-### 17.4 Strategy Risk
+### 17.2 Market and Execution Risk
 
-Strategies may:
-- underperform
-- fail to execute
-- halt due to guardrails
-- produce zero-result cycles
-- incur losses
+Users acknowledge exposure to risks including, but not limited to:
 
-Past performance of any strategy is not indicative of future results.
+- market volatility  
+- adverse price movement  
+- slippage and liquidity fragmentation  
+- protocol or venue instability  
+- smart contract vulnerabilities  
+- oracle delays or failures  
+- network congestion and gas volatility  
 
----
-
-### 17.5 Technology Risk
-
-YieldLoop relies on:
-- smart contracts
-- blockchain infrastructure
-- external protocols
-- decentralized exchanges
-
-Failures, exploits, or outages may result in loss.
+Execution occurs only within defined constraints, but constraints do not remove risk.
 
 ---
 
-### 17.6 No Insurance or Backstops
+### 17.3 Strategy Risk
+
+Strategies:
+
+- may underperform or fail to produce profit  
+- may carry inventory across cycles  
+- may halt due to guardrail breaches or structural failures  
+- may pause due to insufficient ECW funding  
+
+Past performance does not predict future outcomes.
+
+---
+
+### 17.4 Inventory and Liquidity Risk
+
+Open positions classified as inventory:
+
+- may remain open for extended periods  
+- may not be liquidatable at favorable prices  
+- may experience prolonged illiquidity  
+
+Inventory carries **without mark-to-market valuation** and produces **no profit recognition** until realized.
+
+---
+
+### 17.5 LOOP and Redemption Risk
+
+LOOP:
+
+- represents retained, verified surplus  
+- is redeemable at par **only when liquidity is available**  
+- may be subject to queues, pauses, or delays  
+
+YieldLoop does **not** guarantee immediate redemption or continuous liquidity.
+
+LOOP does not represent insured value or a risk-free asset.
+
+---
+
+### 17.6 No Insurance, No Bailouts
 
 YieldLoop does not provide:
-- insurance
-- loss coverage
-- guarantees
-- bailouts
-- recovery promises
 
-The system reflects reality as it occurs.
+- insurance  
+- capital protection  
+- principal guarantees  
+- emergency withdrawals  
+- discretionary bailouts  
+
+Losses, if they occur, are borne by the vault to which they apply.
 
 ---
 
 ### 17.7 User Responsibility
 
-Users are responsible for:
-- understanding strategies selected
-- approving configurations knowingly
-- funding execution costs
-- monitoring platform changes
-- complying with applicable laws
+By participating, users affirm that they:
 
-Failure to understand the system does not transfer responsibility.
-
----
-
-### 17.8 No Financial Advice
-
-Nothing in YieldLoop:
-- constitutes financial advice
-- recommends strategies
-- suggests suitability
-- implies expected returns
-
-All execution is user-directed and user-approved.
-
----
-
-### 17.9 Regulatory and Legal Risk
+- understand the system mechanics  
+- understand that capital is at risk  
+- understand that execution is deterministic, not discretionary  
+- understand that settlement outcomes are final  
+- understand that delays and pauses are possible  
 
 Users are responsible for:
-- understanding local laws
-- assessing tax implications
-- determining regulatory compliance
 
-YieldLoop does not provide legal or tax advice.
+- maintaining sufficient ECW funding  
+- selecting or approving strategies  
+- monitoring their vault state  
+- complying with applicable laws and regulations  
 
 ---
 
-### 17.10 Inactivity and Opportunity Cost
+### 17.8 Not Financial Advice
+
+YieldLoop does not provide:
+
+- investment advice  
+- trading recommendations  
+- portfolio management services  
+
+All strategy descriptions are technical explanations, not endorsements.
+
+Users act independently and at their own risk.
+
+---
+
+### 17.9 Jurisdictional Restrictions
+
+Participation may be restricted based on jurisdiction.
 
 YieldLoop may:
-- remain inactive during unfavorable conditions
-- produce extended zero-result periods
 
-Inactivity is intentional and may result in opportunity cost.
+- geoblock sanctioned or restricted regions  
+- restrict access based on compliance requirements  
+- update restrictions prospectively  
 
----
-
-### 17.11 Acceptance of Risk
-
-By authorizing a cycle, users acknowledge and accept:
-- all associated risks
-- the possibility of loss
-- the absence of guarantees
-- the finality of settlement
-
-Risk acceptance is explicit and binding.
+Users are responsible for ensuring lawful participation.
 
 ---
 
-Risk disclosure defines **the boundaries of responsibility**.
+### 17.10 Acceptance of Risk
 
-The next section defines **how YieldLoop behaves over long time horizons and adverse conditions**.
+Participation constitutes explicit acknowledgment that:
+
+- outcomes are uncertain  
+- losses are possible  
+- system rules govern all execution and settlement  
+- transparency does not imply safety  
+
+YieldLoop prioritizes **truthful outcomes over comforting narratives**.
 
 ---
 
 ## 18. Long-Term System Behavior
 
-YieldLoop is designed to operate across **long, uneven market cycles** without requiring constant activity, intervention, or narrative maintenance.
+YieldLoop is designed to operate across extended time horizons without requiring constant activity, intervention, or narrative maintenance.
 
 The system is allowed to wait.
 
 ---
 
-### 18.1 No Requirement for Continuous Activity
+### 18.1 No Activity Mandate
 
 YieldLoop does not require:
-- constant execution
-- daily trades
-- monthly profit
-- visible activity for credibility
 
-Inactivity during unfavorable conditions is a valid and intentional outcome.
+- continuous execution  
+- daily or weekly trading  
+- monthly profitability  
+- visible activity to appear functional  
+
+Periods of inactivity are a valid and intentional outcome when conditions are unfavorable.
 
 ---
 
 ### 18.2 Behavior in Flat Markets
 
-In flat or low-volatility markets:
+In low-volatility or range-bound markets:
 
-- execution may be limited
-- strategies may halt early
-- cycles may resolve to zero-result outcomes
+- execution may be minimal or nonexistent  
+- strategies may halt early  
+- cycles may resolve with zero verified profit  
 
-YieldLoop does not force trades to manufacture returns.
-
----
-
-### 18.3 Behavior in Down Markets
-
-In declining markets:
-
-- guardrails may prevent execution
-- capital may remain idle
-- losses may occur if strategies engage and markets move adversely
-
-The system prioritizes constraint over optimism.
+The system does not force trades to manufacture results.
 
 ---
 
-### 18.4 Behavior in High-Volatility Markets
+### 18.3 Behavior in Declining Markets
 
-In volatile markets:
+In adverse or declining markets:
 
-- execution may be selective
-- ECW exhaustion may occur more frequently
-- guardrails may halt strategies rapidly
+- guardrails may prevent execution entirely  
+- capital may remain idle  
+- losses may occur if strategies are active and markets move unfavorably  
 
-High volatility does not override safety constraints.
+YieldLoop prioritizes constraint over optimism.
+
+---
+
+### 18.4 Behavior in Volatile Markets
+
+In highly volatile markets:
+
+- execution may be selective and limited  
+- ECW exhaustion may occur more frequently  
+- guardrails may halt strategies rapidly  
+
+Volatility does not override safety constraints.
 
 ---
 
 ### 18.5 Compounding Over Time
 
-Long-term growth in YieldLoop occurs only if:
+Long-term growth occurs only if:
 
-- profitable cycles occur
-- surplus is retained
-- system deposit compounds execution capacity
+- profitable cycles occur  
+- surplus is verified and retained  
+- system deposits compound execution capacity  
 
-Growth is earned, not assumed.
+Growth is earned through execution reality, not assumed through modeling.
 
 ---
 
-### 18.6 LOOP Behavior Over Time
+### 18.6 LOOP Over Long Horizons
 
 Over extended periods:
 
-- LOOP supply grows only with retained surplus
-- redemption value reflects accumulated reality
-- price behavior follows accounting, not expectation
+- LOOP supply increases only with retained surplus  
+- redemption value reflects accumulated accounting reality  
+- stagnation or decline is possible if surplus generation slows  
 
-Stagnation or decline is possible if surplus generation slows.
+LOOP mirrors system truth, not expectation.
 
 ---
 
 ### 18.7 System Resilience
 
-YieldLoop resilience comes from:
-- isolation between vaults
-- deterministic settlement
-- refusal to intervene
-- allowance for inactivity
+YieldLoop resilience is achieved through:
 
-The system is designed to survive boredom, not hype.
+- vault isolation  
+- deterministic settlement  
+- refusal to intervene mid-cycle  
+- allowance for inactivity  
 
----
-
-### 18.8 No Growth Mandate
-
-YieldLoop has no mandate to:
-- maximize assets under management
-- chase trends
-- expand risk profiles
-- optimize for optics
-
-Sustainability is preferred over expansion.
+The system is designed to survive prolonged unfavorable conditions without distortion.
 
 ---
 
-### 18.9 Failure as a Valid Outcome
+### 18.8 No Growth Obligation
+
+YieldLoop has no obligation to:
+
+- maximize assets under management  
+- chase market trends  
+- expand risk exposure  
+- optimize for marketing optics  
+
+Sustainability is preferred over scale.
+
+---
+
+### 18.9 Failure as a Permitted Outcome
 
 YieldLoop may:
-- underperform
-- stagnate
-- fail to attract capital
 
-These outcomes are permitted and acknowledged.
+- underperform  
+- stagnate  
+- fail to attract capital  
+
+These outcomes are permitted and acknowledged by design.
 
 The system does not rely on inevitability.
 
@@ -3056,19 +3044,14 @@ The system does not rely on inevitability.
 
 ### 18.10 Longevity Through Restraint
 
-YieldLoop’s long-term viability depends on:
-- refusal to overpromise
-- strict adherence to constraints
-- acceptance of uncertainty
-- transparency of outcomes
+YieldLoop’s durability depends on:
 
-Restraint is the system’s advantage.
+- strict adherence to constraints  
+- transparency of outcomes  
+- acceptance of uncertainty  
+- refusal to overpromise  
 
----
-
-Long-term behavior defines **how YieldLoop survives reality instead of fighting it**.
-
-The final section defines **what success actually looks like**.
+Restraint is the system’s primary defensive mechanism.
 
 ---
 
@@ -3076,60 +3059,61 @@ The final section defines **what success actually looks like**.
 
 YieldLoop is designed to be **boring, honest, and durable**.
 
-Success in YieldLoop is not defined by:
-- constant activity
-- headline returns
-- exponential growth
-- narrative momentum
-
-Success is defined by **truthful execution and verifiable accounting** over time.
+Success in YieldLoop is not defined by activity, optics, or narrative momentum.  
+It is defined by **truthful execution and verifiable accounting over time**.
 
 ---
 
 ### 19.1 What YieldLoop Refuses to Be
 
 YieldLoop refuses to be:
-- a savings account
-- a yield promise
-- a leverage engine
-- a speculative narrative
-- a discretionary trading desk
 
-The system is intentionally constrained.
+- a savings account  
+- a yield promise  
+- a leverage engine  
+- a speculative narrative  
+- a discretionary trading desk  
+
+The system is intentionally constrained to prevent distortion.
 
 ---
 
 ### 19.2 What YieldLoop Is
 
 YieldLoop is:
-- a cycle-based execution system
-- a deterministic settlement framework
-- a platform that allows inactivity
-- an accounting-first approach to DeFi
 
-It executes only what users approve and settles only what reality produces.
+- a cycle-based execution system  
+- a deterministic settlement framework  
+- a platform that permits inactivity  
+- an accounting-first approach to decentralized execution  
+
+It executes only what users explicitly approve and settles only what reality produces.
 
 ---
 
 ### 19.3 User Success
 
 User success in YieldLoop means:
-- understanding the system
-- accepting uncertainty
-- approving configurations intentionally
-- evaluating outcomes honestly
 
-Profit may occur. Loss may occur. Both are valid.
+- understanding the system’s constraints  
+- accepting uncertainty and inactivity  
+- authorizing execution intentionally  
+- evaluating outcomes honestly  
+
+Profit may occur.  
+Loss may occur.  
+Both outcomes are valid and disclosed.
 
 ---
 
 ### 19.4 Platform Success
 
 Platform success means:
-- surviving adverse markets
-- refusing to lie under pressure
-- preserving user trust
-- remaining solvent and auditable
+
+- surviving adverse market conditions  
+- refusing to fabricate or smooth outcomes  
+- preserving auditability and finality  
+- remaining solvent without hidden liabilities  
 
 The platform is allowed to earn nothing rather than compromise integrity.
 
@@ -3138,12 +3122,13 @@ The platform is allowed to earn nothing rather than compromise integrity.
 ### 19.5 LOOP Success
 
 LOOP succeeds if:
-- it remains redeemable
-- it reflects retained surplus accurately
-- its value is earned, not implied
-- it survives without manipulation
 
-LOOP is a receipt, not a reward.
+- it remains redeemable when surplus exists  
+- it reflects retained surplus accurately  
+- its value is earned, not implied  
+- it survives without manipulation  
+
+LOOP is a receipt of success — not an incentive for it.
 
 ---
 
@@ -3152,14 +3137,12 @@ LOOP is a receipt, not a reward.
 YieldLoop does not promise outcomes.
 
 It promises:
-- boundaries
-- rules
-- transparency
-- finality
+
+- boundaries  
+- rules  
+- transparency  
+- finality  
 
 Everything else is market reality.
 
----
-
 YieldLoop measures success by **what it refuses to fake**.
-
