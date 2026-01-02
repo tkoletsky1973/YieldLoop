@@ -2207,9 +2207,11 @@ The next section defines **how LOOP is minted, what it represents, and how redem
 ## 14. LOOP Token and Redemption
 
 LOOP is the **accounting and redemption token** of the YieldLoop system.  
-It represents verified, retained economic surplus produced by completed cycles.
+It represents **verified, retained economic surplus** that has been explicitly moved into a dedicated redemption treasury after cycle settlement.
 
 LOOP is not yield, not a promise, and not a claim on future execution.
+
+LOOP exists only because profit actually occurred and was retained.
 
 ---
 
@@ -2217,12 +2219,12 @@ LOOP is not yield, not a promise, and not a claim on future execution.
 
 LOOP exists to:
 
-- record verified surplus created by the system  
+- record verified surplus created by completed cycles  
 - represent retained value in a transferable accounting unit  
-- enable redemption into USDT  
-- separate execution capital from surplus accounting  
+- enable redemption into USDT under explicit availability rules  
+- separate **execution capital** from **surplus accounting**  
 
-LOOP exists only because profit actually occurred.
+LOOP is a *receipt of success*, not the incentive for it.
 
 ---
 
@@ -2232,10 +2234,17 @@ LOOP may be minted **only after settlement** and **only if all conditions below 
 
 1. the cycle produced **Verified Net Profit (VNP > 0)**  
 2. platform performance fees have been applied and deducted  
-3. a portion of net profit is designated as **retained surplus**  
-4. settlement has finalized and is immutable  
+3. a portion of post-fee profit is designated as **retained surplus**  
+4. a portion of retained surplus is actually transferred into the **Redemption Treasury**  
+5. settlement has finalized and is immutable  
 
 If any condition is not met, **no LOOP is minted**.
+
+LOOP is never:
+- pre-minted  
+- emitted on a schedule  
+- minted against principal  
+- minted against unrealized inventory  
 
 ---
 
@@ -2244,149 +2253,161 @@ If any condition is not met, **no LOOP is minted**.
 **Retained Surplus (RS)** is the portion of post-fee verified profit that remains within the system after profit handling decisions.
 
 RS may originate from:
-- user-selected profit handling modes (e.g., Compound All or retained portion of Split 50/50)
-- platform-level retention rules
+- user profit handling modes (e.g., Compound All or the retained portion of Split 50/50)  
+- platform-level retention rules (if any)  
 - system deposit allocations (where applicable)
 
-RS is always derived from **real profit**, never from principal.
+RS is always derived from **real, settled profit** — never from principal.
+
+Retained Surplus is **accounting surplus**, not guaranteed liquidity.
 
 ---
 
-### 14.4 Redeemable Surplus Pool
+### 14.4 Redemption Treasury (Backing Pool)
 
-The **Redeemable Surplus Pool (RSP)** is the on-chain pool backing LOOP redemption.
+The **Redemption Treasury (RT)** is the on-chain pool backing LOOP redemption.
 
-The RSP:
-- holds USDT or equivalent stable assets only  
-- increases only through retained, verified surplus  
-- decreases only through LOOP redemption or approved system deployment  
+The RT:
+- holds **USDT (or equivalent stable assets) only**  
+- increases only through **verified retained surplus** transferred in after settlement  
+- decreases only through **LOOP redemption** or explicitly disclosed treasury operations  
 - is auditable and segregated from user vaults  
 
-Assets in the RSP are never borrowed against and are never used to subsidize execution losses.
+Assets in the RT are never:
+- borrowed against  
+- used to subsidize execution losses  
+- used to fabricate profit  
+
+The RT exists to provide **real backing**, not narrative support.
 
 ---
 
-### 14.5 LOOP Minting Formula
+### 14.5 Treasury-Backed Minting (1 LOOP = 1 USDT at Mint)
 
-LOOP minting is deterministic.
+LOOP minting is **treasury-backed and deterministic**.
 
-At settlement, if `RS > 0`, LOOP is minted according to:
+When a settlement designates `X USDT` of retained surplus to be transferred into the Redemption Treasury:
 
-LOOP Minted = RS ÷ RV
+- exactly `X LOOP` is minted  
+- minting occurs **only after** the treasury transfer is finalized  
+- minting is **1:1** at creation time:
 
-Where:
+**LOOP Minted = USDT Deposited into RT**
 
-- **RS** = Retained Surplus (USDT)  
-- **RV** = Redemption Value per LOOP at settlement  
+This ensures:
+- no LOOP supply exists without stable backing  
+- no dilution without value  
+- no circular accounting based on market price  
 
-This formula ensures:
-- LOOP supply expands only in proportion to real retained value  
-- no dilution without backing  
-- no arbitrary emissions  
-
----
-
-### 14.6 Redemption Value per LOOP
-
-The **Redemption Value (RV)** is defined as:
-
-RV = Redeemable Surplus Pool ÷ Circulating LOOP Supply
-
-RV reflects the **effective accounting floor** for LOOP.
-
-The system does not promise price appreciation — it allows RV to change only as accounting reality changes.
+LOOP is an accounting token whose legitimacy comes from **treasury deposits**, not market speculation.
 
 ---
 
-### 14.7 Redemption Mechanics
+### 14.6 Redemption Mechanics (1 LOOP Redeems for 1 USDT When Available)
 
-LOOP is redeemable for USDT subject to system constraints.
+LOOP is redeemable for USDT **only when Redemption Treasury liquidity is available**.
 
-Redemption:
+A valid redemption:
 
-- converts LOOP into USDT at the current RV  
-- draws exclusively from the Redeemable Surplus Pool  
-- permanently removes redeemed LOOP from circulation  
+- burns the redeemed LOOP  
+- transfers an equal amount of USDT from the RT  
+- creates **no debt** and no negative balances  
 
-Redemption never creates debt.
+**Redemption Rate:**  
+When processed, redemption is **1 LOOP → 1 USDT**.
+
+YieldLoop does not compute redemption value as “pool ÷ supply.”  
+Instead, the system enforces a simpler rule:
+
+> LOOP is minted only when USDT is placed into the RT, and LOOP is burned only when USDT leaves the RT.
 
 ---
 
-### 14.8 Redemption Availability and Fairness
+### 14.7 Redemption Availability, Pauses, and Fairness
 
-Redemption availability may be subject to:
+Redemption is constrained by operational reality.
 
-- liquidity constraints  
+Redemption may be subject to:
+- treasury liquidity availability  
 - rate limits  
-- defined redemption windows  
+- explicit redemption windows  
+- temporary pauses during stress, maintenance, or safety events  
 
-When redemption demand exceeds capacity:
+If redemption demand exceeds current capacity:
 
-- requests are queued  
-- fulfillment occurs **pro-rata by request epoch**  
-- no preferential treatment is applied  
+- requests are placed into a **queue**  
+- fulfillment occurs **FIFO by request timestamp** (or equivalent deterministic ordering)  
+- no preferential treatment is permitted  
 
-Temporary unavailability defers redemption; it does not invalidate it.
+A pause defers redemption; it does not rewrite accounting history.
 
----
-
-### 14.9 What Happens if Surplus Declines
-
-If the Redeemable Surplus Pool declines:
-
-- RV may stagnate or decrease  
-- LOOP redemption value reflects that decline  
-- no artificial support is provided  
-
-The system does not mask deterioration.
+Users must treat redemption timing as **conditional**, not guaranteed.
 
 ---
 
-### 14.10 No Forced Minting or Redemption
+### 14.8 What Happens if Treasury Liquidity Is Insufficient
+
+If the RT does not have enough USDT to process all pending redemptions:
+
+- redemptions are partially fulfilled or delayed  
+- LOOP remains outstanding and transferable  
+- no synthetic liquidity is created  
+- no borrowing occurs  
+- no “temporary IOU” token is issued  
+
+LOOP does not become invalid — it becomes **temporarily illiquid**, which is explicitly allowed.
+
+---
+
+### 14.9 No Forced Minting, No Forced Redemption
 
 YieldLoop does not:
 
 - force LOOP minting  
 - force LOOP redemption  
-- guarantee liquidity timing  
-- guarantee RV stability  
+- guarantee redemption timing  
+- guarantee continuous liquidity  
+- guarantee that the treasury will always be sufficient for all redemptions at once  
 
-All actions remain constrained by available surplus.
+All actions remain bounded by verified surplus and available treasury liquidity.
 
 ---
 
-### 14.11 Separation From Speculation
+### 14.10 Separation From Speculation
 
 Any external trading or speculative use of LOOP:
 
 - is not supported by guarantees  
 - does not influence redemption rules  
 - does not alter accounting reality  
+- does not create claims beyond what the treasury can honor  
 
-LOOP is designed to be slow, boring, and verifiable.
+YieldLoop does not manage LOOP price.  
+It manages **surplus truth**.
 
 ---
 
-### 14.12 Why LOOP Exists
+### 14.11 Why LOOP Exists
 
 LOOP exists to ensure:
 
 - retained value is measurable  
-- redemption is possible  
-- accounting remains honest  
+- treasury backing is explicit  
+- redemption is possible without lies  
+- accounting remains auditable  
 - growth is earned, not implied  
 
 LOOP is the **receipt of success**, not the incentive for it.
-
 
 ---
 
 ## 15. System Deposit and Reinvestment
 
-The system deposit is YieldLoop’s **self-sustaining growth mechanism**.  
-It exists to compound platform execution capacity over time without distorting user outcomes, settlement integrity, or LOOP redemption reality.
+The system deposit is YieldLoop’s **self-sustaining reinforcement mechanism**.  
+It exists to strengthen long-term execution capacity and redemption resilience **without distorting user outcomes, settlement integrity, or LOOP accounting**.
 
-The system deposit operates independently of all user vaults.
+The system deposit is platform capital.  
+It is not user capital and is never treated as such.
 
 ---
 
@@ -2394,16 +2415,17 @@ The system deposit operates independently of all user vaults.
 
 The system deposit exists to:
 
-- increase long-term execution capacity  
-- strengthen liquidity resilience  
-- improve operational sustainability  
-- reduce reliance on external capital  
+- reinforce long-term execution capacity  
+- strengthen redemption and liquidity resilience  
+- support platform sustainability without external leverage  
+- align platform survival with real, verified performance  
 
-It is not used to:
+It does **not** exist to:
 - subsidize user losses  
 - guarantee outcomes  
-- manipulate prices  
-- override settlement rules  
+- smooth returns  
+- manipulate LOOP value  
+- override settlement or guardrails  
 
 ---
 
@@ -2412,11 +2434,11 @@ It is not used to:
 System deposit funds are sourced **exclusively from verified profit**.
 
 Specifically:
-- the system deposit receives its allocation from the platform’s performance fee  
+- the system deposit receives its allocation from the platform’s **performance fee**  
 - no user principal is ever diverted  
 - no funds are taken from zero-result or loss cycles  
 
-If no verified profit exists, the system deposit receives nothing.
+If no verified profit exists, the system deposit receives **nothing**.
 
 ---
 
@@ -2426,18 +2448,18 @@ System deposit funds:
 
 - are never commingled with user vaults  
 - do not alter user execution outcomes  
-- do not receive preferential treatment  
+- do not receive execution priority  
 - do not socialize risk  
 
-Losses incurred by the system deposit affect **only the system deposit**.
+Losses incurred by system deposit activity affect **only the system deposit**.
+
+User outcomes remain isolated and unchanged.
 
 ---
 
 ### 15.4 Immutable Reinvestment Rule
 
-The system deposit is governed by an **immutable reinvestment rule**.
-
-All system deposit funds are handled as follows:
+The system deposit is governed by a **non-configurable reinvestment rule**:
 
 - **50% remains liquid**
 - **50% is redeployed into YieldLoop execution**
@@ -2447,16 +2469,18 @@ This rule:
 - cannot be overridden by administrators  
 - cannot be waived under any circumstance  
 
+Immutability exists to prevent reactive or narrative-driven intervention.
+
 ---
 
 ### 15.5 Redeployed System Capital Rules
 
 The redeployed portion of the system deposit:
 
-- executes under the same strategy constraints as all other capital  
-- is subject to the same guardrails, halts, and settlement rules  
-- does not receive execution priority  
-- does not receive loss protection  
+- executes under the **same strategy constraints** as all other capital  
+- is subject to identical guardrails, halts, and settlement rules  
+- receives no execution preference  
+- receives no loss protection  
 
 System capital earns or loses exactly as execution reality dictates.
 
@@ -2466,12 +2490,12 @@ System capital earns or loses exactly as execution reality dictates.
 
 The liquid portion of the system deposit:
 
-- remains idle until explicitly redeployed  
-- may be used to support redemption liquidity indirectly  
+- remains idle unless explicitly redeployed  
+- may support redemption liquidity **only through transparent treasury operations**  
 - is not borrowed against  
 - is not pledged or rehypothecated  
 
-Liquid capital is preserved for resilience, not intervention.
+Liquidity exists for **resilience**, not intervention.
 
 ---
 
@@ -2481,9 +2505,10 @@ System deposit behavior:
 
 - does not mint LOOP directly  
 - does not guarantee LOOP redemption liquidity  
-- does not influence RV calculation except through earned surplus  
+- does not alter LOOP minting rules  
+- does not influence LOOP accounting except through earned surplus  
 
-LOOP remains strictly tied to retained, verified surplus.
+LOOP remains strictly tied to **treasury-backed retained surplus**, not platform intent.
 
 ---
 
@@ -2492,11 +2517,11 @@ LOOP remains strictly tied to retained, verified surplus.
 The system deposit does not enable:
 
 - discretionary trade intervention  
+- emergency backstopping of user vaults  
 - outcome smoothing  
-- emergency backstopping  
-- preferential routing  
+- selective rescue of failing strategies  
 
-All system capital operates under the same constraints as user capital.
+All system capital is constrained by the same rules as user-approved execution.
 
 ---
 
@@ -2504,12 +2529,12 @@ All system capital operates under the same constraints as user capital.
 
 Over time, the system deposit:
 
-- compounds execution capacity  
-- improves resilience during volatile conditions  
+- compounds execution capacity organically  
+- improves platform durability during adverse markets  
 - supports redemption sustainability  
-- strengthens platform credibility  
+- strengthens platform credibility through restraint  
 
-This occurs naturally through reinvestment, not policy manipulation.
+Growth occurs through **earned surplus**, not policy manipulation.
 
 ---
 
@@ -2520,23 +2545,24 @@ The immutability of the reinvestment rule ensures:
 - predictability  
 - auditability  
 - resistance to short-term pressure  
-- protection against reactive decision-making  
+- protection against governance drift  
 
-YieldLoop chooses restraint over control.
+YieldLoop chooses **constraint over control**.
 
 ---
 
-Say **Next** when you want **Section 16 — Governance, Configuration Limits, and Platform Participation** tightened to the same standard.
+The next section defines **governance authority, configuration limits, and platform participation**.
 
 ---
 
 ## 16. Governance, Configuration Limits, and Platform Membership
 
-YieldLoop governance exists to **configure non-execution parameters** and steward the platform over time **without compromising execution integrity, settlement finality, or accounting truth**.
+YieldLoop governance exists to **configure the platform prospectively** while preserving execution integrity, settlement finality, and accounting truth.
 
-Governance authority is intentionally constrained.
+Governance is intentionally limited.  
+It may shape the system’s *future*, but it may never rewrite its *past* or intervene in active execution.
 
-Separately, YieldLoop offers a **platform membership program** (“Supporter”) that represents a **direct contribution to the platform’s success**, not an investment, execution strategy, or yield mechanism.
+Separately, YieldLoop offers a **Platform Membership program (“Supporter”)**, which represents a voluntary contribution to platform sustainability — **not** an investment, execution strategy, or yield mechanism.
 
 ---
 
@@ -2544,10 +2570,10 @@ Separately, YieldLoop offers a **platform membership program** (“Supporter”)
 
 Governance exists to:
 
-- adjust operational parameters prospectively  
-- curate supported assets, venues, and strategies  
-- define and manage platform-level programs  
 - steward long-term platform sustainability  
+- curate supported assets, venues, and strategies  
+- adjust non-execution operational parameters  
+- manage platform-level programs and participation  
 
 Governance does **not** exist to:
 
@@ -2555,21 +2581,23 @@ Governance does **not** exist to:
 - influence execution outcomes  
 - intervene mid-cycle  
 - override settlement  
-- manipulate LOOP supply or redemption value  
+- manipulate LOOP supply or redemption behavior  
+
+Execution truth always supersedes governance preference.
 
 ---
 
 ### 16.2 Governance Authority (Prospective Only)
 
-Governance may adjust, **for future cycles only**:
+Governance may adjust **for future cycles only**:
 
-- minimum external deposit amounts  
+- minimum external deposit thresholds  
 - minimum Execution Cost Wallet (ECW) funding requirements  
 - supported deposit assets  
 - supported execution venues and protocols  
-- availability of strategy engines  
-- internal allocation of platform performance fees  
-- redemption windows, queues, and rate limits  
+- availability and parameters of strategy engines  
+- internal allocation of the platform performance fee  
+- redemption pacing, pausing, and queue mechanics  
 - parameters of platform membership programs  
 
 All governance changes:
@@ -2579,24 +2607,26 @@ All governance changes:
 - apply only to future cycles  
 - require explicit user reauthorization to take effect  
 
+No change applies silently.
+
 ---
 
 ### 16.3 Immutable System Constraints
 
-The following system elements are **immutable** and cannot be changed by governance, administrators, or operators:
+The following elements are **non-configurable and immutable**:
 
-- monthly cycle structure  
+- monthly calendar-based cycle structure  
 - execution lock during active cycles  
 - settlement finality  
 - definition of Verified Net Profit  
 - vault isolation  
 - prohibition on leverage, borrowing, and derivatives  
 - separation of execution costs and platform fees  
-- LOOP minting based solely on verified, retained surplus  
-- Redeemable Surplus Pool backing requirement  
+- LOOP minting tied solely to verified, retained surplus  
+- treasury-backed LOOP redemption model  
 - system deposit reinvestment rule  
 
-These constraints define YieldLoop’s core identity.
+Any modification that violates these constraints is not YieldLoop.
 
 ---
 
@@ -2605,30 +2635,30 @@ These constraints define YieldLoop’s core identity.
 Governance:
 
 - cannot retroactively alter outcomes  
-- cannot revise or reopen settlements  
+- cannot reopen or revise settlements  
 - cannot confiscate user funds  
 - cannot invalidate completed cycles  
 
-All authority is forward-looking only.
+Completed cycles are final and immutable.
 
 ---
 
-### 16.5 Platform Membership Program (Supporter)
+### 16.5 Platform Membership Program (“Supporter”)
 
 YieldLoop may offer an optional **Supporter Membership Program**.
 
 Supporter membership represents:
 
-- a **direct contribution to the platform**
-- alignment with YieldLoop’s long-term success
-- voluntary participation in platform stewardship
+- a voluntary contribution to platform development and longevity  
+- alignment with YieldLoop’s long-term mission  
+- participation in platform stewardship  
 
 Supporter membership is **not**:
 
 - an execution strategy  
 - an investment  
 - a yield-generating mechanism  
-- a claim on profits or surplus  
+- a claim on profits, surplus, or treasury assets  
 
 ---
 
@@ -2636,11 +2666,11 @@ Supporter membership is **not**:
 
 Under the Supporter program:
 
-- a user contributes a fixed amount (e.g., $300 USDT or LOOP-equivalent)  
-- the contribution grants **Supporter membership status**  
-- the contribution is **not placed into any trading vault**  
+- a user makes a **one-time fixed contribution** (e.g., $300 USDT or LOOP-equivalent)  
+- the contribution grants Supporter membership status  
+- the contribution is **not deposited into a user vault**  
 
-The Supporter contribution:
+The contribution:
 
 - is not execution capital  
 - is not deployed into strategies  
@@ -2648,7 +2678,7 @@ The Supporter contribution:
 - does not mint LOOP  
 - does not create a redeemable claim  
 
-It is treated as a **platform contribution**, not a deposit for return.
+It is treated strictly as a **platform contribution**.
 
 ---
 
@@ -2657,13 +2687,13 @@ It is treated as a **platform contribution**, not a deposit for return.
 Supporter contributions:
 
 - are accounted for at the platform level  
-- may be used to support development, operations, audits, or growth  
+- may be used for development, audits, infrastructure, or growth  
 - are not segregated as user vault funds  
 - are not subject to execution or settlement rules  
 
 Supporter contributions may be **non-refundable**, or refundable only under explicitly disclosed program terms.
 
-No assumption of withdrawal, return, or liquidity is implied.
+No assumption of liquidity, return, or recovery is implied.
 
 ---
 
@@ -2672,17 +2702,17 @@ No assumption of withdrawal, return, or liquidity is implied.
 Supporter membership may provide:
 
 - discounted platform performance fees  
-- eligibility to participate in governance-related reviews, bounties, or testing  
-- access to platform participation initiatives or early releases  
+- eligibility for governance-related reviews or bounties  
+- early access to features, tooling, or releases  
 
 Benefits:
 
 - are discretionary  
-- may change over time  
-- apply prospectively only  
-- do not affect execution behavior or outcomes  
+- may change prospectively  
+- do not affect execution behavior  
+- do not influence settlement outcomes  
 
-Eligibility does not guarantee selection, compensation, or ongoing benefits.
+Eligibility does not guarantee compensation or selection.
 
 ---
 
@@ -2690,19 +2720,19 @@ Eligibility does not guarantee selection, compensation, or ongoing benefits.
 
 Supporter membership does **not**:
 
-- change execution priority  
+- alter execution priority  
 - reduce execution risk  
-- alter strategy behavior  
+- change strategy behavior  
 - influence settlement outcomes  
-- grant governance override authority  
+- grant override authority  
 
-All vaults execute under identical, deterministic rules.
+All vaults execute under identical deterministic rules.
 
 ---
 
 ### 16.10 Governance Bounties and Participation
 
-Governance may offer bounties or participation opportunities to Supporters for:
+Governance may offer discretionary participation opportunities to Supporters for:
 
 - research  
 - testing  
@@ -2713,7 +2743,6 @@ Governance may offer bounties or participation opportunities to Supporters for:
 Participation:
 
 - is voluntary  
-- is discretionary  
 - does not guarantee compensation  
 - does not constitute yield or investment return  
 
@@ -2725,8 +2754,8 @@ Supporter membership:
 
 - does not affect LOOP minting  
 - does not affect LOOP redemption mechanics  
-- does not create claims on the Redeemable Surplus Pool  
-- does not influence LOOP redemption value  
+- does not create claims on the redemption treasury  
+- does not influence LOOP’s accounting value  
 
 LOOP remains strictly tied to verified, retained surplus.
 
@@ -2734,26 +2763,24 @@ LOOP remains strictly tied to verified, retained surplus.
 
 ### 16.12 Transparency and Disclosure
 
-All governance actions and membership program terms:
+All governance actions and membership terms:
 
-- are documented  
-- are publicly disclosed  
+- are documented and public  
 - include effective dates  
 - are auditable  
+- require user reauthorization where applicable  
 
-Users always retain the choice to participate or abstain.
+Participation is always optional.
 
 ---
 
-### 16.13 Governance and Membership Are Intentionally Limited
+### 16.13 Governance Is Intentionally Limited
 
-Governance and membership programs in YieldLoop are designed to:
+Governance in YieldLoop exists to **support**, not to control.
 
-- support platform longevity  
-- align contributors with system success  
-- protect execution integrity  
+Execution logic, settlement finality, and accounting truth always dominate platform authority.
 
-Execution logic and accounting truth always dominate platform authority.
+YieldLoop is governed by rules first — people second.
 
 ---
 
