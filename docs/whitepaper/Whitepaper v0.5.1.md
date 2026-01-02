@@ -104,7 +104,8 @@ YieldLoop treats **time-bounded cycles** as the only valid unit of measurement.
 Each cycle:
 - begins at a fixed calendar boundary  
 - executes under locked parameters  
-- ends with a single settlement event  
+- ends with a single settlement event
+- All cycle boundaries and settlement timing are defined in UTC.
 
 There is no rolling profit, no live PnL, and no mark-to-market accounting.
 
@@ -434,6 +435,8 @@ Execution is permissionless and infrastructure-agnostic.
 
 Any party may operate a keeper or transaction submitter. YieldLoop does not guarantee execution frequency, execution timing, or continuous availability of keeper infrastructure. Failure or absence of a keeper does not create an obligation for the platform, does not invalidate a cycle, and does not alter settlement rules.
 
+Keepers are optional infrastructure providers; their presence or absence does not create a service obligation, fiduciary duty, or performance commitment by YieldLoop.
+
 ---
 
 ### 3.2 User Vaults
@@ -467,7 +470,7 @@ Key characteristics:
 - No borrowing
 - No derivatives
 - No open-ended execution
-- No strategy may roll positions across cycles without reauthorization
+- No strategy may initiate new execution actions involving carried inventory across cycles without explicit reauthorization
 
 Strategy engines **do not**:
 - assume profitability
@@ -522,6 +525,7 @@ YieldLoop operates on fixed **calendar-based cycles**.
 
 - Cycles begin on the **first day of the month**
 - Cycles end on the **last day of the month**
+- All cycle boundaries and settlement timing are defined in UTC.
 - No mid-cycle entry
 - No mid-cycle exit
 - No rolling execution
@@ -620,6 +624,10 @@ Each vault:
 
 Vault creation does not initiate execution and does not imply consent to risk.
 
+Vaults are non-custodial smart-contract accounts.
+
+YieldLoop does not take custody of user funds in an off-chain account, does not hold user balances on a company ledger, and cannot manually transfer user assets outside the contract’s allowed paths.
+
 ---
 
 ### 4.2 Supported Deposit Assets
@@ -639,7 +647,7 @@ YieldLoop enforces a **minimum external deposit amount**.
 
 Any deposit made into a vault — whether in USDT or LOOP — must meet a minimum value threshold.
 
-At launch, the minimum external deposit is expected to be **approximately $100 USDT (or equivalent in LOOP)**, subject to adjustment by the YieldLoop team or future governance.
+At launch, the minimum external deposit is expected to be **approximately $100 USDT (or equivalent in LOOP)**,subject to prospective adjustment via governance or publicly disclosed platform policy, effective only for future cycles.
 
 This minimum exists to:
 - ensure execution and settlement are economically viable
@@ -1349,7 +1357,7 @@ The ECW is **separate from user principal and profits**.
 
 ### 9.2 Minimum ECW Funding Requirement
 
-At launch, the ECW is expected to require a **minimum balance of approximately $10 USDT**, subject to adjustment by the YieldLoop team or future governance.
+At launch, the ECW is expected to require a **minimum balance of approximately $10 USDT**, subject to prospective adjustment via governance or publicly disclosed platform policy, effective only for future cycles.
 
 The minimum ECW requirement exists to:
 - ensure strategies can execute meaningfully
@@ -1359,6 +1367,8 @@ The minimum ECW requirement exists to:
 
 If the ECW balance is below the minimum:
 - a vault cannot be authorized for a new cycle
+
+
 
 ---
 
@@ -2691,6 +2701,8 @@ Benefits:
 
 Eligibility does not guarantee compensation or selection.
 
+Any governance bounties are discretionary compensation for specific work or contributions, not a return on a Supporter contribution, and may be zero.
+
 ---
 
 ### 16.9 No Preferential Execution Treatment
@@ -2721,7 +2733,9 @@ Participation:
 
 - is voluntary  
 - does not guarantee compensation  
-- does not constitute yield or investment return  
+- does not constitute yield or investment return
+
+Any governance bounties are discretionary compensation for specific work or contributions, not a return on a Supporter contribution, and may be zero.
 
 ---
 
