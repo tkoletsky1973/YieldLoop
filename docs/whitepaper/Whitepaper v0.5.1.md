@@ -791,221 +791,140 @@ This isolation is fundamental to system integrity, auditability, and user trust.
 
 ## 5. Strategy Engines
 
-Strategy engines are the **only components authorized to deploy user capital** during an active cycle.  
-They operate exclusively within user-approved bounds and are subject to strict safety constraints.
+Strategy engines are the **only components authorized to deploy user capital** during an active YieldLoop cycle.  
+They operate strictly within **user-approved parameters**, under deterministic rules, and without discretionary intervention.
 
-No strategy is allowed to:
-- assume profit  
-- borrow capital  
-- use leverage  
-- roll positions across cycles without reauthorization  
-- override settlement rules  
+Strategy engines are **execution mechanisms**, not profit guarantees.
 
-If a strategy cannot operate within its constraints, it must halt.
+They exist to:
+- attempt execution where conditions permit,
+- halt conservatively when conditions do not,
+- and never fabricate outcomes to satisfy accounting, optics, or timing constraints.
 
 ---
 
-### 5.0.1 Position Closure and Carryover Rules
+### 5.1 Core Strategy Invariants
 
-Strategy engines are designed to **attempt orderly position closure** prior to cycle end.
+All strategy engines are bound by the following **non-negotiable invariants**:
 
-However, YieldLoop **does not permit forced liquidation at a loss** solely to satisfy a time boundary.
+- No leverage of any kind  
+- No borrowing from any source  
+- No derivatives or synthetic exposure  
+- No cross-vault interaction or shared state  
+- No discretionary mid-cycle parameter adjustment  
+- No forced liquidation to satisfy cycle boundaries  
 
-If a position cannot be closed profitably or safely within approved execution bounds before the cycle end:
-
-- the position remains open  
-- the exposure is classified as **inventory**  
-- the inventory is carried forward conservatively  
-- no profit is recognized from the position  
-- no mark-to-market valuation is applied  
-
-Carried inventory:
-- remains isolated within the user vault  
-- does not execute further without future authorization  
-- does not generate profit until realized  
-- does not affect settlement of the closing cycle  
-
-YieldLoop prioritizes truthful accounting over cosmetic closure.
+If a strategy cannot operate safely within its approved bounds, it must halt.
 
 ---
 
-### 5.1 Strategy Design Philosophy
+### 5.2 Position Lifecycle and Cycle Boundaries
 
-All strategy engines share the same foundational principles:
+Strategy engines execute **within a cycle**, but are **not required to force position closure** at cycle end.
 
-- **Bounded execution** — every action has explicit limits  
-- **Deterministic behavior** — no discretionary decision-making mid-cycle  
-- **Capital isolation** — each vault is independent  
-- **No dependency on future states** — only current-cycle conditions matter  
+Prior to cycle completion, strategies must make a **best-effort attempt** to close open positions **only if** closure can occur:
 
-Strategies are tools, not promises.
+- within approved execution parameters  
+- without violating defined risk constraints  
+- without forcing a loss solely for timing or accounting reasons  
 
----
+YieldLoop explicitly forbids liquidation **for the purpose of manufacturing a realized result**.
 
-### 5.2 Directional Trading Engine
+If closure cannot occur safely and deterministically, the position remains open.
 
-**Purpose:**  
-Capture defined price movements within a bounded range.
-
-**Supported behaviors:**
-- Buy-low / sell-high  
-- Fixed percentage take-profit targets  
-- Grid trading within defined bands  
-- Optional martingale-style scaling (explicitly capped)  
-
-**Required parameters:**
-- Capital allocation percentage  
-- Entry conditions  
-- Take-profit thresholds  
-- Maximum scaling depth (if enabled)  
-- Hard stop-loss bounds  
-
-**Safety guardrails:**
-- No leverage  
-- No borrowing  
-- Maximum drawdown enforced  
-- Maximum position size enforced  
-- Forced halt if bounds are breached  
-- No open positions allowed past cycle end  
+Truth takes precedence over cosmetic finality.
 
 ---
 
-### 5.3 Arbitrage Engine
+### 5.3 Inventory Classification (Solves #1 and #2)
 
-**Purpose:**  
-Exploit deterministic price discrepancies across approved venues.
+Any position not fully realized before cycle end is classified as **inventory**.
 
-**Supported behaviors:**
-- DEX-to-DEX arbitrage  
-- Stable asset imbalance routing  
-- Explicit route allowlists only  
+Inventory:
+- remains inside the user vault  
+- is **not marked to market**  
+- is **excluded from profit recognition**  
+- carries **no assumed gain or recovery**  
+- does not affect settlement profit calculations  
 
-**Required parameters:**
-- Approved venues  
-- Minimum spread threshold  
-- Maximum capital allocation  
-- Maximum retries per opportunity  
+Inventory is a valid and expected outcome of constrained execution.
 
-**Safety guardrails:**
-- Spread must exist **before** execution  
-- No speculative routing  
-- No chained arbitrage  
-- Immediate halt if spread collapses  
-- No execution if gas cost exceeds expected return  
+Unrealized exposure is not profit.
 
 ---
 
-### 5.4 Yield Farming Engine
+### 5.4 Inventory Carryover Rules
 
-**Purpose:**  
-Earn protocol-native yield during the active cycle.
+Inventory carries forward automatically and conservatively.
 
-**Supported behaviors:**
-- Liquidity provision to allowlisted protocols  
-- Fixed-duration farming  
-- Single-cycle exposure only  
+Specifically:
+- inventory remains idle unless explicitly reauthorized for execution in a future cycle  
+- inventory does not initiate new trades on its own  
+- inventory does not compound  
+- inventory does not mint LOOP  
+- inventory does not affect platform fees  
 
-**Required parameters:**
-- Approved protocol  
-- Capital allocation  
-- Entry and exit timing  
+Reauthorization is required **only** to deploy inventory into new execution activity.
 
-**Safety guardrails:**
-- No auto-compounding  
-- No emissions masking losses  
-- All rewards must settle into USDT  
-- Forced exit before cycle end  
-- If yield does not survive costs → zero-result cycle  
+Inventory may persist indefinitely without penalty or forced resolution.
 
 ---
 
-### 5.5 Stable Asset Strategy Engine
+### 5.5 Intra-Cycle Reuse vs. Settlement Recognition
 
-**Purpose:**  
-Preserve capital while seeking conservative yield.
+During an active cycle:
+- realized funds from closed trades may be reused by approved strategies
+- capital may roll trade-to-trade within the same cycle
 
-**Supported behaviors:**
-- Stable asset routing  
-- Conservative yield mechanisms  
-- Fixed exposure  
+At settlement:
+- **only realized balances count**
+- **only verified net profit is recognized**
+- **inventory is excluded entirely**
 
-**Required parameters:**
-- Asset selection  
-- Capital allocation  
-- Duration constraints  
-
-**Safety guardrails:**
-- Stable assets only  
-- No derivatives  
-- No leverage  
-- Same settlement rules as all other strategies  
-
-There is no special treatment for “safe” strategies.
+There is no trade-level profit recognition and no rolling settlement.
 
 ---
 
-### 5.6 Strategy Allocation Rules
+### 5.6 Strategy Halting Conditions
 
-Users may allocate capital across multiple strategies within a single cycle, subject to:
+A strategy must halt immediately if any of the following occur:
 
-- Total allocation ≤ 100%  
-- Explicit approval of each allocation  
-- Strategy-specific minimums and maximums  
+- execution bounds are breached  
+- approved risk limits are reached  
+- required market conditions cease to exist  
+- approved venues or protocols become unavailable  
+- Execution Cost Wallet (ECW) funds are insufficient  
 
-Unallocated capital remains idle and unexposed.
+Halting is conservative and final for the cycle.
 
----
-
-### 5.7 AI-Assisted Strategy Configuration
-
-Users may optionally allow the AI layer to:
-
-- suggest strategy selection  
-- propose parameter ranges  
-- estimate execution cost requirements  
-- identify constraint conflicts  
-
-AI suggestions:
-- are non-binding  
-- must be explicitly approved  
-- cannot modify parameters once authorized  
-- cannot intervene mid-cycle  
-
-AI assists configuration — it does not control execution.
+A halted strategy does not invalidate the cycle.
 
 ---
 
-### 5.8 Strategy Halting Conditions
-
-A strategy must halt if:
-- execution cost funds are exhausted  
-- defined risk bounds are breached  
-- required market conditions no longer exist  
-- protocol or venue constraints are violated  
-
-Halting a strategy does not invalidate the cycle.  
-Settlement proceeds based on realized results.
-
----
-
-### 5.9 Prohibited Strategy Behaviors
+### 5.7 Prohibited Strategy Behaviors
 
 The following behaviors are explicitly forbidden:
 
-- leverage of any kind  
-- borrowing from any source  
-- derivatives trading  
-- rolling positions across cycles  
-- socialized loss handling  
-- discretionary intervention  
+- forced liquidation to satisfy cycle timing  
+- rolling positions across cycles without reauthorization  
+- borrowing from principal, profit, or system funds  
+- socializing losses or redistributing outcomes  
+- discretionary override by users, AI, governance, or administrators  
 
 Any strategy requiring these behaviors is incompatible with YieldLoop.
 
 ---
 
-Strategy engines define **what YieldLoop is allowed to do with user capital**.
+### 5.8 Strategy Truth Principle
 
-Say **Next** when you want **Section 6 — AI-Assisted Configuration**.
+Strategy engines are governed by a single principle:
+
+> **If a result cannot be realized honestly, it is not recognized.**
+
+YieldLoop prefers open inventory over false closure,  
+and conservative accounting over optimistic storytelling.
+
+This is intentional.
 
 ---
 
@@ -1295,14 +1214,22 @@ This mode maximizes capital growth and minimizes realized withdrawals.
 
 ### 8.3 Split 50 / 50
 
-Under the **50 / 50** mode:
+Under the **Split 50 / 50** profit handling mode:
 
-- 50% of each verified profit is removed from active capital
-- 50% of each verified profit remains in the vault
-- The retained portion compounds continuously
-- The withdrawn portion is made available after settlement
+- **50% of verified net profit** is retained inside the vault
+- **50% of verified net profit** is removed from active capital
+- The retained portion **continues to compound** across trades and cycles
+- The withdrawn portion becomes available to the user **after settlement**
+- Principal remains continuously deployed unless explicitly withdrawn
 
-This mode balances capital growth with regular realized returns.
+Important clarifications:
+
+- The split occurs **only at monthly settlement**, never trade-to-trade  
+- During the active cycle, all realized funds may be reused by strategies  
+- If a cycle produces **no verified net profit**, no split occurs  
+- Inventory is excluded entirely from the split calculation  
+
+This mode balances long-term capital growth with periodic realized returns, without altering execution behavior or settlement integrity.
 
 ---
 
@@ -1310,12 +1237,23 @@ This mode balances capital growth with regular realized returns.
 
 Under the **Withdraw All Profits** mode:
 
-- Principal remains continuously deployed
-- 100% of verified profits are removed from active capital
-- Profits are made available after settlement
-- Trade size remains approximately constant unless principal is adjusted
+- **100% of verified net profit** is removed from active capital at settlement
+- Principal remains continuously deployed across cycles
+- Trade sizing remains approximately constant unless the user adjusts principal
+- Withdrawn profits become available to the user **after settlement**
 
-This mode is designed for users seeking ongoing profit realization without capital expansion.
+Important clarifications:
+
+- Profit withdrawal occurs **only once per cycle**, at settlement  
+- No profits are withdrawn mid-cycle or per trade  
+- If a cycle resolves with **no verified net profit**, nothing is withdrawn  
+- Inventory does not count as profit and is never withdrawn  
+
+This mode is designed for users who want consistent profit realization while keeping execution capital stable and constrained.
+
+---
+
+Both modes operate strictly **after settlement**, apply only to **verified net profit**, and do not influence execution logic, risk exposure, or strategy behavior.
 
 ---
 
@@ -2444,17 +2382,37 @@ User outcomes remain isolated and unchanged.
 
 ### 15.4 Immutable Reinvestment Rule
 
-The system deposit is governed by a **non-configurable reinvestment rule**:
+The system deposit operates under a **fixed, non-configurable reinvestment rule** designed to prevent discretionary intervention and preserve long-term system integrity.
+
+All funds allocated to the system deposit are handled as follows:
 
 - **50% remains liquid**
 - **50% is redeployed into YieldLoop execution**
 
-This rule:
-- cannot be changed by governance  
-- cannot be overridden by administrators  
-- cannot be waived under any circumstance  
+This rule applies universally and cannot be altered.
 
-Immutability exists to prevent reactive or narrative-driven intervention.
+Specifically:
+
+- The reinvestment split **cannot be changed** by governance  
+- The reinvestment split **cannot be overridden** by administrators  
+- The reinvestment split **cannot be paused, delayed, or selectively applied**  
+- The reinvestment split **cannot be modified in response to market conditions or performance**
+
+The redeployed portion:
+
+- executes under the **same strategy constraints** as user capital  
+- is subject to identical guardrails, halting conditions, and settlement rules  
+- receives no execution priority and no loss protection  
+
+The liquid portion:
+
+- remains idle unless explicitly deployed under transparent treasury operations  
+- is never borrowed against  
+- is never pledged or rehypothecated  
+
+This immutability ensures that system reinforcement is **predictable, auditable, and resistant to narrative-driven intervention**.
+
+YieldLoop strengthens itself only through **earned surplus**, not discretion.
 
 ---
 
