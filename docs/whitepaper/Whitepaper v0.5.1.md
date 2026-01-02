@@ -2226,6 +2226,14 @@ The next section defines **how LOOP is minted, what it represents, and how redem
 
 ## 14. LOOP Token and Redemption
 
+> **Important Definition — Nature of LOOP**
+
+> LOOP is an **accounting receipt token**, not a claim, obligation, or debt instrument.
+
+> Holding LOOP does not entitle the holder to demand assets, require redemption, or assert priority over any pool or participant.
+
+> LOOP may be converted into USDT only when and if redemption capacity is available under protocol-defined rules.
+
 LOOP is the **accounting and redemption token** of the YieldLoop system.  
 It represents **verified, retained economic surplus** produced by completed cycles and recorded under deterministic rules.
 
@@ -2306,9 +2314,12 @@ This ensures:
 
 ### 14.6 Redemption Value (Fixed)
 
-The redemption value of LOOP is fixed:
+The accounting redemption parity of LOOP is defined as:
 
-**1 LOOP = 1 USDT**
+**1 LOOP = 1 USDT (accounting parity, not a guaranteed payout).**
+
+This parity defines how retained surplus is recorded and how conversion is calculated when redemption occurs.  
+It does not guarantee immediate, continuous, or unconditional redemption.
 
 LOOP is a **receipt of retained, verified surplus**, redeemable at par value subject only to **liquidity availability and fairness rules**.
 
@@ -2319,22 +2330,42 @@ It promises that LOOP represents accounted surplus and is redeemable at **par** 
 
 ### 14.7 Redemption Mechanics
 
-LOOP is redeemable for USDT subject to system constraints.
+Conversion of LOOP into USDT is a **capacity-limited protocol action**, not a withdrawal right.
 
-Redemption:
+LOOP does not confer a right to demand assets, initiate repayment, or require redemption on request.  
+Redemption occurs only when protocol-defined conditions permit and only to the extent that verified surplus liquidity is available.
 
-- converts LOOP into USDT at **1 LOOP = 1 USDT**  
-- draws exclusively from the Redeemable Surplus Pool  
-- permanently removes redeemed LOOP from circulation  
-- never creates debt and never borrows from any source  
+Specifically:
 
-If redemption cannot be fulfilled immediately due to liquidity constraints, the request is deferred under the queue rules in §14.8.
+- Redemption converts LOOP into USDT at the defined accounting parity of **1 LOOP = 1 USDT**.
+- Redemption draws **exclusively** from the Redeemable Surplus Pool (RSP).
+- Redeemed LOOP is **permanently removed from circulation**.
+- Redemption never borrows from user vaults, system deposits, or any external source.
+- Redemption never creates debt, credit, or negative balances.
 
-LOOP redemption is a conversion of accounted, retained surplus and does not represent a withdrawal of deposited principal or a claim on user vault assets.
+Redemption may be subject to one or more of the following constraints:
+
+- insufficient available liquidity in the RSP  
+- protocol-defined rate limits  
+- redemption queues  
+- temporary pauses during instability, stress, or adverse conditions  
+
+If redemption cannot be fulfilled immediately:
+
+- the request is deferred according to the protocol’s queue and pacing rules,
+- no assets are fabricated or advanced,
+- no obligation is created to fulfill the request within any fixed time frame.
+
+Redemption availability reflects **actual retained surplus**, not expectation or promise.
+
+LOOP represents accounted surplus that *may* be converted when capacity exists.  
+It does not represent a payable liability and does not guarantee redemption timing or fulfillment.
 
 ---
 
 ### 14.8 Redemption Availability, Queues, and Fairness
+
+Queueing does not create an obligation to satisfy all requests, nor does it guarantee eventual fulfillment.
 
 Redemption availability may be subject to:
 
@@ -2406,6 +2437,18 @@ LOOP exists to ensure:
 - growth is earned, not implied  
 
 LOOP is the **receipt of success**, not the incentive for it.
+
+### 14.13 LOOP Is Not a Claim on Assets
+
+LOOP does not represent:
+- a claim on user vault funds,
+- a claim on platform revenue,
+- a claim on future profits,
+- a claim on system deposits,
+- a claim on the Redeemable Surplus Pool.
+
+The Redeemable Surplus Pool is a **conversion source**, not collateral.
+
 
 ---
 
@@ -2896,6 +2939,8 @@ LOOP:
 YieldLoop does **not** guarantee immediate redemption or continuous liquidity.
 
 LOOP does not represent insured value or a risk-free asset.
+
+Holding LOOP does not create a right to repayment, redemption on demand, or asset recovery.
 
 ---
 
