@@ -1402,30 +1402,29 @@ The next section defines **how profits are handled once a cycle completes**.
 
 ---
 
-### 7.8 Standing Authorization and Cycle Re-Enrollment
+### 7.8 Standing Authorization and Inventory Re-Enrollment
 
-YieldLoop distinguishes between **configuration persistence** and **cycle authorization**.
+YieldLoop supports Standing Authorization, allowing previously approved configurations to persist across cycles without requiring re-approval. This feature may also apply to inventory positions, enabling them to resume execution in a future cycle automatically, under specific conditions.
 
-Strategy selections, parameters, capital allocations, and profit handling modes may persist across cycles.  
-Authorization to deploy capital, however, always applies to a **specific cycle**.
+Standing Authorization applies when:
+	•	The user explicitly opts in to Standing Authorization.
+	•	The vault’s configuration is unchanged, including:
+	•	strategy selection,
+	•	parameter bounds,
+	•	profit handling mode,
+	•	capital allocation,
+	•	Execution Cost Wallet (ECW) funding.
+	•	No changes were made during the previous cycle that would invalidate standing consent.
 
-To balance explicit consent with operational continuity, YieldLoop supports **standing authorization**.
+Inventory Re-Enrollment:
+	•	If inventory exists at cycle end, and Standing Authorization is enabled, YieldLoop:
+	•	automatically enrolls inventory into the next cycle,
+	•	applies the previously approved strategy parameters, and
+	•	treats inventory as active capital within the strategy bounds.
+	•	No explicit reauthorization is required per cycle, as long as no configuration changes are made.
+	•	If any parameter is changed, Standing Authorization is invalidated and must be reapproved.
 
-Under standing authorization:
-
-- the user explicitly opts in to authorize execution for the next cycle using the **unchanged, previously approved configuration**,
-- authorization is applied automatically at the next enrollment boundary,
-- no parameters may change without renewed explicit approval,
-- standing authorization may be revoked or modified **only during an enrollment window**.
-
-Standing authorization:
-- is optional,
-- is disabled by default unless explicitly enabled by the user,
-- applies only when configuration remains identical.
-
-If any configuration element changes — including strategy selection, parameters, capital allocation, profit handling mode, or ECW requirements — standing authorization is invalidated and fresh approval is required.
-
-Standing authorization never applies mid-cycle and never bypasses execution locks.
+Standing Authorization is disabled by default and may be revoked during any open enrollment window.
 
 ---
 
