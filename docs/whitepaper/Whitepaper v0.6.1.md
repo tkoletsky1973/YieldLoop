@@ -26,7 +26,7 @@
 
 12. Carry-Over Settings and Standing Authorization
 13. Risks, Limitations, and Honest Outcomes
-14. Things YieldLoop Will Never Do
+14. Risks, Limitations, and Things YieldLoop Will Never Do
 
 15. YieldLoop as an Alternative to Savings and Yield Products
 16. Technical Overview (Developer-Readable)
@@ -1011,6 +1011,8 @@ Redemption:
 - does not affect execution logic
 - is conservative by design
 
+Redemption availability and timing are governed by system policy and may be limited to preserve platform solvency.
+
 ---
 
 ## 12. Platform Fees and Fee Allocation
@@ -1041,7 +1043,7 @@ Fee parameters may be adjusted prospectively by the team or future governance, w
 
 ### Fee Allocation (Current Policy)
 
-The platform fee is allocated across four categories. Split evenly at launch, subject to business/admin needs snd fiture governance:
+The platform fee is allocated across four categories. Split evenly at launch, subject to business or administrative needs and future governance:
 
 1. **Development**
 2. **Marketing**
@@ -1364,6 +1366,8 @@ YieldLoop is not allowed to lie.
 ---
 
 ## 15. YieldLoop as an Alternative to Savings and Yield Products
+
+(Any comparison to savings products is descriptive only and does not imply equivalent risk, protection, or guarantees.)
 
 YieldLoop is not a savings account.
 
