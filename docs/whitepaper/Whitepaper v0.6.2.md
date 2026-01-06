@@ -90,20 +90,22 @@ If something is not explicitly stated in this document, it should be assumed **n
 
 ### What YieldLoop Is
 
-YieldLoop is a **cycle-based trading execution platform**.
+YieldLoop is a **calendar-month–based trading execution platform**.
 
-Users deposit capital, define explicit trading rules, and authorize the system to execute those rules **only within a fixed monthly cycle**. All profit and loss is settled at the end of that cycle, with no mid-cycle withdrawals, no hidden reinvestment, and no discretionary intervention.
+Users deposit capital, define explicit trading rules, and authorize the system to execute those rules **only within a fixed calendar-month cycle**. Each cycle aligns exactly with the calendar month (e.g., January 1–31, February 1–28/29) and does not slide, overlap, or begin at arbitrary times.
+
+All profit and loss is settled only after the calendar month fully concludes. There are no mid-cycle withdrawals, no hidden reinvestment, and no discretionary intervention.
 
 YieldLoop is:
 - Rules-based
-- Time-bounded
-- User-authorized
+- Time-bounded by calendar months
+- Explicitly user-authorized
 - Settlement-driven
 - Honest about outcomes
 
-The platform only earns a fee when users realize profit, and that fee is allocated transparently across development, operations, impact initiatives, and a permanently reserved redemption reserve.
+The platform earns a fee only when users realize profit, and that fee is allocated transparently across development, operations, impact initiatives, and a permanently reserved Redemption Reserve.
 
-At the center of the system is **LOOP**, a redemption-backed accounting token minted only from verified profit and deliberately over-capitalized. LOOP exists to represent accumulated, provable system value — not to speculate, rebase, or promise yield.
+At the center of the system is **LOOP**, a redemption-backed accounting token minted only from verified, realized profit and deliberately over-capitalized by design. LOOP exists to represent accumulated, provable system value — not to speculate, rebase, or promise yield.
 
 ---
 
@@ -123,11 +125,11 @@ YieldLoop does not:
 - Smooth losses
 - Allow mid-cycle exits
 - Rely on market liquidity to define value
-- Mint tokens in advance of realized results
+- Mint tokens in advance of settled results
 
-If a user loses money in a cycle, that loss is recorded and settled honestly. No mechanism exists to mask or offset that outcome.
+If a user loses money during a calendar-month cycle, that loss is recorded and settled honestly at month end. No mechanism exists to mask, defer, or offset that outcome.
 
-This distinction is critical: YieldLoop does not exist to *manufacture* yield. It exists to **execute decisions cleanly and account for the results truthfully**.
+This distinction is critical: YieldLoop does not exist to *manufacture* yield. It exists to **execute user-defined decisions within a fixed calendar period and account for the results truthfully**.
 
 ---
 
@@ -139,49 +141,50 @@ YieldLoop makes a single, narrow promise to the user:
 > The system executes them faithfully.  
 > You own the outcome.*
 
-Everything in the UX and system design reinforces this promise.
+Every aspect of the UX and system architecture is designed to reinforce this promise.
 
 ---
 
 ### User Control
 
-Before any cycle begins, the user must:
-- Select assets
+Before any calendar-month cycle begins, the user must:
+
+- Select which assets may be traded
 - Define entry conditions
 - Define exit conditions
-- Set risk guardrails
-- Choose how profits are handled
-- Explicitly accept responsibility
+- Set explicit risk guardrails
+- Choose how profits are handled at settlement
+- Explicitly accept responsibility for outcomes
 
 No defaults are hidden.  
 No strategies are imposed.  
-No AI acts without authorization.
+No automation acts without authorization.
 
-If a user does not approve a setting, it does not exist.
+If a user does not explicitly approve a setting, it does not exist.
 
 ---
 
-### Cycles, Not Continuous Exposure
+### Calendar Cycles, Not Continuous Exposure
 
-YieldLoop operates in **discrete monthly cycles**.
+YieldLoop operates exclusively in **discrete calendar-month cycles**.
 
 This design:
 - Prevents emotional interference
 - Eliminates surprise withdrawals
-- Forces clear accounting
-- Makes risk visible and bounded
+- Forces clean, auditable accounting periods
+- Makes risk visible, finite, and time-bounded
 
-Once a cycle starts:
-- Capital is locked
-- Rules are fixed
-- Execution proceeds
-- No changes are allowed
+Once a calendar-month cycle begins:
+- Trading capital is locked
+- Strategy rules are immutable
+- Execution proceeds strictly within approved boundaries
+- No mid-cycle changes are permitted
 
-At the end of the cycle:
-- Everything is settled
-- Profits or losses are finalized
-- Fees apply only if profit exists
-- The next cycle requires renewed consent
+At the end of the calendar month:
+- All positions are settled
+- Profit or loss is finalized
+- Platform fees apply only if profit exists
+- Participation in the next cycle requires renewed consent
 
 ---
 
@@ -191,8 +194,8 @@ YieldLoop does not take responsibility for outcomes — and does not pretend to.
 
 The platform:
 - Executes exactly what was approved
-- Records every action
-- Settles honestly
+- Records every action transparently
+- Settles results honestly at month end
 - Takes no performance fee unless profit exists
 
 The user:
@@ -200,13 +203,13 @@ The user:
 - Accepts the risk
 - Owns the result
 
-This division of responsibility is intentional and explicit. It is what allows YieldLoop to be honest, durable, and resistant to both hype and collapse.
+This division of responsibility is explicit and intentional. It is what allows YieldLoop to remain honest, durable, and resistant to both hype and collapse.
 
 ---
 
-These three sections define the tone and contract of the entire system.
+These sections define the behavioral contract of the system.
 
-Everything that follows in this document is simply the **mechanical implementation** of these principles.
+Everything that follows in this document is the **mechanical implementation** of these principles.
 
 ---
 
