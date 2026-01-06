@@ -675,7 +675,7 @@ They are the natural result of honest execution under real market conditions.
 
 YieldLoop will never:
 
-- print tokens to offset losses  
+- mint LOOP to disguise losses or simulate yield (LOOP may only be created from verified, settled profit and never to cover deficits)  
 - borrow against future expectations  
 - redistribute gains between users  
 - hide costs inside pricing  
@@ -1041,7 +1041,7 @@ Fee parameters may be adjusted prospectively by the team or future governance, w
 
 ### Fee Allocation (Current Policy)
 
-The platform fee is allocated across four categories:
+The platform fee is allocated across four categories. Split evenly at launch, subject to business/admin needs snd fiture governance:
 
 1. **Development**
 2. **Marketing**
@@ -1336,6 +1336,30 @@ By using YieldLoop, users acknowledge that:
 
 YieldLoop enforces rules faithfully.  
 It does not assume responsibility for outcomes beyond those rules.
+
+YieldLoop is designed to be conservative, rule-bound, and resistant to manipulation.
+
+Accordingly, YieldLoop will never:
+
+- custody user funds off-chain  
+- pool user funds across unrelated vaults  
+- borrow or lend user principal without explicit product-level disclosure and user opt-in  
+- use leverage or derivatives  
+- front-run user execution or trade against users  
+- force trades simply to appear active  
+- force-close positions for accounting convenience  
+- mark unrealized inventory as profit  
+- charge performance fees on flat or losing cycles  
+- charge performance fees on principal, ECW funds, or unrealized inventory  
+- mint LOOP to cover losses, create fake yield, or smooth outcomes  
+- apply rule changes retroactively to active or completed cycles  
+- allow mid-cycle parameter changes once a cycle is authorized  
+- create hidden fees that are not disclosed before authorization  
+- guarantee returns, execution frequency, or LOOP appreciation  
+
+YieldLoop is allowed to do nothing.  
+YieldLoop is allowed to be wrong.  
+YieldLoop is not allowed to lie.
 
 ---
 
