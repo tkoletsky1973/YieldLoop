@@ -1263,6 +1263,8 @@ This value:
 
 Market prices, if present, are informational only.
 
+All LOOP utility applications (fee offsets, deposit credits, withdrawal credits) are priced using redemption value, not market price.
+
 ---
 
 ### Redemption Actions
