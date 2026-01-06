@@ -935,14 +935,15 @@ If the ECW balance falls below a defined low threshold (expected to be approxima
 - no new trades are initiated
 - existing positions are not forcibly closed
 
-If the ECW balance is fully exhausted:
+If the Execution Cost Wallet (ECW) balance reaches zero:
 
-- all execution halts immediately
-- no borrowing occurs
-- no debt is created
-- settlement proceeds using realized results only
+- **All open positions for the affected vault are immediately closed**, subject to market liquidity and protocol constraints
+- Execution halts immediately after closure
+- No new trades are initiated
+- No borrowing occurs
+- No debt is created
 
-Execution halting due to ECW exhaustion is a valid system outcome.
+Following forced closure, the vault enters a paused state until the user either replenishes the ECW or exits the system.
 
 #### User Notification
 
@@ -1127,6 +1128,8 @@ Inventory positions:
 - Do not require forced liquidation to satisfy cycle boundaries
 
 Cycle boundaries govern **authorization and settlement**, not forced position resolution.
+
+Inventory execution across cycles occurs only when Standing Authorization is active or when the user explicitly reauthorizes execution.
 
 ---
 
@@ -1450,6 +1453,8 @@ Inventory Re-Enrollment:
 
 Standing Authorization is disabled by default and may be revoked during any open enrollment window.
 
+When enabled, Standing Authorization satisfies all reauthorization requirements for inventory positions carried across cycles.
+
 ---
 
 ## 8. Profit Handling Modes
@@ -1654,6 +1659,16 @@ At no point does YieldLoop:
 - borrow gas from other users
 - execute trades without sufficient ECW funding
 
+If the Execution Cost Wallet (ECW) balance reaches zero:
+
+- **All open positions for the affected vault are immediately closed**, subject to market liquidity and protocol constraints
+- Execution halts immediately after closure
+- No new trades are initiated
+- No borrowing occurs
+- No debt is created
+
+Following forced closure, the vault enters a paused state until the user either replenishes the ECW or exits the system.
+
 If available ECW funding is insufficient to safely execute a permitted action:
 
 - the action is skipped
@@ -1669,13 +1684,15 @@ Execution pauses due to ECW insufficiency are a valid and expected outcome.
 
 ### 9.4 ECW Exhaustion During Execution
 
-If the ECW balance is exhausted during an active cycle:
+If the Execution Cost Wallet (ECW) balance reaches zero:
 
-- execution halts immediately
-- no further trades are attempted
-- settlement proceeds using realized results
-- no debt or negative balance is created
+- **All open positions for the affected vault are immediately closed**, subject to market liquidity and protocol constraints
+- Execution halts immediately after closure
+- No new trades are initiated
+- No borrowing occurs
+- No debt is created
 
+Following forced closure, the vault enters a paused state until the user either replenishes the ECW or exits the system.
 ECW exhaustion is a valid outcome and is not treated as an error.
 
 ---
@@ -1985,14 +2002,15 @@ Intervention is replaced by **predefined halting behavior**.
 
 ### 11.6 Gas and Fee Exhaustion Handling
 
-If the Execution Cost Wallet (ECW) balance reaches zero during execution:
+If the Execution Cost Wallet (ECW) balance reaches zero:
 
-- all execution halts immediately  
-- no further trades are attempted  
-- no borrowing occurs  
-- no debt is created  
+- **All open positions for the affected vault are immediately closed**, subject to market liquidity and protocol constraints
+- Execution halts immediately after closure
+- No new trades are initiated
+- No borrowing occurs
+- No debt is created
 
-Settlement proceeds using realized outcomes.
+Following forced closure, the vault enters a paused state until the user either replenishes the ECW or exits the system.
 
 Gas exhaustion is a valid and expected edge case.
 
