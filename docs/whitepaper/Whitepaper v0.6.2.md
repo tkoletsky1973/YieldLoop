@@ -576,6 +576,8 @@ Rules:
 
 This capital is **not** exposed to trading risk.
 
+If ECW balance is insufficient, execution may be delayed or halted until replenished.
+
 ---
 
 ### Deposit Timing
