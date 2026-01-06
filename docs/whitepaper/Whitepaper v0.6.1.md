@@ -24,10 +24,10 @@
 10. Profit, Loss, and Inventory
 11. The LOOP Token — Accounting, Redemption, and Floor Mechanics
 
-12. Carry-Over Settings and Standing Authorization
-13. Risks, Limitations, and Honest Outcomes
+12. Platform Fees and Fee Allocation
+13. Carry-Over Settings and Standing Authorization
 14. Risks, Limitations, and Things YieldLoop Will Never Do
-
+  
 15. YieldLoop as an Alternative to Savings and Yield Products
 16. Technical Overview (Developer-Readable)
 17. Disclosures, Acknowledgements, and User Responsibility
@@ -1214,7 +1214,7 @@ Explicit rules + bounded cycles are the true risk controls.
 
 ---
 
-## 14. Risks, Limitations, and Honest Outcomes
+## 14. Risks, Limitations, and Things YieldLoop Will Never Do
 
 YieldLoop is an execution system, not a guarantee.
 
@@ -1367,7 +1367,7 @@ YieldLoop is not allowed to lie.
 
 ## 15. YieldLoop as an Alternative to Savings and Yield Products
 
-(Any comparison to savings products is descriptive only and does not imply equivalent risk, protection, or guarantees.)
+Any comparison to savings products is descriptive only and does not imply equivalent risk, protection, or guarantees.
 
 YieldLoop is not a savings account.
 
