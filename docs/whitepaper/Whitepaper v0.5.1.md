@@ -661,22 +661,33 @@ All AI output is advisory.
 
 ---
 
-### 3.5 Execution Cost Wallet (ECW)
+### 3.5 Execution Cost Wallet (ECW) Exhaustion and Enforcement
 
-Execution costs are funded through a **separate wallet** attached to each vault.
+Execution costs for each vault are funded exclusively through the Execution Cost Wallet (ECW).
+The ECW is strictly separated from principal, profits, system reserves, and future outcomes.
 
-The ECW:
-- is pre-funded by the user
-- pays gas and trade fees
-- cannot borrow from principal
-- cannot borrow from profit
-- cannot borrow from system reserves
+The ECW cannot borrow from any source and cannot create debt under any circumstance.
 
-If the ECW balance reaches zero:
-- execution halts
-- settlement proceeds
-- no debt is created
+If the ECW balance reaches **zero** at any point during an active cycle:
 
+- **All open positions for the affected vault are immediately closed**, subject to available market liquidity and protocol constraints
+- No new execution actions are initiated
+- Trading activity halts for the vault
+- No borrowing occurs
+- No negative balances are created
+
+After forced position closure due to ECW exhaustion:
+
+- The vault enters a paused state
+- The system awaits one of the following user actions:
+  - Replenishment of the ECW to meet the minimum required balance, or
+  - Full withdrawal and vault exit at the next permitted withdrawal window
+
+Forced position closure due to ECW exhaustion is a **protective safety mechanism**, not discretionary intervention.
+Its sole purpose is to prevent execution from continuing without pre-funded costs.
+
+ECW exhaustion does not invalidate a cycle.
+Settlement proceeds deterministically using **realized results only**.
 ---
 
 ### 3.6 Cycle Scheduler
@@ -1089,20 +1100,33 @@ Unrealized exposure is not profit.
 
 ---
 
-### 5.4 Inventory Carryover Rules
+### 5.4 Inventory Carryover and Concurrent Execution Rules
 
-Inventory carries forward automatically and conservatively.
+Any position not fully realized by the end of a cycle is classified as **inventory**.
 
-Specifically:
-- inventory remains idle unless explicitly reauthorized for execution in a future cycle  
-- inventory does not initiate new trades on its own  
-- inventory does not compound  
-- inventory does not mint LOOP  
-- inventory does not affect platform fees  
+Inventory:
+- Remains held within the user’s vault
+- Is not marked to market
+- Is excluded from profit recognition
+- Does not mint LOOP
+- Does not affect fee calculation
 
-Reauthorization is required **only** to deploy inventory into new execution activity.
+Inventory may carry forward across **one or more subsequent cycles** until its strategy-defined exit conditions are met.
 
-Inventory may persist indefinitely without penalty or forced resolution.
+Inventory carryover does **not**:
+- Block new deposits
+- Block compounding of realized profits
+- Block execution of newly authorized strategies in subsequent cycles
+
+New deposits and newly realized profits may be deployed in later cycles **independently of existing inventory**, provided the user has authorized execution for those cycles.
+
+Inventory positions:
+- Continue to wait passively for their approved exit conditions
+- Do not initiate new trades
+- Do not compound
+- Do not require forced liquidation to satisfy cycle boundaries
+
+Cycle boundaries govern **authorization and settlement**, not forced position resolution.
 
 ---
 
@@ -1704,6 +1728,23 @@ YieldLoop operates exclusively on **fixed, calendar-based monthly cycles**.
 Cycles define when execution may occur, when accounting is measured, and when outcomes become final.
 
 There is no continuous execution and no rolling enrollment.
+
+
+### Cycle Boundaries and Position Continuity
+
+The end of a cycle does not imply closure of open positions.
+
+Cycle boundaries:
+- Finalize settlement for closed positions only
+- Recognize verified net profit or loss
+- Leave open positions untouched unless closed by strategy logic or ECW exhaustion
+
+Open positions may persist across multiple cycles without preventing:
+- Additional capital deployment
+- New execution activity
+- Profit realization from other closed positions
+
+YieldLoop prioritizes **honest execution completion over artificial timing closure**.
 
 ---
 
