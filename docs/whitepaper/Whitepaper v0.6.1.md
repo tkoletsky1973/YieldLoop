@@ -942,9 +942,11 @@ LOOP is optional.
 Users may use YieldLoop without ever holding LOOP.  
 Users may hold LOOP without actively using YieldLoop.
 
-### When LOOP Is Created
+### When LOOP Is Created (And When It Is Not)
 
-LOOP may be created **only** when all of the following are true:
+LOOP supply may be created, reduced, or otherwise modified **only at cycle settlement**, and only as the result of verified accounting.
+
+LOOP may be created only when all of the following are true:
 
 - a calendar cycle has fully settled
 - verified net profit exists
@@ -956,7 +958,7 @@ There is:
 - no emission schedule
 - no inflation tied to deposits
 - no minting during execution
-- no minting to cover losses or smooth outcomes
+- no minting to cover losses, simulate yield, or smooth outcomes
 
 No profit → no LOOP.
 
@@ -980,20 +982,20 @@ Only assets that are:
 - locked
 are included in floor calculations.
 
-### How the Floor Can Rise
+### How the Floor Can Rise (And Why That Matters)
 
-The LOOP floor may rise **only** if one or both of the following occur:
+The LOOP floor may rise only through verified, post-settlement changes to one or both sides of the equation:
 
-1. Retained backing assets increase  
-2. Effective LOOP supply decreases  
+1. **Backing increases** (numerator increases)  
+2. **Supply decreases** (denominator decreases)
 
-The floor **cannot** rise due to:
+The floor cannot rise due to:
 - user deposits
 - inventory carryover
 - execution activity
 - secondary market trading
 - speculative demand
-- price appreciation narratives
+- price narratives
 
 Only **settled, retained surplus** affects the floor.
 
@@ -1129,7 +1131,7 @@ This results in:
 Burn behavior:
 - is policy-defined
 - is irreversible per event
-- applies only to future cycles
+- occurs only at settlement
 - may be adjusted prospectively by governance
 
 ### Why YieldLoop Does Not Use a System Execution Vault
