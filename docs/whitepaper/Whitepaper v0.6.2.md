@@ -1255,136 +1255,162 @@ Internal allocation is visible at the system level and auditable.
 
 ## 14. The Redemption Reserve and Floor Growth
 
-The **Redemption Reserve** is the structural anchor of YieldLoop.
+The Redemption Reserve is the structural anchor of YieldLoop.
 
 It exists to:
-
 - back LOOP redemptions
 - provide conservative value accounting
 - maintain long-term solvency under stress
 
 Funds allocated to the Redemption Reserve are:
-
 - protocol-owned
 - irreversible once committed
 - non-withdrawable for any other purpose
 - used only for explicit LOOP redemption and system-defined reserve functions
 
----
-
-### Reserve Structure (Two-Layer Model)
-
-To prevent ambiguity and prevent “marketing floor” behavior, YieldLoop separates reserve value into two categories:
+This section defines **exactly** what the “floor” is, what counts toward it, and how it grows.
 
 ---
 
-### 1) Core Reserve (Floor-Authoritative Backing)
+### 14.1 Reserve Structure (Two-Layer Model)
+
+YieldLoop separates reserve value into two categories to prevent “marketing floor” behavior and keep the floor mechanically honest:
+
+#### 1) Core Reserve (Floor-Authoritative Backing)
 
 The **Core Reserve** contains backing assets intended to remain stable and redeemable under stress.
 
 Core Reserve characteristics:
-
 - conservative
 - highly liquid
 - suitable for direct redemption backing
+- designed to remain redemption-safe even during market volatility
 
-Recommended asset type (illustrative):
-
+Asset type (illustrative):
 - stablecoins (e.g., USDT and/or other permitted stable reserves)
 
-#### Authoritative Floor Rule
+#### 2) Growth Reserve (Non-Floor Value)
 
-The authoritative redemption floor is computed using the Core Reserve:
+The **Growth Reserve** may hold diversified assets designed to strengthen long-term system backing and reflect verified surplus accumulation.
 
-> **Redemption Floor (Authoritative) = Core Reserve ÷ Redeemable LOOP Supply**
+Growth Reserve characteristics:
+- may fluctuate with market prices
+- strengthens the system over long horizons
+- **does not** define the authoritative floor
 
-This floor is the value emphasized throughout the YieldLoop UI and is the pricing reference for LOOP-based internal utilities.
-
----
-
-### 2) Growth Reserve (Non-Floor Value)
-
-The **Growth Reserve** may contain diversified assets designed to strengthen long-term backing and reflect verified surplus accumulation.
-
-Examples (illustrative only):
-
+Asset types (illustrative):
 - BNB
 - BTCB
 - ETHB
 - XRPB
 - PAXG
 
-Growth Reserve characteristics:
+This separation exists for one reason:
 
-- may fluctuate with market prices
-- strengthens the system over long horizons
-- is not used to exaggerate floor calculations
-
-#### Growth Reserve Visibility
-
-The Growth Reserve is shown transparently in system reserve breakdowns, but it does not define the authoritative floor.
-
-This prevents the system from claiming a floor that could drop due to volatile asset pricing.
+> The floor must not be able to drop just because a volatile asset drops.
 
 ---
 
-### Combined Reserve View (System Level)
+### 14.2 Authoritative Floor Definition (Core-Based)
 
-At the system level, users may be shown:
+YieldLoop defines a single **authoritative** redemption floor using the Core Reserve only:
 
-- Core Reserve balance (floor-authoritative)
-- Growth Reserve balance (value strength)
-- Total reserve value (informational)
+> **Redemption Floor (Authoritative) = Core Reserve ÷ Redeemable LOOP Supply**
 
-However, the authoritative redemption floor remains Core-based.
+This value is:
+- emphasized throughout the YieldLoop UI
+- used for LOOP utility pricing inside the platform (if LOOP is used for offsets/credits)
+- updated only at settlement (not continuously)
+- conservative by design
 
-This makes the floor:
-
-- conservative
-- stress-resistant
-- mechanically honest
+The Growth Reserve is visible and auditable, but it is not used to compute the authoritative floor.
 
 ---
 
-### How the Floor Grows (Mechanically)
+### 14.3 What Users See (Reserve Transparency)
 
-The authoritative redemption floor increases when:
+At the system level, YieldLoop may show three values:
 
-- verified surplus is added to the Core Reserve
-- redeemable LOOP supply grows slower than Core Reserve growth
-- minting constraints prevent over-issuance
-- LOOP is held or used for system utility instead of redeemed
+- **Core Reserve** (floor-authoritative)
+- **Growth Reserve** (value-strengthening, non-floor)
+- **Total Reserve Value = Core + Growth** (informational only)
 
-The floor is not managed.
-It is allowed to rise through discipline.
+The UI must clearly label these to prevent misunderstanding:
+- Core Reserve is **the floor**
+- Growth Reserve is **additional strength**, not a floor input
 
 ---
 
-### Worked Example — How the Authoritative Floor Rises (Simple Scenario)
+### 14.4 Reserve Characteristics (Hard Rules)
 
-Below is a simplified example to demonstrate how YieldLoop’s redemption-backed floor grows over time.
+Once value enters the Redemption Reserve (Core or Growth), it is:
+
+- Protocol-owned  
+- Irreversible  
+- Non-withdrawable  
+- Non-discretionary  
+
+Value leaves the reserve **only** through explicitly defined LOOP redemption mechanics (and any system-defined reserve functions that are strictly reserve-related).
+
+No other spending path exists.
+
+This is not a policy preference.  
+It is a design constraint.
+
+---
+
+### 14.5 How the Authoritative Floor Grows (Mechanically)
+
+The authoritative floor increases when:
+
+- verified surplus is added to the **Core Reserve**
+- redeemable LOOP supply grows more slowly than Core Reserve growth
+- minting constraints prevent over-issuance into redeemable supply
+- LOOP is held/locked/used for utility instead of redeemed (depending on the rules)
+
+The floor is not “managed.”  
+It rises as a consequence of conservative accounting.
+
+---
+
+### 14.6 Worked Example (Simple, Core-Only)
+
+This is a simplified example showing how the floor rises.
 
 Assumptions (example only):
-- The **Core Reserve** is funded by verified platform surplus (profit routing)
-- **Redeemable LOOP supply does not increase** in this example (no new minting shown)
-- Floor is calculated as:
+- Core Reserve grows via verified surplus allocations
+- Redeemable LOOP Supply does not change in this example
 
-> **Authoritative LOOP Floor = Core Reserve ÷ Redeemable LOOP Supply**
+**Floor = Core Reserve ÷ Redeemable LOOP Supply**
 
-#### Example Timeline
-
-| Period | Core Reserve | Redeemable LOOP Supply | Authoritative LOOP Floor |
+| Period | Core Reserve | Redeemable LOOP Supply | Authoritative Floor |
 |---|---:|---:|---:|
 | End of Month 0 | $15,000 | 5,000 LOOP | $3.00 |
 | End of Month 1 | $18,000 | 5,000 LOOP | $3.60 |
 | End of Month 2 | $20,000 | 5,000 LOOP | $4.00 |
 
-In this simplified case:
-- the Core Reserve grows due to verified surplus
-- redeemable supply remains unchanged
-- therefore, the authoritative redemption-backed floor rises automatically
+In this example:
+- Core Reserve increases
+- Redeemable supply is flat
+- therefore the floor rises automatically
 
-If LOOP minting occurs, it must remain constrained by coverage rules so that issuance does not weaken redemption integrity.
+If LOOP minting occurs, it must be constrained so that redeemable issuance does not weaken Core-based redemption integrity.
+
+---
+
+### 14.7 Non-Negotiable Clarity Rule
+
+YieldLoop does **not** claim a floor based on:
+- volatile assets
+- market prices
+- assumed liquidity
+- narrative or incentive design
+
+The only authoritative value anchor is the Core-based redemption floor:
+
+> **Core Reserve ÷ Redeemable LOOP Supply**
+
+Everything else is informational.
 
 ---
 
@@ -1635,121 +1661,246 @@ Verified backing comes first.
 
 ---
 
+
 ## 18. Redemption UX and Value Anchoring
 
 Redemption is the **value anchor** of LOOP.
 
-It defines the only authoritative internal value used for:
+It is the mechanism that turns LOOP from “a token with a story” into a token with **accounting truth** behind it.
 
-- LOOP accounting
-- LOOP utility pricing
-- floor reporting
-- redemption entitlement math
+YieldLoop does not treat market price as authoritative.
+YieldLoop treats **redeemability** as authoritative.
 
-Market price may exist externally, but it is **non-authoritative** inside YieldLoop.
-
-YieldLoop does not base its accounting on narrative, liquidity optics, or speculation.  
-It bases value on reserves.
+This section defines:
+- what redemption means,
+- how redemption value is calculated,
+- what users see in the UX,
+- what redemption can and cannot do.
 
 ---
 
-### Redemption Floor (Authoritative Value)
+### 18.1 The Core Principle: Redemption Is the Anchor
 
-YieldLoop maintains a two-layer reserve model:
+LOOP has exactly one system-authoritative value reference:
 
-- **Core Reserve** (floor-authoritative backing)
-- **Growth Reserve** (transparent, long-term value strength)
+> **What the protocol is willing and able to redeem LOOP for, by rule.**
 
-The authoritative redemption floor is computed using the Core Reserve only:
+Anything else (market price, hype, liquidity, chart movement) is non-authoritative.
 
-> **Redemption Floor (Authoritative) = Core Reserve ÷ Redeemable LOOP Supply**
+YieldLoop intentionally avoids designing LOOP to depend on:
+- exchange listings
+- speculative demand
+- liquidity mining incentives
+- volatility games
+
+LOOP is not intended to be “market made.”
+It is intended to be **reserve made**.
+
+---
+
+### 18.2 Authoritative Redemption Value
+
+The authoritative redemption value is computed only from conservative, redemption-safe reserve backing.
+
+YieldLoop defines:
+
+> **Authoritative Redemption Value = Core Reserve ÷ Redeemable LOOP Supply**
+
+Where:
+- **Core Reserve** = the floor-authoritative backing layer (primarily stable, highly liquid reserves)
+- **Redeemable LOOP Supply** = LOOP that is currently eligible to redeem
 
 This value:
-
+- is updated only at **settlement**
+- is shown clearly in the UI
 - is conservative by design
-- is displayed explicitly
-- updates only at settlement
-- cannot be manipulated by trading activity
-- is not inflated using volatile asset pricing
+- cannot be “traded into existence”
 
 ---
 
-### What the UI Emphasizes (Non-Negotiable)
+### 18.3 Redeemable vs Non-Redeemable LOOP (Critical UX Concept)
 
-YieldLoop emphasizes only the authoritative redemption floor.
+Not all LOOP must be redeemable at all times.
 
-The UI does **not** emphasize:
+YieldLoop distinguishes between:
 
-- speculative price charts
-- “token performance” narratives
-- projected returns
-- market-driven valuations
+- **Total LOOP Supply**
+  - total LOOP in existence
 
-If an external market price exists, it may be displayed as a secondary reference only, clearly labeled:
+- **Redeemable LOOP Supply**
+  - LOOP eligible for redemption under current rules
 
-- **Market Price (Non-Authoritative)**
+Some LOOP may be:
+- locked
+- time-restricted
+- assigned to system utility (fee offsets, credits, etc.)
+- pending eligibility rules
+
+This is not a gimmick.
+
+This is how the platform ensures:
+- redemption solvency
+- conservative floor growth
+- issuance restraint (no death spirals)
+
+The UX must explicitly show:
+- total LOOP held
+- how much is redeemable
+- how much is locked / restricted
+- why it is restricted
+- when it becomes eligible (if time-based)
 
 ---
 
-### LOOP Utility Pricing Rule
+### 18.4 Redemption Windows and Settlement Timing
 
-All LOOP utility use-cases are priced using the **Authoritative Redemption Floor**, not market price.
+Redemption is not designed to be a chaotic, always-open bank run trigger.
 
-Examples include (if supported by system configuration):
+YieldLoop structures redemption in a disciplined manner aligned with cycle finality.
 
-- platform fee offsets
+Recommended model:
+- Redemption value updates at **month-end settlement**
+- Redemption actions are available only during a defined **redemption window**
+  - (example: open continuously after settlement, or open for X days)
+
+This prevents:
+- redemption based on mid-cycle noise
+- confusion about what is “final”
+- floor instability due to partial accounting periods
+
+---
+
+### 18.5 Redemption UX Flow (User Experience)
+
+From a UX standpoint, redemption must be brutally clear and non-hype.
+
+#### Step 1 — User opens “Redeem LOOP” screen
+User sees:
+- current **Authoritative Redemption Value** (Core-based)
+- their LOOP balance:
+  - total
+  - redeemable
+  - restricted/locked (with reasons)
+
+#### Step 2 — User selects redemption amount
+UI enforces:
+- cannot redeem more than redeemable amount
+- shows estimated output asset(s)
+- shows any redemption fees (if any exist)
+- shows execution costs from ECW (if user pays gas)
+
+#### Step 3 — Risk + finality acknowledgement
+User must acknowledge:
+- redemption is irreversible once executed
+- redemption output is calculated by protocol rule
+- redemption uses authoritative value, not market price
+- redemption may take time depending on network conditions
+
+#### Step 4 — Execute redemption (on-chain)
+User signs transaction.
+
+#### Step 5 — Confirmation + receipt
+User receives:
+- transaction hash
+- redeemed LOOP amount
+- assets received
+- any fees taken
+- updated reserve + redeemable supply reporting (system dashboard view)
+
+---
+
+### 18.6 Redemption Output Assets (What Users Receive)
+
+Redemption is a claim on protocol-held assets, distributed according to defined rules.
+
+YieldLoop may support redemption into:
+- a single stablecoin (recommended: USDT)
+- or a defined redemption basket (if supported)
+
+Strong recommendation:
+- redemption outputs should prioritize **Core Reserve assets**
+- volatile assets (Growth Reserve) should not be required for floor support
+
+Why:
+- makes redemption robust under stress
+- prevents floor “illusion”
+- avoids volatile reserve liquidation chaos
+
+---
+
+### 18.7 Market Price Handling (Non-Authoritative by Design)
+
+If LOOP has an external market price, YieldLoop may display it **only as informational**.
+
+UI rules:
+- market price must be labeled “Market (Non-Authoritative)”
+- redemption value must be labeled “Redemption (Authoritative)”
+- redemption value must always be visually prioritized
+
+YieldLoop does not promise:
+- market price will track redemption value
+- liquidity will exist
+- LOOP will trade above floor
+- LOOP will be listed anywhere
+
+If the market trades LOOP above redemption value:
+- that is market behavior
+- not a protocol promise
+
+If the market trades LOOP below redemption value:
+- redemption becomes the arbitrage anchor
+- but redemption rules still apply
+
+---
+
+### 18.8 LOOP Utility Pricing Uses Redemption Value (Not Market Price)
+
+If LOOP is used inside YieldLoop for utility purposes, those utilities must be priced by authoritative redemption value, not market price.
+
+Examples:
+- fee offsets
 - deposit credits
 - withdrawal credits
+- supporter perks pricing
 
-This prevents market manipulation from distorting internal system value.
+Reason:
+- market price can be manipulated
+- redemption value cannot be faked
 
----
-
-### Reserve Transparency (User View)
-
-YieldLoop provides clear visibility into reserve composition.
-
-Users may be shown:
-
-- **Core Reserve** (floor-authoritative)
-- **Growth Reserve** (value strength)
-- **Total Reserve** (informational)
-- **Redeemable LOOP Supply**
-- **Authoritative Redemption Floor**
-
-The user is never required to assume hidden backing.
+This protects the protocol from:
+- cheap market LOOP draining value unfairly
+- pump-and-dump utility exploits
+- “liquidity games” affecting internal accounting
 
 ---
 
-### Redemption Actions
+### 18.9 What Redemption Is Not
 
-Depending on configuration and eligibility rules, users may be able to:
+To eliminate ambiguity, redemption explicitly is **not**:
 
-- redeem eligible LOOP for protocol-held value
-- apply LOOP to certain platform costs (if supported)
-- hold LOOP as a verified value record
+- an exit during the active trading month
+- a bailout system for losses
+- an insurance claim
+- a guarantee that market price will rise
+- a guarantee the floor will rise every month
+- a promise of permanent profit
 
-Redemption rules are displayed before execution.
-
-Redemption does not occur “by implication.”  
-It occurs only through explicit user action.
+Redemption is a disciplined solvency mechanism.
+It is what makes LOOP an accounting asset instead of a narrative asset.
 
 ---
 
-### Redemption Integrity Guarantee
+### 18.10 The UX Promise of Redemption (Plain English)
 
-YieldLoop prioritizes redemption integrity over convenience.
+YieldLoop communicates redemption in plain English like this:
 
-If redemption demand rises faster than conservative backing permits:
+> “LOOP is not backed by vibes.  
+> LOOP is backed by reserves.  
+> The only value we claim is what we can redeem by rule.”
 
-- issuance remains constrained
-- redemption terms remain rule-based
-- no bailout mechanism is created
-- the system does not dilute backing to satisfy demand
+That’s the anchor.
 
-YieldLoop does not protect market price.  
-YieldLoop protects solvency.
-
+That’s what makes YieldLoop different.
 ---
 
 ## 19. Supporter Program and Access-Based Incentives
