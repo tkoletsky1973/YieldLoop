@@ -110,7 +110,7 @@ YieldLoop explicitly does **not**:
 - “Improve” or override user rules in real time
 
 ### Supported Assets (Whitelist)
-Before each calendar month begins, the user selects which assets may be traded that month from a supported whitelist such as:
+Before each calendar month begins, the user selects which assets may be traded that month from a supported whitelist. The list below is **illustrative**; exact tickers and wrapped/pegged implementations may vary by issuer and availability on PCS at the time of launch:
 - BTCB
 - ETHB
 - SOLB
@@ -1313,6 +1313,12 @@ The system enforces a minimum coverage ratio:
 
 Coverage Ratio = Redemption Reserve ÷ Redeemable LOOP Value
 
+**Redeemable LOOP Value** is defined as:
+
+Redeemable LOOP Value = Redeemable LOOP Supply × Current Redemption Value (Floor)
+
+This means coverage is evaluated against the portion of LOOP that is currently eligible for redemption, priced at the system’s authoritative redemption value.
+
 A configurable but conservative threshold is maintained at all times.
 
 If minting new LOOP would cause the ratio to fall below this threshold:
@@ -1352,7 +1358,7 @@ This value:
 - updates only at settlement
 - cannot be manipulated by trading activity
 
-Market prices, if present, are informational only.
+Market price may be displayed for reference, but **redemption value is authoritative** for YieldLoop accounting, UI emphasis, and all LOOP utility pricing.
 
 All LOOP utility applications (fee offsets, deposit credits, withdrawal credits) are priced using redemption value, not market price.
 
