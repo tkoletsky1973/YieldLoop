@@ -120,6 +120,52 @@ Before each calendar month begins, the user selects which assets may be traded t
 
 If an asset is not explicitly selected and approved for that month, it cannot be traded under any circumstance.
 
+## Supported Assets (Whitelist) — Change Control
+
+YieldLoop is **whitelist-only**.
+
+At launch, the whitelist is maintained by the core team. The initial whitelist is preloaded with widely recognized assets and wrapped variants supported on PancakeSwap.
+
+YieldLoop will accept structured community input, and Supporter members have access to a direct feedback channel with the team.
+
+Over time, YieldLoop intends to introduce governance processes that allow governance participants to influence:
+
+- which assets are eligible for whitelist inclusion
+- whitelist removal decisions
+- whitelist standards (liquidity thresholds, issuer quality, behavior restrictions)
+
+### Standard (Non-Emergency) Changes
+
+Whitelist changes follow a **notice-first** rule:
+
+- whitelist changes must be announced with due notice
+- changes apply **only to future calendar-month cycles**
+- no changes can alter an active month’s locked rules
+
+### Emergency Changes (Protective Only)
+
+Emergency conditions include events such as:
+
+- confirmed exploit risk or malicious contract behavior
+- severe depeg / issuer failure risk
+- PancakeSwap pool/router or known routing hazards
+- abnormal token mechanics affecting solvency or user safety (taxes, blacklists, transfer restrictions)
+
+In emergency conditions, the system may:
+
+- halt new entries for the affected asset
+- block new exposure for the affected asset
+- prevent execution into unsafe pools
+
+Emergency conditions **do not** allow YieldLoop to retroactively change:
+
+- locked user strategy settings
+- cycle settlement math
+- previously executed trades
+- the redemption value / floor math for a completed month
+
+Emergency powers exist only to **reduce harm**, not to “save” the user, invent outcomes, or rewrite contracts.
+
 ### What the User Configures
 For each approved asset, the user configures the trading mandate, including:
 - Entry method: **Market Entry** or **Custom Buy Price**
@@ -615,6 +661,94 @@ This capital is exposed to market risk.
 
 #### 2. Execution & Cost Wallet (ECW)
 
+### Execution & Cost Wallet (ECW) — Dynamic Requirements and Enforcement
+
+YieldLoop requires a separate **Execution & Cost Wallet (ECW)**.
+
+The ECW exists solely to fund:
+
+- network gas costs
+- execution routing costs
+- transaction overhead required to perform the user-approved mandate
+
+The ECW is **not trading capital** and is not exposed to market movement.
+
+#### ECW Principles
+
+1. The ECW is the user’s responsibility.
+2. YieldLoop will not subsidize execution.
+3. YieldLoop will not “fake execute” if gas is insufficient.
+4. YieldLoop will never use Trading Vault funds to pay gas.
+
+YieldLoop will provide continuous visibility and alerts, but ECW sufficiency remains the user’s obligation.
+
+---
+
+#### Dynamic ECW Requirement (Month-Specific)
+
+A fixed ECW minimum is intentionally not used, because costs vary with:
+
+- strategy type (grid vs single-entry)
+- trade frequency limits
+- number of assets enabled
+- network conditions
+- approvals and execution routes
+
+Instead, the system computes a **Dynamic Required ECW**, which represents a conservative estimate of the gas required to complete the mandate safely.
+
+Dynamic Required ECW is computed as:
+
+> Required ECW = (Estimated Total Cycle Actions × Estimated Cost per Action) × Safety Multiplier
+
+Where:
+- **Estimated Total Cycle Actions** is based on the user’s strategy limits  
+  (max entries, max exits, max trades/day, etc.)
+- **Estimated Cost per Action** is derived from live network estimates and transaction simulation
+- **Safety Multiplier** is conservative (example: 1.5×–2×)
+
+This requirement is shown visibly before authorization.
+
+---
+
+#### ECW Health Bands (UX Behavior)
+
+The system displays ECW health in three bands:
+
+- ✅ **Healthy**: ECW Balance ≥ 100% of Required ECW  
+  → normal execution
+
+- ⚠️ **At Risk**: ECW Balance between 50% and 99% of Required ECW  
+  → execution may be delayed or reduced; user receives alerts
+
+- 🛑 **Critical**: ECW Balance < 50% of Required ECW  
+  → the system may halt new entries
+
+---
+
+#### “Exit Priority” Rule (Non-Negotiable)
+
+When ECW is low, YieldLoop prioritizes protecting the user from being trapped in a position.
+
+In Critical ECW conditions, the system behavior is:
+
+1. stop opening new positions first  
+2. preserve ECW capacity for:
+   - stop-loss exits (if configured)
+   - month-end settlement closing actions
+   - safety exits required by the mandate
+
+This prevents a situation where the system can open trades but cannot responsibly close them.
+
+---
+
+#### Cost Transparency (No Gouging)
+
+YieldLoop charges **no hidden ECW surcharge**.
+
+- ECW pays actual, visible on-chain costs
+- every ECW deduction is receiptable via transaction records
+- the UI surfaces estimated vs actual execution costs
+
 Purpose:
 - Covers gas costs, routing fees, and execution overhead
 
@@ -739,6 +873,55 @@ Guardrails are enforced mechanically.
 They are not advisory.
 
 If a guardrail is hit, execution stops or exits exactly as defined.
+
+---
+
+### Example — Grid Mandate Execution (Illustrative)
+
+YieldLoop can be configured to execute a rule-defined “grid” strategy inside the calendar month.
+
+In this structure, the user sets:
+
+- an initial entry reference
+- the spacing between grid levels
+- the total number of permitted entries
+- order sizing
+- take-profit behavior per rung
+- optional stop-loss / max drawdown limits
+- trade frequency limits
+
+#### Example Inputs (BTCB)
+- Asset: BTCB  
+- Total allocation to BTCB: $1,000  
+- Grid levels: 5  
+- Order size per buy: $200  
+- Grid spacing: 2%  
+- Take-profit per level: +2% from that level’s entry  
+- Max buys per day: 2  
+- Stop-loss (optional): -12% from initial reference  
+- Slippage ceiling: 0.50%
+
+#### Example Execution Ladder
+
+If the user sets an initial reference price of **$60,000**, YieldLoop may execute the following permitted ladder:
+
+| Level | Trigger Price | Action | Size | Take Profit Target |
+|---:|---:|---|---:|---:|
+| 1 | $60,000 | Buy | $200 | $61,200 |
+| 2 | $58,800 (-2%) | Buy | $200 | $59,976 |
+| 3 | $57,624 (-4%) | Buy | $200 | $58,776 |
+| 4 | $56,472 (-6%) | Buy | $200 | $57,601 |
+| 5 | $55,343 (-8%) | Buy | $200 | $56,450 |
+
+Key rules:
+
+- YieldLoop does not invent entries.
+- YieldLoop does not place orders outside the ladder.
+- YieldLoop does not increase risk above the user’s configured max allocation.
+- If triggers never occur, no trades occur.
+- If take-profit triggers occur, exits may occur automatically.
+- If no exits occur by month-end, settlement closes positions.
+- This strategy structure is not a profit promise. It is a rule boundary.
 
 ---
 
@@ -1092,18 +1275,109 @@ Internal allocation is visible at the system level and auditable.
 
 ---
 
-## 14. The Redemption Reserve and Floor Growth
+## 14. The Redemption Reserve and Floor 
 
-The **Redemption Reserve** is the structural anchor of YieldLoop.
+## The Redemption Reserve — Core Reserve vs Growth Reserve
+
+The Redemption Reserve is the structural anchor of YieldLoop.
 
 It exists to:
+
 - back LOOP redemptions
 - provide conservative value accounting
-- ensure long-term system stability
+- maintain long-term solvency under stress
+
+Funds allocated to the Redemption Reserve are:
+
+- protocol-owned
+- irreversible once committed
+- non-withdrawable for any other purpose
+- used only for explicit LOOP redemption and system-defined reserve functions
 
 ---
 
-### Reserve Characteristics
+### Reserve Structure (Two-Layer Model)
+
+To prevent ambiguity and prevent “marketing floor” behavior, YieldLoop separates reserve value into two categories:
+
+---
+
+### 1) Core Reserve (Floor-Authoritative Backing)
+
+The **Core Reserve** contains backing assets intended to remain stable and redeemable under stress.
+
+Core Reserve characteristics:
+
+- conservative
+- highly liquid
+- suitable for direct redemption backing
+
+Recommended asset type (illustrative):
+
+- stablecoins (e.g., USDT and/or other permitted stable reserves)
+
+#### Authoritative Floor Rule
+
+The authoritative redemption floor is computed using the Core Reserve:
+
+> **Redemption Floor (Authoritative) = Core Reserve ÷ Redeemable LOOP Supply**
+
+This floor is the value emphasized throughout the YieldLoop UI and is the pricing reference for LOOP-based internal utilities.
+
+---
+
+### 2) Growth Reserve (Non-Floor Value)
+
+The **Growth Reserve** may contain diversified assets designed to strengthen long-term backing and reflect verified surplus accumulation.
+
+Examples (illustrative only):
+
+- BNB
+- BTCB
+- ETHB
+- XRPB
+- PAXG
+
+Growth Reserve characteristics:
+
+- may fluctuate with market prices
+- strengthens the system over long horizons
+- is not used to exaggerate floor calculations
+
+#### Growth Reserve Visibility
+
+The Growth Reserve is shown transparently in system reserve breakdowns, but it does not define the authoritative floor.
+
+This prevents the system from claiming a floor that could drop due to volatile asset pricing.
+
+---
+
+### Combined Reserve View (System Level)
+
+At the system level, users may be shown:
+
+- Core Reserve balance (floor-authoritative)
+- Growth Reserve balance (value strength)
+- Total reserve value (informational)
+
+However, the authoritative redemption floor remains Core-based.
+
+This makes the floor:
+
+- conservative
+- stress-resistant
+- mechanically honest
+
+---
+
+### How the Floor Grows (Mechanically)
+
+The authoritative redemption floor increases when:
+
+- verified surplus is added to the Core Reserve
+- redeemable LOOP supply grows slower than Core Reserve growth
+- minting constraints prevent over-issuance
+- LOOP is held or used for system utility instead of redeemed# Reserve Characteristics
 
 Funds allocated to the Redemption Reserve are:
 
@@ -1176,68 +1450,103 @@ If LOOP minting occurs, it must be constrained by system rules so that minting d
 
 Over-capitalization is a **deliberate system property**, not a marketing term.
 
+YieldLoop is designed to accumulate more verified backing value than it issues in redeemable LOOP obligations.
+
+This creates structural solvency and prevents issuance-driven failure modes.
+
 ---
 
 ### Definition
 
 Over-capitalization exists when:
 
-> The value held in the Redemption Reserve exceeds the value represented by redeemable LOOP.
+> **Core Reserve backing value exceeds the value represented by Redeemable LOOP obligations.**
 
-This excess value is **unissued backing**.
+In other words:
+
+- the system has more backing than it is required to redeem immediately
+- a portion of backing value remains **unissued** and **unused**
+- this excess strengthens redemption integrity and raises the floor conservatively
+
+---
+
+### What Counts Toward Redemption Safety
+
+YieldLoop distinguishes between reserve layers:
+
+- **Core Reserve** (floor-authoritative, redemption-safe)
+- **Growth Reserve** (transparent, value-strengthening, non-floor)
+
+Coverage and solvency constraints are enforced against the **Core Reserve**, not volatile reserves.
+
+This prevents the system from overstating redemption backing.
+
+---
+
+### Core Coverage Ratio (Authoritative)
+
+The system enforces a minimum coverage ratio using Core Reserve backing:
+
+> **Core Coverage Ratio = Core Reserve ÷ (Redeemable LOOP Supply × Redemption Floor)**
+
+This ratio must remain above a conservative threshold at all times.
+
+If issuing additional redeemable LOOP would cause the ratio to fall below threshold:
+
+- minting is reduced or halted
+- excess backing remains unissued
+- over-capitalization increases
 
 ---
 
 ### How Over-Capitalization Is Created
 
-Over-capitalization is created through:
+Over-capitalization is created through four mechanisms:
 
 1. **Reserve Allocation**
-   - A portion of platform fees flows directly into the Redemption Reserve
+   - A portion of verified surplus is routed into the Core Reserve.
 
 2. **Minting Constraints**
-   - LOOP minting is capped by a minimum coverage ratio
-   - Not all reserve growth results in new LOOP issuance
+   - LOOP minting is throttled by coverage rules.
+   - Not all reserve growth results in new LOOP issuance.
 
-3. **User Behavior**
-   - Users compound instead of redeem
-   - LOOP is held for utility or future use
-   - Redeemable supply grows slowly
+3. **Redemption Behavior**
+   - Not all LOOP becomes redeemable immediately.
+   - Some LOOP is held, locked, or used for internal utility.
 
----
-
-### Coverage Ratio
-
-The system enforces a minimum **coverage ratio**:
-
-Coverage Ratio = Redemption Reserve ÷ Redeemable LOOP Value
-
-LOOP may only be minted if this ratio remains above a conservative threshold.
-
-If reserve growth exceeds minting capacity:
-- the excess remains unissued
-- over-capitalization increases
-- the redemption floor rises automatically
+4. **Time + Discipline**
+   - Over time, conservative accounting compounds.
+   - Coverage grows faster than redeemable obligations.
 
 ---
 
-### Why Over-Capitalization Matters
+### What Over-Capitalization Achieves
 
 Over-capitalization ensures that:
 
-- Redemption demand cannot break the system
-- No death spiral can occur
-- Losses cannot be masked by inflation
-- Long-term holders are structurally favored
-- The system remains solvent under stress
+- redemption demand cannot break the system
+- no issuance-driven death spiral can occur
+- losses cannot be masked through inflation
+- long-term holders are structurally favored
+- the system remains solvent under stress
 
 This is not leverage.
+
 This is restraint.
 
 ---
 
-The next sections describe LOOP itself — how it is minted, what it represents, and what it explicitly is not.
+### Key Principle
 
+YieldLoop does not attempt to maintain stability through narrative, incentives, or dilution.
+
+YieldLoop maintains stability by enforcing:
+
+- strict issuance constraints
+- conservative, Core-based coverage accounting
+- permanent accumulation of verified surplus backing
+
+  
 ---
 
 ## 16. LOOP Token Design (Redemption-Based)
@@ -1289,53 +1598,98 @@ This distinction is critical to maintaining a rising floor.
 
 LOOP minting is **strictly constrained**.
 
-The system does not mint LOOP simply because profit exists.
+YieldLoop does not mint LOOP simply because profit exists.  
+Minting is permitted only when it does not weaken redemption integrity.
+
+Issuance is throttled intentionally.
 
 ---
 
-### Minting Preconditions
+### Minting Preconditions (Hard Requirements)
 
 LOOP may only be minted if all of the following are true:
 
-- The calendar month has fully settled
-- Net realized profit exists
-- Platform fees have been allocated
-- Redemption Reserve has been updated
-- The minimum coverage ratio is maintained
+- the calendar month has fully settled
+- net realized profit exists
+- platform fees have been applied
+- reserve allocations have been completed
+- Core Reserve coverage remains above the minimum threshold
+- minting does not violate any system-defined issuance limits
 
-If any condition fails, no LOOP is minted.
+If any condition fails, **no LOOP is minted**.
 
 ---
 
-### Coverage Ratio Enforcement
+### Coverage Accounting — What Counts
 
-The system enforces a minimum coverage ratio:
+YieldLoop maintains two reserve layers:
 
-Coverage Ratio = Redemption Reserve ÷ Redeemable LOOP Value
+- **Core Reserve** (floor-authoritative backing)
+- **Growth Reserve** (transparent, long-term value strength)
 
-**Redeemable LOOP Value** is defined as:
+For issuance safety, **only the Core Reserve is authoritative**.
 
-Redeemable LOOP Value = Redeemable LOOP Supply × Current Redemption Value (Floor)
+Coverage is evaluated against Core Reserve backing to ensure that:
 
-This means coverage is evaluated against the portion of LOOP that is currently eligible for redemption, priced at the system’s authoritative redemption value.
+- the floor cannot be inflated by volatile assets
+- redemption value remains conservative and stress-resistant
+- issuance cannot outpace stable backing
 
-A configurable but conservative threshold is maintained at all times.
+---
 
-If minting new LOOP would cause the ratio to fall below this threshold:
+### Core Coverage Ratio (Authoritative)
+
+The system enforces a minimum Core coverage ratio:
+
+> **Core Coverage Ratio = Core Reserve ÷ Core Redeemable Obligations**
+
+Where:
+
+> **Core Redeemable Obligations = Redeemable LOOP Supply × Redemption Floor (Authoritative)**
+
+A conservative, configurable threshold is enforced at all times.
+
+---
+
+### Minting Constraint Rule
+
+If minting new LOOP would cause Core Coverage Ratio to fall below threshold:
+
 - minting is reduced or halted
-- excess value remains in the reserve
+- the excess verified backing remains unissued
 - over-capitalization increases
-
----
-
-### Consequences of Constraint
-
-Because minting is throttled:
-- Not all profit becomes LOOP
-- Excess value accumulates silently
-- The redemption floor rises without issuance
+- the authoritative redemption floor rises (Core-based)
 
 This is intentional.
+
+---
+
+### Minting Output Categories (Optional but Recommended)
+
+YieldLoop may classify minted LOOP into categories, such as:
+
+- **Redeemable LOOP**  
+  eligible for redemption under defined rules
+
+- **Non-Redeemable LOOP**  
+  held/locked/utility-bound, not eligible for immediate redemption
+
+This distinction allows the system to preserve conservative redemption integrity even while value accumulates.
+
+---
+
+### Consequences of Constraint (Designed Behavior)
+
+Because minting is throttled:
+
+- not all verified surplus becomes LOOP
+- some value accumulates silently in the Core Reserve
+- the floor rises without requiring issuance
+- redemption integrity is protected under stress
+
+YieldLoop treats issuance as a liability.
+
+Verified backing comes first.
 
 ---
 
@@ -1385,6 +1739,7 @@ The user is never shown:
 - market-based valuations
 
 Only redemption value is emphasized.
+
 
 ---
 
