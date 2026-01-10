@@ -92,6 +92,48 @@ If something is not explicitly stated in this document, it should be assumed **n
 
 YieldLoop is a **calendar-month–based trading execution platform**.
 
+### Trading Execution Scope (PCS-Only)
+
+YieldLoop executes trades **exclusively on PancakeSwap (PCS)** on BNB Chain.
+
+This system is:
+- **Spot-only DEX execution** (swaps on PCS liquidity pools)
+- **Whitelist-only** (no unapproved assets, no “AI-selected” tokens)
+- **Rules-based** (execution only occurs inside user-approved boundaries)
+
+YieldLoop explicitly does **not**:
+- Execute on centralized exchanges (CEX)
+- Use leverage, margin, or perpetuals
+- Short assets
+- Trade outside PCS
+- Add new assets mid-cycle
+- “Improve” or override user rules in real time
+
+### Supported Assets (Whitelist)
+Before each calendar month begins, the user selects which assets may be traded that month from a supported whitelist such as:
+- BTCB
+- ETHB
+- SOLB
+- XRPB
+- PAXG
+- BNB
+
+If an asset is not explicitly selected and approved for that month, it cannot be traded under any circumstance.
+
+### What the User Configures
+For each approved asset, the user configures the trading mandate, including:
+- Entry method: **Market Entry** or **Custom Buy Price**
+- Exit conditions: take-profit price or percentage (and optional staged exits if supported)
+- Risk guardrails (user-defined safeties), such as:
+  - stop-loss (optional)
+  - max drawdown
+  - max allocation per asset
+  - slippage ceiling
+  - trade frequency limits
+
+Execution occurs only when conditions match the user’s approved settings.
+If conditions are not met, or safeties prevent action, **no trade occurs** and capital remains idle until month-end settlement.
+
 Users deposit capital, define explicit trading rules, and authorize the system to execute those rules **only within a fixed calendar-month cycle**. Each cycle aligns exactly with the calendar month (e.g., January 1–31, February 1–28/29) and does not slide, overlap, or begin at arbitrary times.
 
 All profit and loss is settled only after the calendar month fully concludes. There are no mid-cycle withdrawals, no hidden reinvestment, and no discretionary intervention.
@@ -111,13 +153,21 @@ At the center of the system is **LOOP**, a redemption-backed accounting token mi
 
 ### What YieldLoop Is Not
 
-YieldLoop is **not**:
-- A savings account
-- A guaranteed return product
-- A yield farm
-- A liquidity mining scheme
-- A continuously adjustable trading bot
-- A discretionary asset manager
+### YieldLoop Is Not a Savings Account (But It Can Function as an Alternative)
+
+YieldLoop is **not** a bank account.
+It is not insured.
+It does not promise stability, principal protection, or guaranteed yield.
+
+YieldLoop is a **rules-based trading execution and settlement system** that operates on fixed calendar-month cycles.
+
+However, for some users, YieldLoop may function as a structured alternative to traditional savings and yield products because it provides:
+- Clear time boundaries (monthly cycles)
+- Explicit user authorization
+- Transparent execution rules
+- Final settlement truth (profits or losses are realized and reported)
+
+The user must assume full responsibility for the risks of trading, including the risk of partial or total loss of funds.
 
 YieldLoop does not:
 - Promise profits
@@ -706,19 +756,34 @@ The system may not:
 - add assets
 - widen stops
 - ignore exits
-- override guardrails
+- override
 
----
 
-### Auto-Populate (Optional)
+### Global Preload (Optional)
 
-If enabled, an optional **Auto-Populate (Conservative)** function may:
-
-- Fill settings using conservative defaults
+If enabled, an optional **Global Preload (Conservative Template)** function may:
+- Fill fields using a conservative preset template
 - Display all values clearly before approval
-- Require explicit user confirmation
+- Require explicit user confirmation before any strategy can be authorized
 
-Auto-population does **not** reduce user responsibility.
+Global Preload is **not** financial advice.
+It is not a recommendation.
+It does not predict markets.
+It does not guarantee profit.
+
+Global Preload does **not** reduce user responsibility.
+
+By using Global Preload, the user explicitly acknowledges:
+- I am responsible for reviewing every value that is filled in
+- I understand that trading can result in loss, including total loss
+- If I do not understand a setting, I will not approve it
+- Any “AI-assisted” inputs are convenience-only and may be wrong
+- Researching settings (or choosing not to trade) is my responsibility
+- All outcomes—profit or loss—are mine
+
+Global Preload does not “choose a strategy.”
+It only loads a template.
+The user must review, edit if desired, and approve the final configuration. 
 
 ---
 
@@ -1078,6 +1143,32 @@ The redemption floor increases when:
 
 The floor is not managed.
 It is **allowed to rise** through discipline.
+
+### Worked Example — How the Floor Price Rises (Simple Scenario)
+
+Below is a simplified example to demonstrate how YieldLoop’s redemption-backed floor grows over time.
+
+Assumptions (example only):
+- The **Redemption Reserve (RR)** is funded by verified platform surplus (profit routing)
+- **LOOP supply does not increase** in this example (no new minting shown)
+- Floor is calculated as:
+
+**LOOP Floor = Redemption Reserve (RR) ÷ LOOP Supply**
+
+#### Example Timeline
+
+| Period | Redemption Reserve (RR) | LOOP Supply | LOOP Floor (RR ÷ Supply) |
+|---|---:|---:|---:|
+| End of Month 0 | $15,000 | 5,000 LOOP | $3.00 |
+| End of Month 1 | $18,000 | 5,000 LOOP | $3.60 |
+| End of Month 2 | $20,000 | 5,000 LOOP | $4.00 |
+
+In this simplified case:
+- The Redemption Reserve grows due to verified surplus
+- LOOP supply remains unchanged
+- Therefore, the redemption-backed floor **rises automatically**
+
+If LOOP minting occurs, it must be constrained by system rules so that minting does not compromise redemption integrity or reduce coverage requirements.
 
 ---
 
