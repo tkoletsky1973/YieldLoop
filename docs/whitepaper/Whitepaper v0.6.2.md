@@ -643,76 +643,69 @@ Users deposit into two distinct buckets:
 
 ---
 
-#### 1. Trading Vault
+#### 1) Trading Vault
 
-Purpose:
-- Capital used exclusively for strategy execution during the active calendar month
+**Purpose:**  
+Capital used exclusively for strategy execution during the active calendar month.
 
-Rules:
-- Minimum deposit enforced
+**Rules:**
+- Minimum deposit enforced (configurable)
 - Locked at month start
 - Cannot be withdrawn mid-month
-- Cannot be used for fees or gas
-- Used only according to approved strategy rules
+- Cannot be used for fees, gas, or execution costs
+- Used only according to the approved strategy rules for that month
 
 This capital is exposed to market risk.
 
 ---
 
-#### 2. Execution & Cost Wallet (ECW)
+#### 2) Execution & Cost Wallet (ECW)
 
-### Execution & Cost Wallet (ECW) — Dynamic Requirements and Enforcement
+The ECW is a separate balance used solely to pay for:
 
-YieldLoop requires a separate **Execution & Cost Wallet (ECW)**.
-
-The ECW exists solely to fund:
-
-- network gas costs
-- execution routing costs
-- transaction overhead required to perform the user-approved mandate
+- network gas costs (BNB Chain)
+- swap execution overhead
+- PCS router pathing costs (swap routing inside PCS)
 
 The ECW is **not trading capital** and is not exposed to market movement.
 
-#### ECW Principles
-
-1. The ECW is the user’s responsibility.
-2. YieldLoop will not subsidize execution.
-3. YieldLoop will not “fake execute” if gas is insufficient.
-4. YieldLoop will never use Trading Vault funds to pay gas.
-
-YieldLoop will provide continuous visibility and alerts, but ECW sufficiency remains the user’s obligation.
+**Hard rules:**
+- YieldLoop will never use Trading Vault funds to pay gas.
+- YieldLoop will not subsidize execution.
+- If ECW is insufficient, execution may be delayed, reduced, or halted.
+- Any unused ECW remains the user’s property.
 
 ---
 
-#### Dynamic ECW Requirement (Month-Specific)
+### ECW — Dynamic Requirements and Enforcement
 
 A fixed ECW minimum is intentionally not used, because costs vary with:
 
 - strategy type (grid vs single-entry)
-- trade frequency limits
 - number of assets enabled
+- trade frequency limits
 - network conditions
 - approvals and execution routes
 
-Instead, the system computes a **Dynamic Required ECW**, which represents a conservative estimate of the gas required to complete the mandate safely.
+Instead, YieldLoop computes a **Dynamic Required ECW** for the upcoming month.
 
-Dynamic Required ECW is computed as:
+#### Dynamic Required ECW (Month-Specific)
 
-> Required ECW = (Estimated Total Cycle Actions × Estimated Cost per Action) × Safety Multiplier
+> **Required ECW = (Estimated Total Cycle Actions × Estimated Cost per Action) × Safety Multiplier**
 
 Where:
-- **Estimated Total Cycle Actions** is based on the user’s strategy limits  
+- **Estimated Total Cycle Actions** is based on the user’s configured limits  
   (max entries, max exits, max trades/day, etc.)
 - **Estimated Cost per Action** is derived from live network estimates and transaction simulation
 - **Safety Multiplier** is conservative (example: 1.5×–2×)
 
-This requirement is shown visibly before authorization.
+This requirement is displayed before authorization so the user can fund ECW appropriately.
 
 ---
 
 #### ECW Health Bands (UX Behavior)
 
-The system displays ECW health in three bands:
+YieldLoop displays ECW health in three bands:
 
 - ✅ **Healthy**: ECW Balance ≥ 100% of Required ECW  
   → normal execution
@@ -721,13 +714,13 @@ The system displays ECW health in three bands:
   → execution may be delayed or reduced; user receives alerts
 
 - 🛑 **Critical**: ECW Balance < 50% of Required ECW  
-  → the system may halt new entries
+  → the system may halt new entries until ECW is replenished
 
 ---
 
 #### “Exit Priority” Rule (Non-Negotiable)
 
-When ECW is low, YieldLoop prioritizes protecting the user from being trapped in a position.
+When ECW is low, YieldLoop prioritizes avoiding situations where the system can open positions but cannot responsibly close them.
 
 In Critical ECW conditions, the system behavior is:
 
@@ -737,7 +730,8 @@ In Critical ECW conditions, the system behavior is:
    - month-end settlement closing actions
    - safety exits required by the mandate
 
-This prevents a situation where the system can open trades but cannot responsibly close them.
+This does not protect the user from loss.  
+It prevents execution failure caused by underfunded gas.
 
 ---
 
@@ -748,19 +742,6 @@ YieldLoop charges **no hidden ECW surcharge**.
 - ECW pays actual, visible on-chain costs
 - every ECW deduction is receiptable via transaction records
 - the UI surfaces estimated vs actual execution costs
-
-Purpose:
-- Covers gas costs, routing fees, and execution overhead
-
-Rules:
-- Minimum balance enforced
-- Not used for trading
-- Drawn down only to pay execution-related costs
-- Any unused balance remains the user’s property
-
-This capital is **not** exposed to trading risk.
-
-If ECW balance is insufficient, execution may be delayed or halted until replenished.
 
 ---
 
@@ -780,12 +761,12 @@ No deposits are activated mid-cycle.
 
 ### Lockup Behavior
 
-At 00:00 UTC on the first day of the calendar month:
+At **00:00 UTC** on the first day of the calendar month:
 
 - Trading Vault balances become locked
-- ECW remains accessible only for execution costs
-- No withdrawals are permitted from the Trading Vault
 - Strategy configuration becomes immutable
+- No withdrawals are permitted from the Trading Vault
+- The ECW remains available only for execution costs
 
 Lockups are:
 - time-based
@@ -798,17 +779,14 @@ Lockups are:
 
 At all times, the UI displays:
 
-- Amount deposited per bucket
-- Lock status
-- Next unlock timestamp
-- Intended use of funds
+- amount deposited per bucket
+- lock status
+- next unlock timestamp
+- intended use of funds
+- current ECW balance and health band
 
 YieldLoop does not pool user funds for discretionary use.  
 Capital segregation is enforced by design, not policy.
-
----
-
-The next sections detail how users configure strategies and define the rules that govern execution.
 
 ---
 
@@ -1275,11 +1253,9 @@ Internal allocation is visible at the system level and auditable.
 
 ---
 
-## 14. The Redemption Reserve and Floor 
+## 14. The Redemption Reserve and Floor Growth
 
-## The Redemption Reserve — Core Reserve vs Growth Reserve
-
-The Redemption Reserve is the structural anchor of YieldLoop.
+The **Redemption Reserve** is the structural anchor of YieldLoop.
 
 It exists to:
 
@@ -1377,72 +1353,38 @@ The authoritative redemption floor increases when:
 - verified surplus is added to the Core Reserve
 - redeemable LOOP supply grows slower than Core Reserve growth
 - minting constraints prevent over-issuance
-- LOOP is held or used for system utility instead of redeemed# Reserve Characteristics
-
-Funds allocated to the Redemption Reserve are:
-
-- Protocol-owned
-- Irreversible
-- Non-withdrawable
-- Non-speculative
-- Non-discretionary
-
-Once value enters the reserve, it **never leaves** except through explicit LOOP redemption.
-
----
-
-### Floor Definition
-
-The system defines a **redemption floor**, calculated as:
-
-Redemption Floor = Redemption Reserve ÷ Redeemable LOOP Supply
-
-This value:
-- is always visible
-- is always conservative
-- cannot be reduced by protocol actions
-
-Market prices, if they exist, are non-authoritative.
-
----
-
-### How the Floor Grows
-
-The redemption floor increases when:
-
-- Profit is allocated to the Redemption Reserve
-- Minting is constrained by coverage ratios
-- Redeemable supply grows slower than reserves
-- LOOP is locked or used for utility instead of redemption
+- LOOP is held or used for system utility instead of redeemed
 
 The floor is not managed.
-It is **allowed to rise** through discipline.
+It is allowed to rise through discipline.
 
-### Worked Example — How the Floor Price Rises (Simple Scenario)
+---
+
+### Worked Example — How the Authoritative Floor Rises (Simple Scenario)
 
 Below is a simplified example to demonstrate how YieldLoop’s redemption-backed floor grows over time.
 
 Assumptions (example only):
-- The **Redemption Reserve (RR)** is funded by verified platform surplus (profit routing)
-- **LOOP supply does not increase** in this example (no new minting shown)
+- The **Core Reserve** is funded by verified platform surplus (profit routing)
+- **Redeemable LOOP supply does not increase** in this example (no new minting shown)
 - Floor is calculated as:
 
-**LOOP Floor = Redemption Reserve (RR) ÷ LOOP Supply**
+> **Authoritative LOOP Floor = Core Reserve ÷ Redeemable LOOP Supply**
 
 #### Example Timeline
 
-| Period | Redemption Reserve (RR) | LOOP Supply | LOOP Floor (RR ÷ Supply) |
+| Period | Core Reserve | Redeemable LOOP Supply | Authoritative LOOP Floor |
 |---|---:|---:|---:|
 | End of Month 0 | $15,000 | 5,000 LOOP | $3.00 |
 | End of Month 1 | $18,000 | 5,000 LOOP | $3.60 |
 | End of Month 2 | $20,000 | 5,000 LOOP | $4.00 |
 
 In this simplified case:
-- The Redemption Reserve grows due to verified surplus
-- LOOP supply remains unchanged
-- Therefore, the redemption-backed floor **rises automatically**
+- the Core Reserve grows due to verified surplus
+- redeemable supply remains unchanged
+- therefore, the authoritative redemption-backed floor rises automatically
 
-If LOOP minting occurs, it must be constrained by system rules so that minting does not compromise redemption integrity or reduce coverage requirements.
+If LOOP minting occurs, it must remain constrained by coverage rules so that issuance does not weaken redemption integrity.
 
 ---
 
@@ -1697,49 +1639,116 @@ Verified backing comes first.
 
 Redemption is the **value anchor** of LOOP.
 
-It defines the only authoritative value in the system.
+It defines the only authoritative internal value used for:
+
+- LOOP accounting
+- LOOP utility pricing
+- floor reporting
+- redemption entitlement math
+
+Market price may exist externally, but it is **non-authoritative** inside YieldLoop.
+
+YieldLoop does not base its accounting on narrative, liquidity optics, or speculation.  
+It bases value on reserves.
 
 ---
 
-### Redemption Value
+### Redemption Floor (Authoritative Value)
 
-The redemption value is calculated as:
+YieldLoop maintains a two-layer reserve model:
 
-Redemption Value = Redemption Reserve ÷ Redeemable LOOP Supply
+- **Core Reserve** (floor-authoritative backing)
+- **Growth Reserve** (transparent, long-term value strength)
+
+The authoritative redemption floor is computed using the Core Reserve only:
+
+> **Redemption Floor (Authoritative) = Core Reserve ÷ Redeemable LOOP Supply**
 
 This value:
+
+- is conservative by design
 - is displayed explicitly
 - updates only at settlement
 - cannot be manipulated by trading activity
+- is not inflated using volatile asset pricing
 
-Market price may be displayed for reference, but **redemption value is authoritative** for YieldLoop accounting, UI emphasis, and all LOOP utility pricing.
+---
 
-All LOOP utility applications (fee offsets, deposit credits, withdrawal credits) are priced using redemption value, not market price.
+### What the UI Emphasizes (Non-Negotiable)
+
+YieldLoop emphasizes only the authoritative redemption floor.
+
+The UI does **not** emphasize:
+
+- speculative price charts
+- “token performance” narratives
+- projected returns
+- market-driven valuations
+
+If an external market price exists, it may be displayed as a secondary reference only, clearly labeled:
+
+- **Market Price (Non-Authoritative)**
+
+---
+
+### LOOP Utility Pricing Rule
+
+All LOOP utility use-cases are priced using the **Authoritative Redemption Floor**, not market price.
+
+Examples include (if supported by system configuration):
+
+- platform fee offsets
+- deposit credits
+- withdrawal credits
+
+This prevents market manipulation from distorting internal system value.
+
+---
+
+### Reserve Transparency (User View)
+
+YieldLoop provides clear visibility into reserve composition.
+
+Users may be shown:
+
+- **Core Reserve** (floor-authoritative)
+- **Growth Reserve** (value strength)
+- **Total Reserve** (informational)
+- **Redeemable LOOP Supply**
+- **Authoritative Redemption Floor**
+
+The user is never required to assume hidden backing.
 
 ---
 
 ### Redemption Actions
 
-Depending on configuration, users may be able to:
+Depending on configuration and eligibility rules, users may be able to:
 
-- Redeem LOOP for protocol value
-- Apply LOOP to platform fees
-- Apply LOOP to deposits or withdrawals
-- Hold LOOP as a value record
+- redeem eligible LOOP for protocol-held value
+- apply LOOP to certain platform costs (if supported)
+- hold LOOP as a verified value record
 
-Redemption rules are visible before any action is taken.
+Redemption rules are displayed before execution.
+
+Redemption does not occur “by implication.”  
+It occurs only through explicit user action.
 
 ---
 
-### UX Guarantees
+### Redemption Integrity Guarantee
 
-The user is never shown:
-- speculative price charts
-- projected returns
-- market-based valuations
+YieldLoop prioritizes redemption integrity over convenience.
 
-Only redemption value is emphasized.
+If redemption demand rises faster than conservative backing permits:
 
+- issuance remains constrained
+- redemption terms remain rule-based
+- no bailout mechanism is created
+- the system does not dilute backing to satisfy demand
+
+YieldLoop does not protect market price.  
+YieldLoop protects solvency.
 
 ---
 
