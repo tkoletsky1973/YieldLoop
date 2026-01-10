@@ -4,7 +4,7 @@
 
 **Author:** Todd Koletsky  
 **Date:** January 2026  
-**Version:** v0.6.2  
+**Version:** v0.6.3  
 
 ---
 
