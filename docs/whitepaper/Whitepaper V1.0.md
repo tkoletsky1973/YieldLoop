@@ -2517,4 +2517,4 @@ YieldLoop is provided “as is” with no warranty.
 
 ---
 
-# End of Whitepaper v0.1
+# End of Whitepaper
