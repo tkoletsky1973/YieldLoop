@@ -5,6 +5,11 @@
 **Date:** January 13, 2026  
 **Author:** Todd Koletsky  
 
+**Document Type:** Whitepaper + Dev-Intent Specification  
+**Status:** Draft for Implementation (v1.0)  
+**Chain:** BNB Smart Chain (BSC)  
+**Primary DEX Venue:** PancakeSwap (PCS)  
+
 ---
 
 ## Table of Contents
@@ -71,7 +76,7 @@ YieldLoop is a decentralized automation system for executing a **rule-based BTC 
 It provides four primary capabilities:
 
 1. **Isolated User Vaults**
-   - Each user’s deposit is stored in a unique vault contract instance or isolated accounting structure.
+   - Each user’s deposit is stored in a unique vault contract instance (vault-per-user).
    - Users do not share pooled funds.
    - Funds are never commingled across depositors.
    - The strategy logic is shared, but the capital remains isolated.
@@ -235,7 +240,7 @@ People do not stay in systems that trap them.
 People do stay in systems that reward them.
 
 ### 4.4 YieldLoop Uses a Reserve Engine to Reinforce Token Stability
-YieldLoop routes a portion of claim fees to reserve systems that operate like a central bank:
+YieldLoop routes a portion of claim fees to reserve systems that operate as a rule-based liquidity and continuity reserve:
 
 - Liquidity Defense Reserve (prevents death spirals)
 - Buyback & Lock Reserve (reduces circulating supply)
@@ -568,6 +573,22 @@ Each layer is isolated in responsibility so that failures do not cascade.
 
 ---
 
+### 6.0A System Constraints (v1.0)
+
+YieldLoop v1.0 launches with explicit constraints by design.
+
+- Chain: BNB Smart Chain (BSC)
+- Strategy asset: BTCB (or approved BTC-equivalent on BSC)
+- Execution venue: PancakeSwap (PCS) only
+- Deposit assets: USDT and USDC
+- No leverage
+- No margin
+- No emissions-based yield
+
+Any expansions beyond these constraints require explicit governance approval and audit review.
+
+---
+
 ### 6.1 Vault Layer (User Capital Isolation)
 
 Every deposit creates an isolated vault position.
@@ -727,6 +748,51 @@ Routing must meet minimum liquidity thresholds and slippage constraints.
 
 ---
 
+### 8.1A PCS Execution Dependency + Failure Handling
+
+YieldLoop executes swaps using PancakeSwap (PCS) as the primary execution venue.
+
+YieldLoop does not assume execution is always available or always safe.
+
+#### 8.1A.1 Preconditions for Any PCS Swap
+A PCS swap may only execute if ALL are true:
+- oracle validity is confirmed
+- TWAP deviation checks pass
+- liquidity depth threshold passes
+- slippage estimate <= max slippage limit
+- expected price impact <= max impact limit
+- circuit breakers are not active
+
+If any condition fails, the trade MUST be skipped.
+
+#### 8.1A.2 Swap Failure Handling (No Retry Loops)
+If a swap attempt fails (revert / insufficient output / router failure):
+- the vault does NOT retry aggressively
+- the vault returns to a safe idle state
+- the vault does not open new exposure until the next valid decision cycle
+
+Repeated failures trigger protection:
+- enter STABLE MODE
+- disable new BTC exposure
+- allow settlement and withdrawals only
+
+#### 8.1A.3 Liquidity or Integrity Failure
+If PCS pools become unsafe (thin liquidity, abnormal price behavior, suspected manipulation):
+- PCS execution is halted
+- the vault enters PROTECTIVE PAUSE
+- the system prioritizes capital preservation and settlement
+
+#### 8.1A.4 Emergency DEX Halt (Exploit Response)
+If a critical PCS exploit is detected or suspected:
+- protocol enters EMERGENCY HALT
+- all swaps disabled immediately
+- only stablecoin settlement + withdrawals permitted
+- LOOP claim route may be paused until oracle integrity returns
+
+YieldLoop prefers survival over forced execution.
+
+---
+
 ### 8.2 Strategy Intent
 
 The goal is not constant trading.
@@ -745,7 +811,7 @@ YieldLoop intends to:
 YieldLoop follows a strict decision cycle:
 
 1) Read current market state (price, volatility, trend)
-2) Validate execution conditions (liquidity, oracle sanity, slippage)
+2) Validate execution conditions (liquidity, oracle sanity, slippage), validated per the Execution Protection rules in Section 17.4.
 3) Check safety gates (cooldowns, max trades/day, drawdown)
 4) Decide action:
    - hold stable
@@ -775,6 +841,70 @@ YieldLoop is the opposite:
 - engineered for survival first
 
 This is what makes it investable.
+
+---
+
+### 8.4A Strategy Edge + Failure Regimes (No Bullshit)
+
+YieldLoop does not claim magic predictive alpha.
+
+YieldLoop’s edge comes from **structured execution**:
+- capturing BTC volatility under controlled conditions
+- avoiding chop bleed through dynamic bands + cooldowns
+- avoiding trading during hostile regimes using trend gating and stable-mode logic
+- preserving principal through bounded risk and forced settlement truth accounting
+
+In other words:
+YieldLoop aims to do less when conditions are stupid, and do more when conditions are favorable.
+
+#### 8.4A.1 What the Strategy Harvests
+The strategy is designed to harvest:
+- **mean reversion inside volatility bands**
+- **range rotation**, where BTC repeatedly oscillates within a price zone
+- **controlled profit capture** through TP execution rather than “ride forever” exposure
+
+The strategy is not designed to win by:
+- leverage
+- emissions
+- forced token demand
+- martingale
+- doubling down after losses
+
+#### 8.4A.2 Why It Should Win Net of Fees (When It Wins)
+When BTC exhibits:
+- two-way volatility
+- recoveries after dips
+- range behavior with repeated oscillations
+
+…YieldLoop can capture repeated profit harvests while reducing exposure through:
+- bounded SL/TP outputs
+- max trades/day caps
+- cooldown intervals after stop-outs
+
+This is how the protocol attempts to generate real harvestable profit,
+not paper gains.
+
+#### 8.4A.3 Regimes Where YieldLoop Will Underperform or Lose
+YieldLoop will underperform in regimes such as:
+- long, slow grind trends with low volatility (not enough rotation to harvest)
+- violent news spikes that gap across bands
+- sustained bear trends (if trend gating is disabled or misconfigured)
+- high MEV/high slippage environments where execution costs exceed edge
+- extreme flash crash behavior
+
+YieldLoop does not hide this.
+It is a trading protocol.
+Loss cycles are possible.
+
+#### 8.4A.4 Protocol Response to Hostile Regimes
+When regimes become hostile, YieldLoop shifts into survival posture:
+- reduce exposure sizing
+- widen bands
+- reduce trading frequency
+- enter stable-mode (hold stablecoins)
+
+YieldLoop does not chase.
+It survives and waits.
 
 ---
 
@@ -1671,7 +1801,7 @@ This prevents “vote to drain” sabotage.
 
 YieldLoop does not rely on blind token burns or hype “floor price” promises.
 
-Instead YieldLoop uses a **Reserve System** designed like a central bank.
+Instead YieldLoop uses a Reserve System designed as a rule-based liquidity and continuity reserve.
 
 The purpose is:
 
@@ -1682,6 +1812,24 @@ The purpose is:
 
 YieldLoop does not guarantee a floor.
 It guarantees a structure.
+
+---
+
+### 15.0A Reserve Action Limits (Anti-Manipulation Guardrails)
+
+Reserve operations are not discretionary and are not intended to “support price” by human judgment.
+They are rule-based actions constrained by hard limits.
+
+Reserve actions are bounded by:
+- maximum spend per epoch/day
+- maximum price impact per execution
+- TWAP deviation gating
+- minimum liquidity depth requirements
+- mandatory cooldown between reserve actions
+
+If constraints cannot be satisfied:
+- the action is skipped
+- the system remains in protective posture (stable-first preference)
 
 ---
 
@@ -1769,6 +1917,8 @@ All triggers are:
 - auditable
 - deterministic
 - capped
+
+Reserve actions may be skipped even if a trigger fires if execution constraints (liquidity, TWAP validity, max impact, cooldown) do not pass.
 
 ---
 
@@ -2022,6 +2172,22 @@ but YieldLoop is designed to remain safe even without them.
 
 ---
 
+#### 17.4A Execution Constraints (Definitions)
+
+**Slippage Cap**
+Maximum allowed difference between expected output and actual output for a swap.
+If exceeded, the swap MUST revert or be skipped.
+
+**Max Price Impact Cap**
+Maximum allowed estimated price movement caused by the vault’s own trade.
+If exceeded, the trade MUST be skipped.
+
+**Minimum Liquidity Depth**
+A trade may only execute if the target pool(s) exceed a minimum liquidity threshold
+to reduce manipulation and sandwich vulnerability.
+
+---
+
 ### 17.5 Pause / Circuit Breakers
 
 YieldLoop includes “pause” systems at multiple levels.
@@ -2038,6 +2204,8 @@ Pausing must be possible without:
 - trapping user principal
 
 The system is designed to pause execution while maintaining safe exits.
+
+DEX-level halts (PCS routing failure, pool integrity failure, router exploit suspicion) are valid triggers for Protective Pause or Emergency Halt.
 
 ---
 
@@ -2733,6 +2901,8 @@ Automated strategy execution can:
 - fail during extreme market regimes
 
 YieldLoop implements guardrails but cannot eliminate risk.
+
+YieldLoop’s strategy is volatility-dependent and may underperform during low-volatility or one-directional trend regimes.
 
 ---
 
