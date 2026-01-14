@@ -644,6 +644,292 @@ This layer exists to:
 
 ---
 
+## 6.4 Contract Map (System Contract Topology)
+
+This section defines the minimum on-chain contract architecture required to implement YieldLoop v1 safely and without ambiguity. The protocol is modular by design: each component has a single responsibility and enforces strict boundaries.
+
+### 6.4.1 Core Contracts (Required)
+
+#### A) VaultFactory (Isolated Vault Deployment)
+
+Creates isolated vaults (one per user deposit or one per user, per implementation choice).
+
+**Responsibilities:**
+- deploy new user vault instances (clone/proxy pattern permitted)
+- enforce vault template versioning (vault implementation allowlist)
+- emit deterministic events for vault creation (vaultId, owner, deposit asset, config hash)
+
+**MUST:**
+- prevent unauthorized vault template replacement (governance + timelock only)
+- enforce immutable or timelocked references to critical modules (OracleAdapter, ExecutionModule, FeeRouter)
+
+---
+
+#### B) UserVault (Isolated Vault Instance)
+
+Holds user capital and executes strategy actions under strict constraints.
+
+**Responsibilities:**
+- custody vault assets (stablecoin, BTC-pegged asset as applicable)
+- maintain internal accounting compartments:
+  - trading capital
+  - profit buffer
+- expose `execute()` for strategy decision cycle
+- expose deposit/withdraw paths with safety handling
+
+**MUST:**
+- enforce execution cooldown (`nextExecTime`)
+- enforce trade caps and slippage bounds
+- ensure Profit Buffer is fully backed by stablecoin balance
+- emit auditable events for every state change
+
+---
+
+#### C) StrategyController (Signal Generation / Decision Logic)
+
+Computes the next allowed vault action: **HOLD / BUY / SELL**.
+
+**Responsibilities:**
+- evaluate strategy gates (trend filter, volatility, cooldown, max frequency)
+- compute trade band parameters and position sizing bounds
+- return an immutable structured output used by ExecutionModule
+
+**MUST:**
+- remain deterministic for a given state input (no hidden discretionary behavior)
+- be bounded in computation and outputs (upper/lower parameter bounds)
+
+---
+
+#### D) ExecutionModule (Swap Execution “Hands”)
+
+Executes swaps through whitelisted routers/pools only.
+
+**Responsibilities:**
+- validate oracle/TWAP sanity and deviation bounds
+- validate liquidity depth thresholds
+- enforce minOut / slippage caps / max price impact
+- route swap through allowlisted DEX routers only
+
+**MUST:**
+- reject or skip execution if safety constraints fail
+- prohibit arbitrary token routing
+- defend against MEV by refusing trades outside safe bounds
+
+---
+
+#### E) OracleAdapter (Price and TWAP Safety Layer)
+
+Normalizes and validates price inputs.
+
+**Responsibilities:**
+- provide TWAP-based pricing references
+- support oracle aggregation (where available)
+- detect manipulation and abnormal deviation events
+
+**MUST:**
+- never allow raw spot-only pricing for critical decisions
+- expose sanity-check outputs used by StrategyController and ExecutionModule
+- emit flags or reason codes on oracle degradation
+
+---
+
+#### F) FeeRouter (Fee Calculation + Distribution)
+
+Calculates and routes fees only from realized profits.
+
+**Responsibilities:**
+- compute performance fees at settlement/harvest events
+- route fees to defined protocol pools/addresses
+- enforce that fees can only be taken from realized profit
+
+**MUST:**
+- prohibit fee extraction from principal
+- emit fee distribution events
+
+---
+
+#### G) Governance / Admin Controller (Timelock + Multisig)
+
+Governs configuration changes and emergency controls.
+
+**Responsibilities:**
+- apply parameter updates (within defined bounds)
+- manage allowlists (routers, tokens, pools)
+- control emergency pause functions
+
+**MUST:**
+- enforce timelock on all non-emergency upgrades
+- prevent governance from disabling critical safety invariants
+
+---
+
+### 6.4.2 Supporting Contracts (Recommended)
+
+#### H) ReserveEngine (Redemption + Reserve Safety)
+
+Manages protocol reserve balances and redemption throttle logic.
+
+**Responsibilities:**
+- enforce reserve floors and redemption caps
+- provide reserve health metrics
+- support emergency throttling during stress events
+
+---
+
+#### I) DiscountController (Optional LOOP Utility Layer)
+
+Applies claim-fee discount logic when users choose LOOP-based claiming.
+
+**Responsibilities:**
+- compute discount bands
+- enforce discount caps and anti-drain conditions
+- remain bounded and governance-limited
+
+---
+
+#### J) KeeperRegistry (Optional Operational Mode)
+
+Supports permissioned keeper execution (optional mode) without changing safety invariants.
+
+**Responsibilities:**
+- maintain keeper allowlist
+- support keeper rotation via governance/timelock
+
+---
+
+### 6.4.3 Contract-Level Invariants (Non-Negotiable)
+
+- user funds remain isolated per vault (no pooled accounting contagion)
+- execution is always gated by on-chain safety checks
+- performance fees may only be taken from realized profit
+- oracle spot manipulation must not affect execution (TWAP/oracle validation required)
+- governance cannot instantly remove safety caps (timelock required)
+- all critical state changes must emit events for external auditability
+
+---
+
+## 6.5 Protocol Invariants (MUST / MUST NOT Checklist)
+
+This section defines the non-negotiable invariants of YieldLoop. These rules are enforced by contract design and represent the minimum safety and truth constraints required for the system to be auditable and resistant to manipulation.
+
+These invariants are **MUST / MUST NOT** requirements. Any implementation that violates them is not YieldLoop.
+
+### 6.5.1 Custody + Vault Isolation
+
+**MUST:**
+- Each user vault MUST remain isolated from all other user vaults.
+- Vault accounting MUST be per-vault and must not depend on pooled user balances.
+- A vault’s liabilities (profit claims, withdrawals) MUST be satisfied only from that vault’s balances and explicitly defined protocol mechanisms.
+
+**MUST NOT:**
+- No user vault may be exposed to another vault’s losses, claims, or execution failures.
+
+### 6.5.2 Truth-Based Profit Accounting
+
+**MUST:**
+- Profit MUST be defined only as **realized, settled value**.
+- Performance fees MUST be calculated only from realized profits.
+- Profit Buffer MUST represent realized stablecoin that is 1:1 backed by actual stablecoin balance held by the vault.
+
+**MUST NOT:**
+- No “projected yield,” “unrealized PnL,” or “mark-to-market” value may be treated as profit.
+- No fees may be charged against principal.
+
+### 6.5.3 Execution Safety and Trade Guardrails
+
+**MUST:**
+- Trades MUST be executed only through allowlisted routers/pools.
+- Each trade MUST enforce:
+  - minOut protection
+  - maximum slippage bounds
+  - maximum price impact bounds
+  - minimum liquidity depth thresholds
+- The system MUST include cooldowns and max-frequency rules to prevent overtrading.
+
+**MUST NOT:**
+- Execution may not occur when safety gates fail.
+- The system may not “force” a trade through unsafe conditions.
+
+### 6.5.4 Oracle and Price Integrity
+
+**MUST:**
+- OracleAdapter MUST provide TWAP-based or manipulation-resistant pricing for decision making.
+- The protocol MUST enforce deviation bounds between TWAP, oracle reference, and pool state.
+- Circuit breakers MUST trigger under oracle degradation, abnormal volatility, or deviation events.
+
+**MUST NOT:**
+- The protocol MUST NOT rely on raw spot price alone for critical decisions.
+- Redemption/claims MUST NOT be priced from manipulable spot-only sources.
+
+### 6.5.5 Fail-Safe Default Behavior
+
+**MUST:**
+- Under uncertainty, the default behavior MUST be:
+  - HOLD / SKIP
+  - preserve capital
+  - wait for safe conditions
+- Vaults MUST remain operational even if execution is temporarily halted.
+
+**MUST NOT:**
+- The system MUST NOT trade in hostile conditions simply to maintain activity or “produce yield.”
+
+### 6.5.6 Claims and Withdrawals (No Forced Liquidation)
+
+**MUST:**
+- Profit claims MUST be paid only from the Profit Buffer.
+- Withdrawals MUST follow defined unwind logic and may be delayed if the vault is exposed.
+- The protocol MUST allow conservative unwind behavior (including partial unwinds if needed).
+
+**MUST NOT:**
+- Claims MUST NOT force liquidation of active strategy exposure.
+- No claim may create an obligation that violates safety thresholds.
+
+### 6.5.7 LOOP Redemption Integrity
+
+**MUST:**
+- LOOP redemption MUST be:
+  - capped (per-wallet + global)
+  - protected by reserve floors
+  - guarded by TWAP/oracle sanity bounds
+  - pauseable under circuit-breaker conditions
+
+**MUST NOT:**
+- Redemption MUST NOT drain protocol reserves below minimum safety floors.
+- Redemption MUST NOT depend on discretionary manual decisions to prevent bank-run dynamics.
+
+### 6.5.8 Governance Limits and Upgrade Safety
+
+**MUST:**
+- All sensitive configuration changes MUST be timelocked.
+- Governance MUST be constrained by hard bounds (parameter ranges) for safety-critical values.
+- Emergency pause MUST exist for incident response.
+
+**MUST NOT:**
+- Governance MUST NOT be able to instantly remove trade protections, oracle protections, reserve floors, or redemption caps.
+- Upgrades MUST NOT be able to silently alter user accounting or fee extraction logic.
+
+### 6.5.9 Auditability and Observability
+
+**MUST:**
+- All critical state transitions MUST emit events, including:
+  - vault creation
+  - deposits/withdrawals
+  - execute attempts + outcomes (HOLD/BUY/SELL)
+  - trade execution parameters (minOut, slippage, router)
+  - settlement results
+  - fee routing
+  - redemption activity
+- The protocol MUST expose view functions that allow external verification of:
+  - vault balances
+  - profit buffer accounting
+  - reserve health
+  - current config hashes / versions
+
+**MUST NOT:**
+- The system MUST NOT depend on hidden accounting, off-chain “truth,” or opaque yield reporting.
+
+---
+
 ## 7. Vault Model (Isolated User Vaults)
 
 YieldLoop’s core safety architecture is **vault isolation**.
@@ -666,6 +952,181 @@ YieldLoop vaults are designed to be:
 
 The vault is the user’s property envelope.
 The strategy is simply a set of rules applied inside it.
+
+---
+
+## 6.6 Sequence Diagrams (Deposit → Execute → Settlement/Claim)
+
+This section provides canonical system flows to ensure implementers, auditors, and reviewers all share the same mental model. These diagrams describe required interactions and contract responsibilities.
+
+> Note: The diagrams are illustrative but reflect protocol invariants. Any implementation must preserve the intent: safety-first execution, realized-profit accounting, isolated vaults, and auditable event trails.
+
+---
+
+### 6.6.1 Deposit + Vault Creation Flow
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor U as User
+  participant F as VaultFactory
+  participant V as UserVault
+  participant O as OracleAdapter
+  participant G as Governance/Admin (Config)
+  participant E as Event Log
+
+  U->>F: deposit(asset, amount, config)
+  F->>G: validate config hash / version
+  G-->>F: config ok (bounds + allowlists)
+  F->>V: deployVault(owner, config)
+  V-->>F: vaultAddress
+  F->>V: transferIn(asset, amount)
+  V->>E: emit VaultCreated(vaultId, owner, configHash)
+  V->>E: emit Deposit(vaultId, asset, amount)
+  V->>O: initialize oracle checks (TWAP sanity)
+  O-->>V: ok / warn
+  V-->>U: deposit complete (vault ready)
+
+Required properties:
+	•	vault is isolated per user (no pooled capital contagion)
+	•	config is validated against allowlists/bounds before deployment
+	•	vault creation and deposit must emit auditable events
+
+### 6.6.2 Execute Cycle Flow (HOLD / BUY / SELL)
+
+sequenceDiagram
+  autonumber
+  participant X as Executor (any caller / keeper)
+  participant V as UserVault
+  participant S as StrategyController
+  participant O as OracleAdapter
+  participant M as ExecutionModule
+  participant D as DEX Router (Allowlisted)
+  participant E as Event Log
+
+  X->>V: execute(vaultId)
+
+  V->>V: check cooldown(nextExecTime)
+  alt cooldown not met
+    V-->>X: revert/return (not executable)
+  end
+
+  V->>O: getValidatedPrice()
+  O-->>V: TWAP/oracle price + safety flags
+
+  V->>S: getNextAction(vaultState, marketState)
+  S-->>V: action(HOLD/BUY/SELL) + params(minOut, size, band)
+
+  alt action = HOLD or unsafe flags
+    V->>V: update nextExecTime
+    V->>E: emit ExecuteSkipped(reasonCode)
+    V-->>X: ok (no trade)
+  else action = BUY or SELL
+    V->>M: executeSwap(params)
+    M->>O: re-check oracle sanity (pre-trade)
+    O-->>M: ok / reject
+
+    alt oracle unsafe or limits fail
+      M-->>V: reject (unsafe)
+      V->>E: emit ExecuteFailed(reasonCode)
+      V-->>X: ok (no trade)
+    else safe
+      M->>D: swapExactTokensForTokens(minOut)
+      D-->>M: trade result
+      M-->>V: executed(result)
+
+      V->>V: update position + accounting
+      V->>V: update nextExecTime
+      V->>E: emit ExecuteSuccess(action, in, out, slippage)
+      V-->>X: ok
+    end
+  end
+
+Required properties:
+	•	any actor may call execute (permissionless execution model)
+	•	execution can never bypass safety gates
+	•	default failure behavior is HOLD / SKIP
+	•	every attempt is auditable via events
+
+### 6.6.3 Monthly Settlement + Profit Allocation + Claim
+
+sequenceDiagram
+  autonumber
+  actor U as User
+  participant V as UserVault
+  participant O as OracleAdapter
+  participant M as ExecutionModule
+  participant R as FeeRouter
+  participant B as Profit Buffer (Vault Accounting)
+  participant E as Event Log
+
+  Note over V: Settlement occurs at end-of-cycle\n(or at defined harvest points)
+
+  V->>O: validate market state
+  O-->>V: ok / unsafe
+
+  alt unsafe to unwind/settle
+    V->>E: emit SettlementDeferred(reasonCode)
+  else safe to settle
+    V->>V: compute realized profit (stable-denominated)
+    V->>R: route performance fee (realized profit only)
+    R-->>V: fee routed confirmation
+    V->>B: credit profitBufferStable += realizedProfitAfterFees
+    V->>E: emit SettlementCompleted(profit, fees, bufferCredit)
+  end
+
+  U->>V: claimProfit(amount)
+  alt profitBufferStable >= amount
+    V-->>U: transfer stablecoins(amount)
+    V->>B: debit profitBufferStable -= amount
+    V->>E: emit ProfitClaimed(amount)
+  else insufficient buffer
+    V-->>U: partial fill / reject per rules
+    V->>E: emit ClaimRejectedOrPartial(reasonCode)
+  end
+
+Required properties:
+	•	profit is only realized at settlement/harvest
+	•	fees are only taken from realized profit
+	•	claims are paid only from the Profit Buffer
+	•	no forced liquidation to satisfy claims
+
+### 6.6.4 LOOP Redemption Flow (Capped, Safe, Throttled)
+
+sequenceDiagram
+  autonumber
+  actor U as User
+  participant L as LOOP Token
+  participant P as RedemptionContract
+  participant O as OracleAdapter
+  participant Z as RedemptionReserve
+  participant E as Event Log
+
+  U->>P: redeemLOOP(amount)
+  P->>O: getRedemptionPrice(TWAP/oracle)
+  O-->>P: price + safety flags
+
+  P->>P: enforce caps (wallet + global)
+  P->>P: enforce reserve floor
+  alt unsafe or cap exceeded
+    P-->>U: reject/queue
+    P->>E: emit RedemptionRejected(reasonCode)
+  else safe
+    P->>L: burn(amount)
+    L-->>P: burned
+    P->>Z: transfer stablecoins(value)
+    Z-->>U: payout
+    P->>E: emit RedemptionExecuted(amount, value, priceRef)
+  end
+
+Required properties:
+	•	redemption is never spot-priced
+	•	redemption has caps and reserve floors
+	•	redemption can be paused by circuit breakers
+	•	redemption is fully auditable
+
+
+
 
 ---
 
@@ -1014,6 +1475,101 @@ There is no insurance system.
 
 ---
 
+## 8.6 Execution Actor (Keepers / Executors)
+
+YieldLoop execution is automated and event-driven. Each vault follows a deterministic decision cycle (HOLD / BUY / SELL) based on the strategy rules and safety gates. To ensure reliable execution without requiring user action, YieldLoop defines an explicit execution actor model.
+
+### 8.6.1 Default Model (Permissionless Execution)
+
+In v1, YieldLoop execution is **permissionless**: any address may call the vault’s `execute()` function to trigger the next eligible decision cycle.
+
+Execution **cannot force trades**—the transaction only succeeds if **all safety gates pass**, including:
+- slippage caps
+- oracle / TWAP sanity checks
+- minimum liquidity depth requirements
+- volatility and deviation thresholds
+- circuit-breaker rules
+
+If conditions are unsafe, execution will skip the action (**no trade**) and preserve capital.
+
+### 8.6.2 Anti-Grief / Spam Protections
+
+To prevent spam execution calls and denial-of-service behavior:
+- each vault enforces a **cooldown** (`nextExecTime`) between executions
+- executions that do not change state may be rejected or treated as no-ops depending on implementation
+- no executor can bypass allowlists, oracle sanity checks, or circuit breakers
+
+### 8.6.3 Optional Keeper Set (Operational Mode)
+
+YieldLoop may additionally support a permissioned “Keeper Set” model, where execution calls are restricted to allowlisted keeper addresses for operational stability. This mode does **not** change safety logic: all executions remain subject to the same guardrails and may still skip execution if unsafe.
+
+This execution model ensures the protocol remains reliable, auditable, and resistant to manipulation, while enforcing conservative execution behavior under hostile market conditions.
+
+---
+
+## 8.7 Strategy Compute Model (On-Chain vs Off-Chain Signals)
+
+YieldLoop’s BTC Loop Engine is designed to behave deterministically and defensively under hostile market conditions. The protocol separates **strategy computation** (signal generation) from **execution** (swaps), and supports two compute modes to ensure both auditability and reliable automation.
+
+### 8.7.1 Deterministic Decision Cycle
+
+Each vault follows a repeating decision cycle:
+
+1) Read market state (oracle + TWAP + pool liquidity)
+2) Evaluate risk and safety gates
+3) Compute next action: **HOLD / BUY / SELL**
+4) If allowed, execute trade within strict constraints
+5) Update vault state and enforce cooldown rules
+
+At no point can the strategy force execution if safety conditions fail. The default behavior under uncertainty is **HOLD / SKIP**.
+
+### 8.7.2 Compute Mode A (On-Chain Compute)
+
+In On-Chain Compute mode, strategy computations occur fully on-chain using:
+- TWAP / oracle feeds (never raw spot alone)
+- pool liquidity and depth checks
+- bounded calculations (band logic, cooldowns, max frequency)
+
+This mode prioritizes transparency, auditability, and minimal trust assumptions.
+
+### 8.7.3 Compute Mode B (Off-Chain Signals + On-Chain Enforcement)
+
+In Off-Chain Signal mode, an external compute layer (keepers / bots) may calculate trade suggestions and submit them for execution. However, YieldLoop enforces the following invariant:
+
+**Off-chain signals may suggest, but never authorize.**
+
+All execution attempts are validated on-chain using:
+- TWAP / oracle sanity checks
+- maximum slippage thresholds
+- max price impact caps
+- minimum liquidity depth
+- volatility shock detection
+- circuit breaker rules
+
+If any validation fails, the action is rejected or skipped (no trade).
+
+### 8.7.4 Compute Cadence and Cooldowns
+
+To prevent overtrading and MEV exposure, each vault enforces:
+- a minimum execution interval (`nextExecTime`)
+- maximum trade frequency limits (per time window)
+- forced hold/cooldown after rapid volatility or repeated failed attempts
+
+This ensures YieldLoop operates as a conservative execution engine rather than a high-frequency strategy.
+
+### 8.7.5 Safety-First Fallback Behavior
+
+When any uncertainty exists—oracle deviation, abnormal volatility, insufficient liquidity, or execution instability—the system defaults to conservative behavior:
+
+- **skip execution**
+- **hold position**
+- **preserve capital**
+- **wait for safe conditions**
+
+This prevents the strategy layer from “trading through danger” and ensures execution cannot be forced under compromised conditions.
+
+---
+
 ## 9. Dynamic Trade Bands (SL/TP Controller)
 
 YieldLoop does not use fixed “stop loss = 2% / take profit = 3%” logic as a permanent rule.
@@ -1257,7 +1813,7 @@ This creates trust and long-term retention.
 
 YieldLoop allows user-controlled compounding:
 
-- user selects compound percentage (5% to 100%)
+- user selects compound percentage (0% to 100%)
 
 Example:
 - harvested profit = $100
@@ -1282,6 +1838,106 @@ YieldLoop enforces accounting separation.
 At no time should the protocol represent profit buffer as principal.
 
 This prevents misleading reporting and maintains clean settlement logic.
+
+---
+
+## 10.6 Profit Buffer Storage and Reconciliation (Implementable Spec)
+
+YieldLoop uses a **Profit Buffer** to separate realized profits from active trading capital and to ensure user claims are funded only from **verifiable, settled value**.
+
+This section defines the Profit Buffer so it can be implemented and audited without ambiguity.
+
+### 10.6.1 What the Profit Buffer Is (Hard Definition)
+
+The Profit Buffer is:
+
+> A stablecoin-denominated reserve balance inside each isolated user vault, representing **realized, settled profit** that has been harvested and removed from trading exposure.
+
+The Profit Buffer is **not**:
+- unrealized PnL
+- a projected yield estimate
+- a mark-to-market accounting entry
+- a pooled account shared across users
+
+### 10.6.2 Where the Profit Buffer Lives (Storage Model)
+
+In v1, the Profit Buffer MUST be implemented as:
+
+- a **separate accounting compartment** inside each user vault, tracked by:
+  - `profitBufferStable` (uint256, stablecoin units)
+  - `tradingCapitalStable` (uint256, stablecoin units)
+
+And MUST be backed 1:1 by actual stablecoin balances held by the vault contract.
+
+Implementation requirement:
+- the vault MUST hold stablecoin balances that can satisfy `profitBufferStable` at all times
+- the vault MUST NOT represent Profit Buffer solely as internal ledger value if the stablecoin is not actually present
+
+### 10.6.3 Harvest Logic (When Profit Moves Into Buffer)
+
+Profit may only enter the Profit Buffer when:
+
+1) exposure has been reduced or closed (e.g., BTC → stable)
+2) swap execution succeeds under safety limits
+3) net realized profit (after costs) is known
+4) profit allocation rules are applied
+
+Only then may the system:
+- increase `profitBufferStable`
+- distribute fees (performance fee) from realized profits
+- optionally reallocate profit into compounding capital
+
+### 10.6.4 Reconciliation Invariant (Audit Rule)
+
+At all times, the following MUST hold:
+
+- `stableBalanceHeldByVault >= profitBufferStable`
+
+If this is not true, the system must enter protective mode and disallow claims until repaired.
+
+Additionally, vault accounting must satisfy:
+- `stableBalanceHeldByVault = profitBufferStable + tradingCapitalStable (+ other explicitly defined vault balances)`
+
+This makes accounting externally verifiable and prevents “paper yield.”
+
+### 10.6.5 Claim Funding Rules (No Unbacked Claims)
+
+User profit claims may only be paid out from:
+- `profitBufferStable`
+
+User profit claims MUST NOT be funded from:
+- open BTC exposure
+- projected profits
+- redemption reserves
+- other users’ vault balances
+
+If `profitBufferStable` is insufficient:
+- claim is partially filled up to available buffer
+- remaining claim is queued (optional) or rejected until the next eligible harvest/settlement
+
+### 10.6.6 What Happens If the Vault Is in BTC Exposure During Claim
+
+If a user requests a claim while the vault’s position is currently BTC-exposed:
+
+- the claim is paid instantly **only if** `profitBufferStable` is sufficient
+- the protocol MUST NOT force an unwind trade to satisfy a claim
+- the system MUST preserve trade safety and may defer any optional “buffer refill” harvest until safe conditions occur
+
+### 10.6.7 Compounding Interaction
+
+If the user selects compounding options, then at settlement or at defined harvest events:
+
+- a user-defined portion of `profitBufferStable` may be reclassified into `tradingCapitalStable`
+- any compounding action must be a deterministic accounting transfer, not a speculative valuation
+- compounding must not occur if doing so would violate reserve safety requirements or vault minimums
+
+### 10.6.8 Core Invariants (Non-Negotiable)
+
+- Profit Buffer represents **realized** stablecoin only
+- Profit Buffer must be **backed by actual stablecoin balances**
+- Claims can never create obligations to liquidate active exposure
+- Profit Buffer is isolated per vault (no shared pool)
+- If safety gates fail, the default behavior is **hold / skip**, not “force harvest”
 
 ---
 
@@ -1546,6 +2202,105 @@ Stablecoin claim route remains available at all times.
 No user is forced into LOOP.
 
 ---
+
+## 12.7 LOOP Redemption Specification (Rules, Pricing, Caps, and Safety)
+
+LOOP is a **redemption-aligned token** designed to represent verifiable protocol surplus and provide optional user utility (fee reduction and/or redemption access). LOOP is **not** an LP token and is not designed as an inflationary emissions reward.
+
+This section defines the required redemption mechanics so the system can be implemented and audited without ambiguity.
+
+### 12.7.1 Definition of “Redemption”
+
+In YieldLoop, **redemption** means:
+
+> A user may exchange LOOP for stablecoin value from the protocol’s Redemption Reserve (or other explicitly permitted reserve assets), subject to pricing rules, caps, and safety controls.
+
+Redemption is not guaranteed, may be throttled, and may be suspended if system safety requires it.
+
+### 12.7.2 Redemption Asset Source (What LOOP Redeems Into)
+
+Redemptions are paid from the protocol’s **Redemption Reserve**. Eligible redemption assets are restricted to an allowlist (governance-controlled with timelock), such as:
+- USDC / USDT (or equivalent stablecoin reserves)
+- other high-quality reserve assets explicitly approved by governance
+
+Redemption payouts must never require liquidating active user vault positions.
+
+### 12.7.3 Redemption Pricing Model (No Spot Manipulation)
+
+Redemption price for LOOP is calculated using a manipulation-resistant reference model:
+
+- TWAP-based LOOP price reference
+- external oracle reference where available
+- bounded deviation thresholds
+
+**LOOP redemption must never use raw spot price alone.**
+
+If oracle/TWAP deviation exceeds acceptable bounds, redemption is paused automatically until conditions normalize.
+
+### 12.7.4 Redemption Limits (Caps and Throttling)
+
+To prevent reserve drains and bank-run dynamics, LOOP redemption is rate-limited by hard caps:
+
+- **Per-wallet cap**: maximum LOOP redeemable per wallet per rolling time window
+- **Global daily cap**: maximum stablecoin value redeemable by all users per day
+- **Reserve safety floor**: redemption stops automatically if reserves fall below a minimum reserve threshold
+
+All caps are enforceable on-chain and cannot be bypassed.
+
+### 12.7.5 Redemption Windows (Optional Time-Gating)
+
+YieldLoop may enforce one or more redemption windows to improve fairness and reduce exploitability, such as:
+- rolling time windows (e.g., per 24h)
+- scheduled windows (e.g., weekly redemption window)
+
+If redemption windows are used, they must be:
+- publicly defined
+- enforced by contract logic (not discretionary)
+
+### 12.7.6 Emergency Stops and Circuit Breakers
+
+Redemption is subject to circuit breakers, including:
+- abnormal volatility or price deviation detection
+- liquidity impairment
+- protocol incident response
+- oracle degradation
+- governance security events
+
+During emergency mode:
+- redemption may be reduced, delayed, or paused
+- redemption queueing may be enabled for orderly processing
+
+### 12.7.7 Redemption Priority and Fairness
+
+If redemption demand exceeds the allowed limits:
+- requests are filled in order according to protocol rules (FIFO queue or time-weighted)
+- partial fills may occur
+- any unfilled portion remains pending until the next eligible window
+
+This prevents privileged ordering and protects reserve integrity.
+
+### 12.7.8 Redemption Events and Auditability
+
+All redemption actions must emit events including:
+- redeemer address
+- LOOP burned or locked
+- stablecoin paid out
+- applied price reference (TWAP/oracle)
+- reason codes for rejection (cap reached, paused, insufficient reserve, oracle unsafe)
+
+This ensures redemption behavior is verifiable, reproducible, and externally auditable.
+
+### 12.7.9 Core Invariants (Non-Negotiable)
+
+The following invariants must always hold:
+
+- LOOP redemption cannot exceed reserve safety floors
+- LOOP redemption cannot rely on manipulable spot price alone
+- redemption must be throttleable and pauseable by contract-defined circuit breakers
+- governance cannot instantly remove caps (timelock enforced)
+- redemption must never create an obligation to liquidate active user vault positions
+
+--- 
 
 ## 13. Fee Model
 
