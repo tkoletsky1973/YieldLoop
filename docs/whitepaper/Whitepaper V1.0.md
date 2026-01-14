@@ -930,31 +930,6 @@ These invariants are **MUST / MUST NOT** requirements. Any implementation that v
 
 ---
 
-## 7. Vault Model (Isolated User Vaults)
-
-YieldLoop’s core safety architecture is **vault isolation**.
-
-Each user vault maintains:
-
-- deposited principal (USDC/USDT)
-- current BTC exposure (if any)
-- profit buffer accounting
-- user preferences (compound %, claim mode, etc.)
-- strategy state tracking (cooldown status, trade count, etc.)
-
-YieldLoop vaults are designed to be:
-
-- deterministic
-- inspectable
-- auditable
-- non-custodial
-- upgradable only by strict governance with safeguards
-
-The vault is the user’s property envelope.
-The strategy is simply a set of rules applied inside it.
-
----
-
 ## 6.6 Sequence Diagrams (Deposit → Execute → Settlement/Claim)
 
 This section provides canonical system flows to ensure implementers, auditors, and reviewers all share the same mental model. These diagrams describe required interactions and contract responsibilities.
@@ -1125,8 +1100,30 @@ Required properties:
 	•	redemption can be paused by circuit breakers
 	•	redemption is fully auditable
 
+---
 
+## 7. Vault Model (Isolated User Vaults)
 
+YieldLoop’s core safety architecture is **vault isolation**.
+
+Each user vault maintains:
+
+- deposited principal (USDC/USDT)
+- current BTC exposure (if any)
+- profit buffer accounting
+- user preferences (compound %, claim mode, etc.)
+- strategy state tracking (cooldown status, trade count, etc.)
+
+YieldLoop vaults are designed to be:
+
+- deterministic
+- inspectable
+- auditable
+- non-custodial
+- upgradable only by strict governance with safeguards
+
+The vault is the user’s property envelope.
+The strategy is simply a set of rules applied inside it.
 
 ---
 
