@@ -965,7 +965,7 @@ This section provides canonical system flows to ensure implementers, auditors, a
 
 ### 6.6.1 Deposit + Vault Creation Flow
 
-```mermaid
+
 sequenceDiagram
   autonumber
   actor U as User
@@ -1040,7 +1040,7 @@ sequenceDiagram
       V->>E: emit ExecuteSuccess(action, in, out, slippage)
       V-->>X: ok
     end
-  end
+   end
 
 Required properties:
 	•	any actor may call execute (permissionless execution model)
