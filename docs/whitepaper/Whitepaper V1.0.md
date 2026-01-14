@@ -302,6 +302,24 @@ They feel like:
 
 ---
 
+### 5.1A Vault Architecture (Isolation Guarantee)
+
+YieldLoop uses a vault-per-user architecture.
+
+Each user deposit is deployed into a dedicated vault contract instance created via a minimal proxy clone pattern (EIP-1167 or equivalent).
+
+This ensures:
+- user assets are not commingled with other users
+- each vault maintains its own positions, state, and accounting
+- vault execution is strategy-identical across users but capital is physically separated at the smart contract level
+
+YieldLoop may execute the same strategy logic across many vaults, but each vault is independent and isolated.
+
+This design reduces systemic contagion and limits the blast radius of any vault-specific failure.
+
+---
+#### NOTE: Future Optimization, A pooled execution model MAY be introduced in future versions for gas efficiency. If introduced, it will require explicit user consent and will include additional accounting and systemic risk disclosures.
+
 ### 5.2 First-Time User: 60-Second Walkthrough
 
 A user arrives and sees:
@@ -394,6 +412,49 @@ And they see an always-visible button:
 
 This turns YieldLoop into a system users check daily, even when not withdrawing.
 That alone is a retention weapon.
+
+---
+
+### 5.3.1 Withdrawals (Truth-Based Liquidity Rules)
+
+YieldLoop does not fake liquidity.
+
+A user may request withdrawal at any time, but withdrawal execution depends on the vault’s current exposure state.
+
+#### Withdrawal Types
+
+**A) Stable-Only Withdrawal (Instant)**
+If the vault is currently in stablecoin-only state (no BTC exposure):
+- the user can withdraw principal instantly (subject only to normal gas constraints)
+- the protocol does not delay or gate this
+
+**B) BTC-Exposed Withdrawal (Unwind Required)**
+If the vault currently holds BTC exposure:
+- the vault must unwind to stablecoin before principal withdrawal can occur
+- unwind occurs only when execution constraints are satisfied:
+  - slippage within bounds
+  - liquidity thresholds met
+  - oracle/TWAP validity met
+  - circuit breakers not active
+
+This is non-negotiable. It prevents forced-loss exits and MEV exploitation.
+
+#### Withdrawal Request Model (Deterministic)
+When a user requests withdrawal during BTC exposure:
+- vault state becomes: WITHDRAWAL_PENDING
+- vault stops opening new BTC exposure
+- vault attempts unwind as soon as constraints allow
+- once fully in stablecoin, principal is withdrawn
+
+#### Maximum Unwind Latency
+YieldLoop may enforce a maximum unwind latency window.
+If conditions remain unsafe:
+- vault enters STABLE MODE
+- vault prioritizes capital preservation over speed
+- user withdrawal remains pending until safe execution is possible
+
+YieldLoop is not a bank.
+It is a safety-constrained execution system.
 
 ---
 
@@ -714,6 +775,112 @@ YieldLoop is the opposite:
 - engineered for survival first
 
 This is what makes it investable.
+
+---
+
+## 8.5 Vault Lifecycle, NAV, and Settlement Rules (Accounting Truth Model)
+
+YieldLoop is a cycle-based vault system.
+
+The system enforces an accounting truth model:
+- principal is never redefined
+- profits are only recognized when realized
+- settlement is deterministic
+
+### 8.5.1 Key Terms
+
+**Principal (P):**
+- the amount of stablecoin deposited by the user (net of deposit fees, if any)
+
+**Vault NAV:**
+- the current total value of the vault expressed in stablecoin terms, computed using valid oracle inputs
+
+**Realized Profit (RP):**
+- profit that is locked-in and recorded only when the vault is fully settled into stablecoin
+
+**Unrealized PnL (UPnL):**
+- floating profit/loss while BTC exposure exists
+
+**Profit Eligibility:**
+- profit is eligible for fee calculation only at settlement
+
+### 8.5.2 Cycle Overview (Monthly Execution)
+
+Each vault runs in deterministic cycles:
+1) Cycle Start
+2) Execution Window (strategy trading permitted)
+3) Cycle End (stop opening new exposure)
+4) Mandatory Settlement
+5) User Claim / Compound Routing
+6) Cycle Repeat (if user opts-in)
+
+YieldLoop does not smooth returns.
+Each cycle produces the real result of the strategy.
+
+### 8.5.3 Settlement Rule (Non-Negotiable)
+
+At Cycle End:
+- the vault MUST unwind to stablecoin
+- the vault MUST finalize NAV in stablecoin
+- the vault MUST compute realized profit using final settled NAV
+
+No profit is recognized during BTC exposure.
+
+This prevents:
+- fake profits based on manipulated oracle values
+- partial settlement ambiguity
+- price-attack exploitation during open exposure
+
+### 8.5.4 Profit Computation
+
+At settlement:
+
+Let:
+- P = Principal
+- NAV_settled = vault NAV after unwind (stable-only)
+- RP = Realized Profit
+
+Then:
+- RP = max(0, NAV_settled - P)
+
+If NAV_settled <= P:
+- RP = 0
+- no performance fee is charged
+- loss is directly reflected in user vault NAV
+
+### 8.5.5 Performance Fee Application (Only on Realized Profit)
+
+Performance fee applies ONLY on RP.
+
+Performance fee is computed only at settlement and only if RP > 0.
+
+Fees never apply to:
+- principal
+- unrealized gains
+- transient price spikes
+
+### 8.5.6 Compound vs Withdraw Routing
+
+At settlement, the user’s selected action applies to RP only:
+
+- Compound All: RP remains in vault as reinvestable stablecoin
+- Compound 50% / Withdraw 50%: RP split deterministically
+- Withdraw All Profit: RP paid out (stablecoin or LOOP claim route if selected)
+
+Principal treatment:
+- principal remains in vault unless user requests withdrawal
+- principal withdrawal follows the deterministic withdrawal rules (Section 5.X)
+
+### 8.5.7 Loss Handling (Truth-Based Loss Accounting)
+
+If the cycle ends in loss:
+- the loss reduces NAV
+- principal reference remains P (original principal)
+- no fees apply
+- the next cycle begins with reduced NAV
+
+YieldLoop does not “make up” losses.
+There is no insurance system.
 
 ---
 
@@ -1180,6 +1347,73 @@ YieldLoop succeeds because:
 - LOOP is simply the better deal long term
 
 This maintains credibility while still building token demand.
+
+---
+
+## 12.6 Discount Controller (Anti-Dump Incentive Logic)
+
+YieldLoop supports discounted performance fees for users who claim profits in LOOP.
+However, the system does not subsidize LOOP dumping.
+
+Discount eligibility is controlled by a deterministic Discount Controller.
+
+### 12.6.1 Purpose
+The Discount Controller exists to:
+- reward users who strengthen the LOOP ecosystem
+- prevent claim-driven sell pressure
+- protect reserve integrity
+- prevent whale extraction through fee arbitrage
+
+### 12.6.2 Base Fee vs Discounted Fee
+Let:
+- F_base = baseline performance fee (e.g., 20%)
+- F_loop = discounted fee when claiming in LOOP
+
+F_loop is bounded:
+- F_loop_min <= F_loop <= F_base
+
+Example bounds:
+- F_loop_min = 15%
+- F_base = 20%
+
+Exact values are configurable, but bounded.
+
+### 12.6.3 Discount Eligibility Conditions (Must All Pass)
+
+A LOOP-discounted claim is only allowed if all conditions pass:
+
+**A) Oracle Validity**
+- LOOP TWAP oracle must be valid
+- deviation checks must pass
+If invalid → LOOP-discount route is disabled.
+
+**B) Liquidity Health**
+- LOOP/stable pool liquidity must exceed minimum threshold
+- pool age and trade cadence must pass allowlist rules
+If not healthy → LOOP-discount route is disabled.
+
+**C) Discount Capacity Limit (Anti-Whale Control)**
+Discounted claims may be capped per epoch:
+- max discounted claim amount per vault per epoch
+- max discounted claim amount protocol-wide per epoch
+
+Claims above capacity:
+- may still claim in LOOP
+- but without discount (revert to base fee)
+
+**D) Cooldown / Rate Limit**
+A vault may enforce a cooldown between discounted LOOP claims:
+- prevents repeated rapid claim cycles
+- reduces structural sell pressure
+
+### 12.6.4 Discount Degradation Under Stress
+If system conditions degrade (liquidity thins, volatility spikes, circuit breakers activate):
+- discounted fee automatically increases toward F_base
+- discount may be suspended entirely
+
+### 12.6.5 Always-Available Claim Path
+Stablecoin claim route remains available at all times.
+No user is forced into LOOP.
 
 ---
 
@@ -1761,21 +1995,30 @@ This structure creates two crucial security advantages:
 
 YieldLoop assumes that any on-chain trade will be attacked if profitable to attack.
 
-Therefore execution must include:
+Execution protection is therefore mandatory and is treated as a hard security layer,
+not as an optional optimization.
 
+YieldLoop execution MUST enforce:
 - strict slippage caps
 - maximum price impact caps
-- minimum-out enforcement
-- liquidity checks prior to routing
+- minimum-out enforcement for every swap
+- liquidity depth checks prior to routing
 - trade size gating (avoid large swaps into thin liquidity)
 
-Execution does not occur if:
+Execution MUST NOT occur if:
 - liquidity depth is below minimum threshold
 - oracle sanity checks fail
+- TWAP deviation exceeds allowed bounds
 - price impact exceeds cap
 - volatility shock conditions are triggered
+- circuit breakers are active
 
+If conditions are unsafe, the protocol skips execution.
 YieldLoop prefers survival over forced execution.
+
+Optional upgrade path (non-required for v1):
+- private execution / protected routing methods may be used where available to reduce sandwiching risk,
+but YieldLoop is designed to remain safe even without them.
 
 ---
 
@@ -1846,20 +2089,71 @@ YieldLoop therefore uses **TWAP (time-weighted average price)** as its baseline.
 
 ---
 
-### 18.2 LOOP Pricing Requirements
+### 18.2 LOOP Pricing Requirements (Deterministic Oracle Spec)
 
-LOOP price is used for actions like:
+LOOP pricing is a security primitive.
+
+LOOP price is used for:
 - profit claim conversion into LOOP
 - redemption calculations
 - reserve triggers
 - discount controller liquidity scoring
 
-LOOP pricing must therefore use:
+Therefore LOOP pricing MUST be:
+- TWAP-based (never spot)
+- liquidity-weighted
+- deviation-gated
+- fallback-safe
 
-- PCS pool TWAP (30–60 minutes baseline)
-- minimum liquidity thresholds
-- deviation checks
-- fail-safe fallbacks
+#### 18.2A Oracle Inputs (Allowed Sources)
+YieldLoop only accepts pricing from approved on-chain sources.
+
+Primary oracle source:
+- PancakeSwap (PCS) LOOP/stable pool TWAP
+
+Optional secondary sources (upgrade path):
+- additional PCS LOOP/stable pools
+- cross-check pools (e.g., LOOP/WBNB paired with WBNB/stable TWAP)
+- external oracle feed for sanity checks (if provably robust)
+
+Each oracle source must be explicitly whitelisted and meet minimum liquidity standards.
+
+#### 18.2B Pool Allowlist Rules (No “Any Pool” Garbage)
+Only designated PCS pools may be used for LOOP TWAP.
+
+A pool is eligible only if:
+- it is explicitly whitelisted by governance within hardcoded bounds
+- liquidity depth exceeds minimum threshold ($X stable equivalent)
+- pool age exceeds minimum time threshold (prevents freshly-created scam pools)
+- pool volume and trade cadence meet minimum criteria
+
+If the primary pool fails eligibility checks, the oracle may:
+- fail over to the next eligible pool in the allowlist
+- OR enter oracle-fail safe mode (Section 18.2D)
+
+#### 18.2C TWAP Definition (Exact)
+TWAP is computed on a fixed window:
+- baseline TWAP window: 30–60 minutes (configurable within bounds)
+
+TWAP must NOT be computed from a single observation.
+It must use multiple observations over time.
+
+All TWAP results must pass:
+- deviation checks vs previous TWAP
+- deviation checks vs secondary oracle source (if enabled)
+
+#### 18.2D Oracle Fail-Safe Mode (Non-Negotiable)
+If oracle validity fails:
+- LOOP claims are paused
+- LOOP mint for claims is paused
+- reserve buybacks are paused
+- stablecoin claims remain available (always)
+
+Oracle failure MUST NOT:
+- trap user principal indefinitely
+- allow minting based on manipulated price
+
+Oracle fail-safe mode remains active until oracle validity is restored.
 
 ---
 
@@ -1907,6 +2201,18 @@ If BTC volatility exceeds threshold:
 - optionally stable-mode
 
 These breakers exist because market events can be violent.
+
+#### D) Oracle Integrity Breaker
+If oracle input data becomes invalid:
+- missing observations / stale values
+- pool not eligible (liquidity too thin, pool removed, pool frozen)
+- TWAP computation cannot be completed
+
+Then:
+- pause LOOP claim route
+- pause reserve buybacks
+- allow stablecoin claims only
+- enter ORACLE_FAILSAFE state
 
 ---
 
