@@ -999,7 +999,7 @@ At settlement, the user’s selected action applies to RP only:
 
 Principal treatment:
 - principal remains in vault unless user requests withdrawal
-- principal withdrawal follows the deterministic withdrawal rules (Section 5.X)
+- principal withdrawal follows the deterministic withdrawal rules (Section 5.3.1)
 
 ### 8.5.7 Loss Handling (Truth-Based Loss Accounting)
 
