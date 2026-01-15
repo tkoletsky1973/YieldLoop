@@ -997,11 +997,10 @@ The protocol performance fee is split into **four** deterministic allocations:
 3) **Reserve System Allocation**
 - USDT routed directly to the ReserveSystem to back LOOP redemption
 
-4) **LoopLabs (Equal Splits)**
+4) **LoopLabs**
 - USDT routed to LoopLabs distribution module
-- distribution occurs as **equal split** among the allowlisted LoopLabs recipient set
-  (`N recipients`, each receives `amount / N`)
-- recipient set changes are timelocked + bounded + event-logged
+- This is for the creation and support of LoopLabs a future nonprofit center meant to further technological development.
+
 
 ### 9.4.1 Configurable Splits (Bounded)
 Fee split percentages MAY be adjustable only within hard bounds, and must obey:
