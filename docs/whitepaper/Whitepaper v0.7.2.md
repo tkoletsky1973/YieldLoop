@@ -1,9 +1,9 @@
 # YieldLoop Whitepaper  
 ## USDT-Based Automated BTCB Arbitrage Vaults + LOOP Redemption Token
 
-**Date:** January 14, 2026  
+**Date:** January 15, 2026  
 **Author:** Todd Koletsky  
-**Version:** 0.7.1  
+**Version:** 0.7.2
 
 ---
 
