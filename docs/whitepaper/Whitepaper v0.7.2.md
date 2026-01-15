@@ -1054,6 +1054,11 @@ debt or IOUs created.
 
 Referral rewards, if offered, are one-time per referred wallet and are locked at first deposit (no retroactive referral attachment).
 
+Anti-abuse enforcement for promotional programs (e.g., Genesis discounts, referral rewards) is
+rewards-only. The protocol may flag/freeze/revoke promotional benefits for Sybil or sanctions
+risk, but such enforcement MUST NOT affect user principal, vault settlement accounting, or
+profit claims.
+
 ---
 
 ## 9.6 Fee Rate Invariants
