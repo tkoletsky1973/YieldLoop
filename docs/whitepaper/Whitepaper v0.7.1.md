@@ -303,6 +303,9 @@ Rules:
    - Per-vault PAUSED state due to manipulation investigation (optional policy)
 3) Withdrawals MUST NOT be allowed to break atomic trade integrity.
 
+DeployedUSDT includes any amount reserved for in-flight execution and any non-USDT transient position
+created during an atomic transaction until completion/revert.
+
 ---
 
 # 5. Strategy Execution Engine (BTCB Arbitrage PCS ↔ BiSwap)
@@ -700,17 +703,16 @@ This section defines how users receive profits, how rewards are handled, and how
 
 ---
 
-## 8.1 Claim Types
+## 8.1 Claim Types (Preference-Locked)
 
-YieldLoop supports two claim outputs:
+Each vault has a `rewardPreference` (Section 4.4) that determines the output type for claims.
 
-### A) Claim in USDT
-User receives USDT transfer from Profit Buffer.
+- If `rewardPreference = USDT` → user may call `claimUSDT()` only
+- If `rewardPreference = LOOP` → user may call `claimLOOP()` only
 
-### B) Claim in LOOP
-User receives LOOP minted as a redemption-backed token, derived from Profit Buffer value.
-
-Both claim methods are sourced from the same Profit Buffer accounting base.
+To switch claim output type, the user must change `rewardPreference` while the vault is ACTIVE
+and not in-flight, subject to cooldown (Section 4.4). Preference at Profit Event time determines
+fee path (Section 9.2) and applies until changed under valid conditions.
 
 ---
 
@@ -738,6 +740,8 @@ User calls:
 
 `claimLOOP(vaultId, amountUSDTEquivalent)`
 
+This claim consumes USDT value from the Profit Buffer and converts it into LOOP under mint rules.
+
 Protocol checks:
 - ProfitBufferUSDT >= amountUSDTEquivalent
 - amount >= minClaimUSDT
@@ -745,12 +749,11 @@ Protocol checks:
 - reserve accounting permits minting under current rules
 
 Then:
-1) apply the LOOP reward fee path (discounted fee already handled at profit event level, Section 9)
-2) compute LOOP mint quantity:
+1) compute LOOP mint quantity:
    - `loopOut = amountUSDTEquivalent * MintMultiplier`
-3) reduce Profit Buffer by amountUSDTEquivalent
-4) mint LOOP to user
-5) emit ClaimEvent (includes mint details)
+2) reduce Profit Buffer by amountUSDTEquivalent
+3) mint LOOP to user
+4) emit ClaimEvent (includes mint details)
 
 ---
 
@@ -1519,6 +1522,8 @@ YieldLoop MUST use a trusted decentralized oracle for:
 
 Recommended primary source: **Chainlink Data Feeds**, where available.
 
+If USDT/USD feed is not used, `oracleUSDT_USD` MUST be treated as exactly 1.0 for all conversions.
+
 ### 14.2.2 Staleness Windows (Hard Rule)
 Oracle answers MUST be considered invalid if older than:
 
@@ -1582,6 +1587,9 @@ YieldLoop is MEV-targetable because profitable arb is deterministic. Defenses ar
 ### 14.3.1 Private Routing (Preferred)
 Keepers SHOULD submit transactions via private routing / private relays on BSC when available,
 so execution does not sit in the public mempool.
+
+If private routing is available for the keeper, it MUST be used for executeArb() submissions unless
+the protocol is in emergency/manual mode.
 
 Example class of solutions:
 - private transaction relays / protect RPCs
