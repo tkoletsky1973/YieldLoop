@@ -2243,3 +2243,416 @@ This appendix restates the most important rules of YieldLoop in one place.
 
 ---
 
+# Appendix B — Developer Implementation Appendix (Spec-to-Code Mapping + Required Decisions)
+
+This appendix exists to reduce ambiguity for engineering implementation.
+
+The core whitepaper defines the protocol intent. This appendix provides an engineering-facing mapping of that intent into concrete contract structures, keeper behavior, and default implementation decisions for YieldLoop v0.7.1.
+
+This appendix is **non-marketing** and is intended to be used by:
+- smart contract developers
+- auditors
+- keeper-bot developers
+- DevOps / deployment engineers
+
+---
+
+## B.1 Implementation Scope (Non-Negotiable v1 Constraints)
+
+YieldLoop v1 MUST adhere to the following scope:
+
+- **Chain:** BNB Chain (BSC)
+- **Deposit Asset:** USDT only
+- **Trading Pair:** BTCB/USDT only
+- **DEX Venues:** PancakeSwap + BiSwap only
+- **Execution Style:** atomic arbitrage (Buy BTCB on one venue, Sell BTCB on the other) in a single transaction
+- **Vault Model:** isolated per-deposit vault (one vault address per deposit)
+- **Profit Definition:** realized USDT net of gas + costs only; no mark-to-market yield
+- **LOOP Token:** internal redemption token (not governance; no required external LP)
+- **Permissions:** keeper allowlist + keeper bond model + bounded admin multisig
+
+---
+
+## B.2 Architecture Summary (Recommended Baseline)
+
+### B.2.1 Contract Modules (Suggested)
+
+The protocol SHOULD be implemented as a modular system:
+
+1. **VaultFactory**
+   - Deploys isolated vaults for each deposit
+   - Validates config IDs and bounds
+
+2. **UserVault (Per-Deposit Vault)**
+   - Holds user funds
+   - Executes atomic arbitrage plans
+   - Tracks principal, realized profit buffer, and claimable balances
+   - Enforces guardrails and circuit breakers
+
+3. **KeeperRegistry**
+   - Maintains allowlist of approved keeper EOAs / contracts
+   - Tracks keeper bond balances
+   - Enforces slashing conditions (loss-finalization events)
+
+4. **OracleAdapter**
+   - Reads Chainlink feeds (BTC/USD, BNB/USD, optional USDT/USD)
+   - Enforces deviation / stale data checks
+
+5. **FeeRouter**
+   - Receives performance fees (USDT only)
+   - Routes to multisig-managed addresses per configured splits
+
+6. **LoopToken (LOOP)**
+   - Minted only against verified surplus reserve capacity
+   - Redeemable against protocol reserve under rate limits
+
+7. **ReserveVault**
+   - Holds reserve USDT
+   - Acts as redemption backing source for LOOP
+   - Enforces max daily redemption outflow
+
+---
+
+## B.3 Per-Deposit Vault Deployment (Howey Clarification + Best Practice)
+
+### B.3.1 Legal/Howey Clarification
+
+A full bytecode deploy per deposit is NOT required for legal compliance.
+
+Howey analysis is based on the economic structure and representations (expectation of profit, common enterprise, effort of others), not on whether a contract is deployed via:
+- full deployment OR
+- EIP-1167 minimal proxy clone
+
+### B.3.2 Engineering Recommendation (Required)
+
+YieldLoop SHOULD use **EIP-1167 minimal proxy clones** for UserVault:
+
+- Each deposit still receives its own unique vault address
+- The implementation logic is shared via a vault implementation contract
+- Saves significant gas and reduces deployment friction
+
+**Requirement:**
+- vault must be isolated by address and state
+- no commingling of balances between user vaults
+
+---
+
+## B.4 DEX Version Decision (PCS + BiSwap)
+
+### B.4.1 Required Default
+
+YieldLoop v1 SHOULD implement arbitrage using **v2-style routers**:
+
+- PancakeSwap v2 router
+- BiSwap classic router
+
+### B.4.2 Rationale
+
+- Lowest complexity
+- Most robust for spot arb
+- Lowest audit burden
+- Compatible with deterministic quoting and amountOutMin constraints
+
+PCS v3 (concentrated liquidity) MAY be added later as an upgraded venue, but is out of scope for v1 unless explicitly required.
+
+---
+
+## B.5 Execution Style: Internal Inventory Arbitrage (Required Choice)
+
+YieldLoop v1 MUST use **Internal Inventory** execution:
+
+- Vault uses its USDT principal to execute swaps
+- No flash-loans required
+- No flash-swap dependencies required
+
+### B.5.1 Atomic Arb Model (Required)
+
+A single transaction performs:
+
+1. Swap USDT → BTCB on buy venue
+2. Swap BTCB → USDT on sell venue
+3. Confirm profit threshold
+4. Update vault accounting
+5. Emit events
+
+If **any** checks fail:
+- revert transaction
+- no state changes
+
+---
+
+## B.6 Keeper Plan Model (executeArb Plan Struct)
+
+Keepers MUST submit an explicit plan struct. The vault executes only if it passes validation.
+
+### B.6.1 Minimum Required Plan Fields
+
+Recommended Solidity struct:
+
+**ArbPlan**
+- venueBuy (0 = PCS, 1 = BiSwap)
+- venueSell (0 = PCS, 1 = BiSwap)
+- amountInUSDT (principal used for this attempt)
+- minBTCBOut (slippage-protected min output)
+- minUSDTOut (slippage-protected min output)
+- deadline (timestamp deadline for swaps)
+
+### B.6.2 Optional Robustness Fields (Recommended)
+
+To prevent replay abuse and reduce operational risk:
+- keeper (msg.sender expected)
+- nonce (per-vault nonce)
+- maxGasPrice (bound keeper-supplied gas price)
+- planHash (optional canonical hash for event logging)
+
+### B.6.3 Required Validation Rules
+
+Vault MUST validate:
+
+- venueBuy != venueSell
+- amountInUSDT <= maxTradePctOfPrincipal * principal
+- deadline >= block.timestamp
+- msg.sender is allowlisted keeper
+- oracle adapter reports safe conditions (no stale feeds, no extreme deviation)
+- expected output passes minProfitUSDT threshold
+
+---
+
+## B.7 Price + Oracle Validation (Correct Method)
+
+### B.7.1 DEX Price (Execution Quote)
+
+DEX price MUST be derived from:
+- router quote functions OR reserve-based quote logic
+
+Execution safety MUST be enforced via:
+- strict amountOutMin
+- strict deadline
+
+### B.7.2 Oracle Sanity (Chainlink)
+
+OracleAdapter MUST enforce:
+
+- BTC/USD feed not stale
+- BNB/USD feed not stale
+- optional USDT/USD feed not stale (if used)
+- deviation checks (DEX implied vs oracle reference)
+
+### B.7.3 Safety Goal
+
+Oracles are not used to price execution, but to:
+- prevent manipulated pools / stale price traps
+- enforce sanity bands before committing capital
+
+---
+
+## B.8 Keeper Permissioning (Allowlist + Bond + Slashing)
+
+### B.8.1 Keeper Allowlist (Required)
+
+Keepers MUST be allowlisted in KeeperRegistry.
+
+Only allowlisted keepers can call:
+- executeArb(vaultId, plan)
+
+### B.8.2 Keeper Bond (Required)
+
+Keepers MUST post a bond.
+
+Bond exists for:
+- accountability
+- discouraging malicious execution attempts
+- ability to slash on finalized loss events
+
+### B.8.3 Slashing Logic (Required)
+
+Slashing MUST ONLY occur on a finalized, provable incident condition such as:
+- vault enters a loss-finalization state
+- post-mortem confirms keeper violated constraints
+- governance/admin triggers slash within bounded rule set
+
+### B.8.4 Circuit Breakers (Required)
+
+Vault MUST auto-disable further execution if:
+- repeated failures exceed threshold
+- oracle unsafe
+- reserve health triggers incident mode
+- admin emergency pause
+
+---
+
+## B.9 Profit Accounting (Best + Cheapest Approach)
+
+### B.9.1 Accounting Philosophy
+
+On-chain storage SHOULD be minimal.  
+Auditability SHOULD be event-driven.
+
+### B.9.2 Required On-chain State
+
+Vault MUST track:
+
+- principalUSDT
+- profitBufferUSDT (realized, not claimed)
+- claimableUSDT
+- lastExecutionTime
+- failureCount
+- incidentState flag
+
+### B.9.3 Required Events (Audit Trail)
+
+Every execution attempt MUST emit events such as:
+
+- ArbAttempted(vaultId, keeper, venueBuy, venueSell, amountInUSDT)
+- ArbExecuted(vaultId, usdtIn, btcbOut, usdtOut, gasUSDT, profitUSDT)
+- ArbReverted(vaultId, reasonCode)
+- ProfitHarvested(vaultId, profitUSDT)
+- FeeTaken(vaultId, feeUSDT, feeRecipient)
+- KeeperBondSlashed(keeper, amount, reasonCode)
+
+Events are the canonical forensic trail for:
+- user reporting
+- audits
+- post-incident investigations
+
+---
+
+## B.10 Admin Control / Multisig / Governance Boundaries
+
+### B.10.1 Required Admin Model
+
+Admin MUST be a multisig.
+
+Recommended initial configuration:
+- **2/3** early prototype
+- **3/5** early production (preferred)
+- **4/7** mature production
+
+### B.10.2 Admin Powers Must Be Bounded
+
+Admin MUST be able to:
+- pause/unpause execution
+- disable a venue
+- update guardrail parameters within hard bounds
+- rotate keeper allowlist
+- rotate router/oracle addresses (timelocked)
+
+Admin MUST NOT be able to:
+- withdraw user principal
+- mint LOOP arbitrarily
+- bypass profit definition rules
+- bypass redemption limits
+
+### B.10.3 Timelock Required
+
+Any non-emergency parameter change SHOULD be timelocked.
+
+---
+
+## B.11 Reserve Design + Anti-Whale Redemption Limits
+
+### B.11.1 Reserve Goal
+
+Reserve exists to back LOOP redemptions.
+
+The protocol SHOULD be designed so reserve funding is robust, but no claim is made that reserve is guaranteed under all conditions.
+
+### B.11.2 Mandatory Anti-Run Rule
+
+Global redemption outflow MUST be capped:
+
+- **Max Daily Redemption = 2% of Reserve Pool**
+
+This limit is:
+- anti-whale
+- anti-bank-run
+- reserve health preserving
+
+### B.11.3 Additional Recommended Limits
+
+ReserveVault SHOULD also enforce:
+- per-wallet redemption cap
+- minimum redemption amount
+- dynamic redemption throttling in incident mode
+- redemption queueing when rate limits are hit
+
+---
+
+## B.12 LOOP Token Behavior (v1 Requirements)
+
+### B.12.1 LOOP Scope
+
+LOOP is INTERNAL in v1.
+
+- minted only against verified reserve surplus capacity
+- redeemable under rate limits
+- not required to have any external liquidity pool
+
+### B.12.2 Upgradeability Boundary (Allowed Future)
+
+The protocol MAY add:
+- LOOP external LP
+- LOOP market routing
+- modified fee splits supporting liquidity operations
+
+However future upgrades MUST preserve invariants:
+
+- LOOP minting remains bounded
+- reserve remains protected
+- redemption remains rate limited
+- profit is still realized-only
+
+---
+
+## B.13 Spec-to-Code Checklist (Implementation Deliverables)
+
+### B.13.1 Smart Contracts
+
+Developer deliverables MUST include:
+
+- VaultFactory.sol
+- UserVault.sol
+- KeeperRegistry.sol
+- OracleAdapter.sol
+- FeeRouter.sol
+- LoopToken.sol
+- ReserveVault.sol
+- ConfigRegistry.sol (optional but recommended)
+
+### B.13.2 Keeper System
+
+- keeper bot reference implementation
+- monitoring dashboard metrics
+- alerting for circuit breaker triggers
+- replay & nonce handling (if used)
+
+### B.13.3 Test Requirements
+
+Minimum test suite MUST include:
+
+- profitable arb execution
+- revert path validation (unsafe oracle, low profit, slippage)
+- repeated failure circuit breaker
+- keeper allowlist enforcement
+- keeper bond accounting + slashing path
+- reserve redemption throttling (2% daily cap)
+- LOOP mint/redeem invariant enforcement
+
+---
+
+## B.14 Open Decisions (Explicitly Confirmed Defaults for v1)
+
+The following defaults are confirmed for YieldLoop v1:
+
+1. Chain: BNB Chain (BSC)
+2. Deposit Asset: USDT only
+3. Execution Style: Internal Inventory Arb (no flash loans)
+4. DEX Versions: PCS v2 + BiSwap classic
+5. Oracle: Chainlink-based sanity checks
+6. Keeper Model: allowlist + bond + bounded slashing
+7. Profit Accounting: minimal storage + event-driven auditability
+8. Admin: multisig (3/5 preferred at initial production)
+9. LOOP: internal token only (no required external LP)
+10. Reserve: daily redemption cap fixed at 2% of reserve
+
+---
