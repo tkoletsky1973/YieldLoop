@@ -1486,6 +1486,12 @@ This section defines:
 - who can change it
 - what cannot be changed (hard invariants)
 - how upgrades occur without creating rug risk
+---
+
+### 13.0.1 GenesisBadge and referral discount policy
+Genesis benefits (discounts and referral eligibility) may be implemented via a transferable NFT
+badge model. However, benefits MUST include anti-abuse activation delays and/or holding
+requirements to prevent immediate resale farming and referral exploitation.
 
 ---
 
