@@ -168,7 +168,23 @@ This prevents:
 - A wallet cannot refer itself
 - Referral loop patterns are disallowed:
   - A→B and B→A
-  - circular chains flagged by rules engine
+  - If MarketingRewardsVault is empty, rewards pause until replenished via authorized marketing budget funding.
+
+---
+
+### 6.5 Reward Source Isolation (Never Principal, Never Reserve)
+Referral rewards MUST be paid only from:
+- MarketingRewardsVault (a pre-funded marketing budget wallet)
+
+Referral rewards MUST NOT be paid from:
+- user principal deposits
+- the protocol reserve / redemption backing
+- trading PnL that has not cleared settlement rules
+
+If MarketingRewardsVault is empty or paused:
+- referral rewards pause automatically
+- no IOUs are created
+- no negative balances are recorded
 
 ---
 
