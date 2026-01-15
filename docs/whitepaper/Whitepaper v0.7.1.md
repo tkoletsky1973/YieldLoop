@@ -257,33 +257,19 @@ All deposit events emit:
 
 ---
 
-## 4.4 Claim Flow (Rewards = USDT or LOOP)
+## 4.4 Claim Flow (Rewards = USDT or LOOP) — Updated
 
-A claim does not require ending the vault, and does not alter principal unless the user explicitly withdraws principal.
+Each vault maintains a user-selected `rewardPreference`:
+- USDT
+- LOOP
 
-User selects:
-- claimAmount (or max)
-- rewardType:
-  - USDT
-  - LOOP
+The rewardPreference can be changed by the user only while:
+- vault is ACTIVE, and
+- no execution is currently in-flight, and
+- change is subject to cooldown to prevent gaming (optional)
 
-Protocol verifies:
-- sufficient Profit Buffer
-- minimum claim threshold (if configured)
-- vault not in emergency halt state
-
-Then:
-- applies platform fee model at the time of profit realization (Section 9)
-- distributes claim output:
-  - USDT transfer, OR
-  - LOOP mint + transfer
-
-Claim events emit:
-- vaultId
-- claimant
-- claimAmountUSDT
-- rewardType
-- LOOP minted (if applicable)
+RewardPreference determines which fee path applies at Profit Event time (Section 9.2).
+Claims follow the vault's configured rewardPreference unless the user changes it pre-execution.
 
 ---
 
@@ -300,23 +286,22 @@ Compounding does not bypass fee assessment. Fees are assessed only on realized p
 
 ---
 
-## 4.6 Withdrawal of Principal
+## 4.6 Withdrawal of Principal (Option B - Final)
 
-Principal withdrawal is distinct from profit claim. It returns the user’s capital.
+Principal withdrawal is allowed at any time **only for the portion not actively deployed**.
 
-Withdrawal policy must be explicit. YieldLoop uses one of the following designs:
+Define:
+- `PrincipalUSDT`
+- `DeployedUSDT` (currently in-flight / reserved for execution)
+- `WithdrawableUSDT = PrincipalUSDT - DeployedUSDT - PendingSettlementUSDT`
 
-- **Option A (Strict Cycle Model):** withdrawals only at defined settlement windows  
-- **Option B (Flexible Model):** withdrawals allowed anytime when not actively deployed
-
-Regardless of which model is implemented, the invariant remains:
-
-> The protocol must not allow withdrawals that would create insolvency, negative accounting, or interrupt atomic trade integrity.
-
-Withdrawals may be limited by:
-- active deployed amount
-- settlement state
-- guardrails / pause conditions
+Rules:
+1) withdrawPrincipal(amount) MUST satisfy `amount <= WithdrawableUSDT`
+2) Withdrawals are blocked if vault is in:
+   - SETTLEMENT state
+   - Incident Mode freeze
+   - Per-vault PAUSED state due to manipulation investigation (optional policy)
+3) Withdrawals MUST NOT be allowed to break atomic trade integrity.
 
 ---
 
@@ -407,19 +392,32 @@ Profit event triggers:
 
 ---
 
-## 5.5 Execution Costs and Gas Handling
+## 5.5 Execution Costs and Gas Handling (Final)
 
-All gas is paid in BNB on BSC. YieldLoop handles this with constrained exposure:
+All gas on BSC is paid in BNB. YieldLoop uses a dedicated **Execution Cost Wallet (ECW)**.
 
-- a minimal BNB operational balance may exist
-- if insufficient, protocol may convert a small amount of USDT → BNB
-- BNB is never considered profit
-- BNB balance is capped and auditable
+### Policy
+1) **No deposit skim for gas.**
+   Deposits remain USDT principal. YieldLoop does not convert 1–5% of deposits into BNB.
 
-Execution cost accounting includes:
-- BNB spent per trade
-- conversion rates used
-- USDT equivalent cost applied to net profit calculation
+2) ECW is funded from protocol operations revenue:
+   - ECW replenishment is sourced from the Dev/Ops portion of performance fees (Section 9.4),
+     via automated micro-conversions USDT → BNB when ECW is below target.
+
+3) **BNB exposure cap (non-speculative)**
+   ECW maintains:
+   - `targetECW_BNB`
+   - `minECW_BNB`
+   - `maxECW_BNB`
+   Any BNB above `maxECW_BNB` MUST be converted back to USDT and routed per policy.
+
+4) **Deterministic cost accounting**
+   For every execution, gas is measured from tx receipt as `gasBNBSpent`,
+   converted to `gasUSDT` using oracle rules in Section 14.2, and included in `Costs_USDT`
+   for Profit_USDT computation (Section 7.2).
+
+If ECW is below `minECW_BNB`, executeArb() MAY be blocked until replenished to prevent
+partial / unreliable operation.
 
 ---
 
@@ -471,16 +469,14 @@ Config changes must:
 
 ## 6.3 Non-Negotiable Safety Guardrails
 
-### Guardrail A — Oracle Sanity Band
-DEX-implied BTC price must be within allowed deviation from oracle price.
+### Guardrail A — Oracle Sanity Band (Specified)
+DEX-implied BTCB/USDT price on each venue MUST be within `oracleDeviationBps`
+of the oracle reference price as defined in Section 14.2.
 
-Example:
-- maxDeviationBps = 75 (0.75%)
-If outside band → execution blocked.
-
-Purpose:
-- prevents flash manipulation
-- prevents thin-liquidity traps
+If violated:
+- execution is blocked
+- manipulation counter increments
+- persistent violations may disable the affected venue automatically
 
 ---
 
@@ -834,20 +830,14 @@ No profit = no fee.
 
 ---
 
-## 9.2 Fee Rates
+## 9.2 Fee Rates — Final
 
-YieldLoop supports two fee paths, selected by reward preference:
+Fee path is determined by the vault’s `rewardPreference` at the time a Profit Event occurs.
 
-### Path A — User Rewards in USDT
-- Performance fee = **20.0%** of Profit_USDT
+- If rewardPreference = USDT → fee = 20.0% of Profit_USDT
+- If rewardPreference = LOOP → fee = 17.5% of Profit_USDT
 
-### Path B — User Rewards in LOOP
-- Performance fee = **17.5%** of Profit_USDT
-
-The LOOP reward fee is discounted to:
-- incentivize LOOP adoption
-- strengthen reserve/backing dynamics
-- reduce USDT immediate outflows
+Fees are assessed at Profit Event time (Section 9.3). Claims do not change historical fee basis.
 
 ---
 
@@ -1173,20 +1163,28 @@ This prevents:
 
 ---
 
-## 12.3 Redemption Output
+## 12.3 Redemption Output (Floor-Ratchet Model)
 
-User submits:
-- `loopIn`
+YieldLoop defines an on-chain redemption floor:
+- `FloorUSDTPerLOOP` starts at **1.00** at genesis.
+- The floor is **monotonic non-decreasing** (it can rise, never fall).
 
-Protocol outputs:
-- `usdtOut`
+At redemption time:
+- user submits `loopIn`
+- protocol computes `usdtOut = loopIn * FloorUSDTPerLOOP * (1 - redemptionSpread)`,
+  subject to reserve availability and rate limits.
 
-Base rule:
-- LOOP redeems against reserve at protocol-defined redemption basis.
+### Floor Ratchet Rule (Deterministic)
+Let:
+- `Backing = ReserveAvailableUSDT / LoopSupply`
+- `ProposedFloor = Backing * (1 - floorSafetyMarginBps)`
 
-The basis must be deterministic and published.
-Example:
-- 1 LOOP redeems for a floor amount of USDT, bounded by reserve backing ratios.
+If `ProposedFloor > FloorUSDTPerLOOP`, then:
+- `FloorUSDTPerLOOP` may be updated upward (automatic or timelocked policy).
+
+If `Backing < FloorUSDTPerLOOP`, then:
+- redemption MUST throttle or pause until reserve health returns
+- the floor is NOT reduced (run-hardened behavior)
 
 ---
 
@@ -1334,6 +1332,37 @@ Keepers can be:
 - allowlisted and rotated
 - paused instantly if compromised
 
+### D) Keeper Security Model (Final)
+
+Keepers are **permissioned execution operators** allowed to call:
+- executeArb()
+- settle()
+- upkeep hooks (pause triggers, health pings)
+
+#### Keeper Requirements
+- Keepers MUST be allowlisted.
+- Keepers MUST post a refundable on-chain bond (`keeperBondUSDT` or equivalent),
+  used as economic deterrence for abuse or negligence.
+
+#### On-Chain Limits (Keepers cannot override)
+All keeper-submitted trade plans MUST satisfy hardcoded Rule Engine constraints:
+- maxTradeUSDT / maxTradePctOfVault
+- oracleDeviationBps sanity pass
+- slippage caps and strict deadlines
+- minProfit thresholds
+- cooldowns and global throttles
+
+If constraints fail, the transaction reverts.
+
+#### Failure / Abuse Handling
+- Each keeper has a failure counter tracked over rolling windows.
+- If failure rate exceeds `maxKeeperRevertsPerWindow`, keeper is auto-disabled.
+- Admin multisig can disable any keeper instantly.
+- Timelock required to add new keepers (except emergency replacement).
+
+#### Goal
+Keepers can trigger execution, but **cannot change strategy rules, steal funds, or bypass invariants**.
+
 ---
 
 ## 13.3 Hard Invariants (Cannot Be Changed)
@@ -1476,35 +1505,106 @@ Primary threats:
 
 ---
 
-## 14.2 Oracle Sanity Layer (Mandatory)
+## 14.2 Oracle Sanity Layer (Mandatory, Specified)
 
-YieldLoop must validate DEX-implied BTCB/USDT prices against a trusted oracle source.
+YieldLoop uses oracles for **sanity validation and cost accounting only**.
+Oracles do **not** set execution price. They prevent manipulated execution and false profit recognition.
 
-Oracle requirements:
-- price freshness window (staleness cutoff)
-- deviation band
-- fallback behavior:
-  - stale oracle => halt execution and/or redemption
-  - extreme divergence => incident mode
+### 14.2.1 Primary Oracle Feeds (BNB Chain)
+YieldLoop MUST use a trusted decentralized oracle for:
 
-Oracle is NOT used to set execution price.
-It is used to ensure execution is not manipulated.
+- **BTC/USD** (reference price for sanity checks)
+- **BNB/USD** (gas cost conversion into USD terms)
+- **USDT/USD** (optional; if not used, USDT is treated as $1.00 with depeg protections below)
+
+Recommended primary source: **Chainlink Data Feeds**, where available.
+
+### 14.2.2 Staleness Windows (Hard Rule)
+Oracle answers MUST be considered invalid if older than:
+
+- `maxOracleStalenessSeconds_BTC = 90`
+- `maxOracleStalenessSeconds_BNB = 90`
+- `maxOracleStalenessSeconds_USDT = 300` (if used)
+
+If any required feed is stale:
+- **block executeArb()**
+- **block ProfitEvent recognition**
+- **enter Incident Mode** if staleness persists beyond `incidentStaleThresholdSeconds`
+
+### 14.2.3 Deviation Bands (Hard Rule)
+YieldLoop computes DEX-implied BTC price from each venue quote:
+
+- `dexPriceA = USDT_per_BTCB on PCS`
+- `dexPriceB = USDT_per_BTCB on BiSwap`
+
+Both MUST satisfy:
+
+- `abs(dexPriceX - oracleBTC_USDT) / oracleBTC_USDT <= oracleDeviationBps`
+
+Where:
+- `oracleBTC_USDT = oracleBTC_USD / oracleUSDT_USD` (or oracleUSDT_USD = 1.0 if USDT feed not used)
+
+If either venue violates the band:
+- block execution (Guardrail A)
+- increment manipulation counter
+- trigger venue-disable review if persistent
+
+### 14.2.4 USDT Depeg Protection
+Even though accounting is USDT-based, USDT is not assumed perfect.
+If an oracle USDT/USD feed is used, then:
+- if `USDT/USD` deviates beyond `usdtDepegBps` (example 50–150 bps),
+  the protocol MUST enter Incident Mode, pause minting, and may throttle redemption.
+
+If no USDT oracle feed is used, protocol MUST implement a conservative depeg fail-safe:
+- require BTC/USD oracle sanity + DEX price sanity band tightening during abnormal volatility regimes.
+
+### 14.2.5 Gas Cost Conversion (Deterministic)
+Gas costs MUST be recorded as:
+
+- `gasBNBSpent` from tx receipt
+- `gasUSDT = gasBNBSpent * oracleBNB_USD / oracleUSDT_USD` (or / 1.0)
+
+This `gasUSDT` MUST be included in `Costs_USDT` used for Profit_USDT computation.
+
+### 14.2.6 Failure Behavior (Non-Negotiable)
+If oracle integrity is not provable (stale, reverted, extreme spike, invalid answer):
+- **no execution**
+- **no profit recognition**
+- **minting paused**
+- **redemption may throttle/pause based on RHI policy**
 
 ---
 
-## 14.3 MEV Protection
+## 14.3 MEV Protection (Final)
 
-YieldLoop is vulnerable to MEV because it executes deterministic profitable cycles.
+YieldLoop is MEV-targetable because profitable arb is deterministic. Defenses are mandatory.
 
-### Defenses
-- strict slippage bounds
+### 14.3.1 Private Routing (Preferred)
+Keepers SHOULD submit transactions via private routing / private relays on BSC when available,
+so execution does not sit in the public mempool.
+
+Example class of solutions:
+- private transaction relays / protect RPCs
+- BSC private-tx endpoints offered by relay providers
+
+### 14.3.2 In-Contract MEV Hardening
+Every execution MUST enforce:
+- strict `amountOutMin` on both legs
 - short deadlines (e.g., 20–45 seconds)
-- bounded trade sizing
-- cooldowns (reduces predictability spam)
-- optional private execution routing if available
+- bounded trade sizing (caps reduce MEV incentive)
+- cooldown/throttle (reduces predictability spam)
 
-### MEV Accounting Principle
-Profit must be net of MEV loss potential via conservative min profit thresholds.
+### 14.3.3 MEV-Aware Profit Thresholding
+Rule Engine MUST require projected profit to exceed:
+- gasUSDT + dexFees + slippageBuffer + mevBuffer
+
+If not exceeded, execution is blocked.
+
+### 14.3.4 Failure Response
+If sandwich/backrun patterns are detected (high revert rate, abnormal slippage spikes):
+- trigger auto-pause (Incident Mode)
+- reduce maxTrade size
+- tighten slippage bands until stable
 
 ---
 
