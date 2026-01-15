@@ -1052,6 +1052,8 @@ user principal and redemption reserves. Referral rewards may only be paid from a
 pre-funded marketing rewards wallet. If that wallet is empty, referral rewards pause with no
 debt or IOUs created.
 
+Referral rewards, if offered, are one-time per referred wallet and are locked at first deposit (no retroactive referral attachment).
+
 ---
 
 ## 9.6 Fee Rate Invariants
