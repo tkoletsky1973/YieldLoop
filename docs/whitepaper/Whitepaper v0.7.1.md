@@ -1009,8 +1009,9 @@ The protocol performance fee is split into **four** deterministic allocations:
 - USDT routed directly to the ReserveSystem to back LOOP redemption
 
 4) **LoopLabs**
-- USDT routed to LoopLabs distribution module
-- This is for the creation and support of LoopLabs a future nonprofit center meant to further technological development.
+- USDT routed directly to the **LoopLabs Treasury** address (a single organization-controlled treasury).
+- The LoopLabs Treasury address MUST be allowlisted, event-logged, and changeable only via governance timelock.
+- This allocation is intended to fund the creation and ongoing support of LoopLabs as an organization (e.g., research, development, education, and ecosystem support).
 
 
 ### 9.4.1 Configurable Splits (Bounded)
