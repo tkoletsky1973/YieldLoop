@@ -351,6 +351,8 @@ No signup.
 - USDC
 
 **Step 3 — Deposit**
+Default minimum setting should be 250USDT. Authorized admin or multisig governance should be able to ammend this.
+
 The user deposits into their own vault:
 - “Your vault: 0x1234…abcd”
 - “Principal deposited: $X”
@@ -363,7 +365,7 @@ Immediately the user sees:
 **Step 4 — Choose Profit Handling Preference**
 YieldLoop offers a simple slider:
 
-> **Compound Rate: 5% → 100%**
+> **Compound Rate: 0% → 100%**
 
 Meaning:
 - the vault will automatically reinvest a percentage of harvested profits
