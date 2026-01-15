@@ -182,18 +182,28 @@ This ensures the protocol is not accidentally (or intentionally) taking directio
 
 ---
 
-# 4. Vault Model (Isolated User Vaults + Accounting)
+## 4.0 Vault Deployment Model (Hard Clarification — Per-Deposit Vault Contracts)
 
-YieldLoop is designed around **isolated user vault accounting**. The protocol does not rely on pooled custody yield accounting where profits and losses are blended across depositors. Instead, each user’s deposit is tracked deterministically through a vault ledger.
+YieldLoop uses **per-deposit vault deployment**.
 
-This design exists for three reasons:
+**Rule:**
+- **Each deposit deploys a new UserVault contract** via `VaultFactory`.
+- A single wallet may own multiple vaults.
+- Vaults do not share custody with other vaults (no pooled principal).
 
-1) **Auditability** — profit can be proven as realized USDT gain.  
-2) **Fairness** — no user subsidizes another user’s timing.  
-3) **Security** — scope of damage is reduced if any vault is misconfigured or exploited.
+**Implications:**
+- Each vault has its own:
+  - principal ledger (USDT)
+  - Profit Buffer (USDT)
+  - config reference
+  - state machine
+  - execution counters / circuit-breaker status
+- Shared infrastructure MAY exist (Keeper set, OracleAdapter, FeeRouter, ReserveSystem), but **fund custody remains per-vault**.
 
-> Note: YieldLoop may use shared execution infrastructure (keepers/execution modules), but accounting remains isolated per vault.
-
+**Rationale:**
+- simplest audit narrative
+- isolates blast radius
+- eliminates pooled accounting doubt
 ---
 
 ## 4.1 Vault Objects
@@ -363,6 +373,32 @@ Execution module runs:
 
 **Atomic requirement:**
 If the cycle cannot close profitably, it should not finalize.
+
+---
+
+## 5.2.1 Keeper Proposal Model (Explicit — Keepers Propose, Contract Decides)
+
+Keepers are **proposal submitters**, not discretionary traders.
+
+**Keeper can do:**
+- submit a trade plan (`executeArb(vaultId, plan)`)
+
+**Keeper cannot do:**
+- change vault config
+- bypass Rule Engine constraints
+- withdraw, transfer, or seize vault funds
+- force a trade that violates bounds
+- force a trade if it would finalize with `Profit_USDT <= 0` (must revert where possible)
+
+**On-chain truth:**
+- The contract validates *every* plan against:
+  - allowlisted venues + pair
+  - oracle sanity bands
+  - min profit thresholds
+  - slippage caps + deadlines
+  - max trade size and throttles
+  - in-flight locking rules
+- If any check fails: **revert**.
 
 ---
 
@@ -585,6 +621,47 @@ This prevents:
 
 ---
 
+## 6.6 Loss Handling + Keeper Accountability (Non-Revert Reality)
+
+YieldLoop is designed to revert any execution that would finalize at `Profit_USDT <= 0`.
+However, there are real-world edge cases where a transaction can finalize and still
+produce adverse outcomes (e.g., partial fills, unexpected router behaviors, fee changes,
+or extreme intra-block movement).
+
+### 6.6.1 Loss Policy (Hard Rule)
+- **UserVault is never charged a realized net loss from keeper execution.**
+- If an execution finalizes and produces `Profit_USDT <= 0` (or any negative net delta after
+  Costs_USDT), the system treats this as an **incident loss** and resolves it via keeper bond
+  and/or protocol ops funds — not user principal.
+
+### 6.6.2 Keeper Bond (Mandatory)
+Each keeper MUST maintain an on-chain bond:
+- `keeperBondUSDT` (or stable-equivalent) posted into a `KeeperBondVault`.
+
+### 6.6.3 Bond Slashing Conditions (Deterministic)
+Keeper bond is slashable if:
+- a finalized execution produces `Profit_USDT <= 0` for the vault, OR
+- the keeper violates plan integrity constraints (malformed plan fields, invalid venue routing attempts), OR
+- repeated execution negligence triggers failure thresholds.
+
+### 6.6.4 Resolution Order (Deterministic)
+If a vault experiences a finalized adverse outcome, compensation occurs in this order:
+1) **Slash keeper bond** up to the amount required to restore vault principal neutrality for that incident
+2) If keeper bond is insufficient: draw from **Dev/Ops/Admin allocation** (protocol ops backstop)
+3) If ops backstop is insufficient: enter **Incident Mode**, halt execution, and require manual remediation
+
+### 6.6.5 Cap + Incident Mode Trigger
+- Any single incident above `incidentLossCapUSDT` triggers:
+  - global pause
+  - keeper auto-disable
+  - incident report requirement
+
+This policy makes the strategy honest:
+- keepers are economically accountable
+- users are not quietly eating “execution losses”
+
+---
+
 # 7. Profit Definition + Profit Events
 
 YieldLoop does not pay “yield.” It pays **verified realized profit**.
@@ -694,6 +771,46 @@ To prevent gas griefing and spam claim cycles, YieldLoop may enforce:
 If the user attempts to claim below minimum, the claim reverts.
 
 This does not change profit entitlement; it prevents operational abuse.
+
+---
+
+## 7.7 Settlement + Ledger Reconciliation (Defined)
+
+YieldLoop includes a Settlement state to ensure vault accounting remains deterministic
+across execution, costs, and claims.
+
+### 7.7.1 When Settlement Occurs
+Settlement may be triggered:
+- on a scheduled cadence (e.g., daily or weekly), and/or
+- after `X` successful Profit Events, and/or
+- when Incident Mode is entered, and/or
+- manually by keepers calling `settle(vaultId)` (permissioned)
+
+### 7.7.2 What Settlement Does (Deterministic)
+For a given vault, settlement performs:
+1) **In-flight validation**
+- confirm no execution is currently in-flight
+- confirm no transient non-USDT positions exist (atomic invariant)
+
+2) **Cost reconciliation**
+- ensure `Costs_USDT` ledger matches tx receipts / gas conversion rules
+- roll up any pending cost entries into the vault’s accounting
+
+3) **Profit Buffer integrity check**
+- verify Profit Buffer contains only net-of-fee realized profit outputs
+- verify no direct principal contamination
+
+4) **State normalization**
+- clear any temporary flags
+- update counters and rolling windows
+- return vault to ACTIVE if safe, otherwise PAUSED
+
+### 7.7.3 Settlement Failure Behavior
+If settlement detects anomalies:
+- vault enters PAUSED
+- keepers are blocked from executing
+- Incident Mode MAY trigger depending on severity thresholds
+- an on-chain incident event MUST be emitted with reason code
 
 ---
 
@@ -881,6 +998,46 @@ The protocol performance fee is split into three primary allocations:
    - USDT reserve dedicated to backing LOOP redemption
 
 This ensures LOOP is backed by protocol economics rather than hype.
+
+---
+
+## 9.4 Fee Split Destinations (Updated — Four Buckets)
+
+The protocol performance fee is split into **four** deterministic allocations:
+
+1) **Dev / Ops / Admin**
+- smart contract maintenance
+- keeper operations + infra
+- security ops
+- legal/compliance overhead
+- ECW replenishment source (USDT → BNB micro-conversions)
+
+2) **Marketing / Partnerships / Onboarding**
+- growth distribution
+- partnerships and integrations
+- user onboarding and education
+
+3) **Reserve System Allocation**
+- USDT routed directly to the ReserveSystem to back LOOP redemption
+
+4) **LoopLabs (Equal Splits)**
+- USDT routed to LoopLabs distribution module
+- distribution occurs as **equal split** among the allowlisted LoopLabs recipient set
+  (`N recipients`, each receives `amount / N`)
+- recipient set changes are timelocked + bounded + event-logged
+
+### 9.4.1 Configurable Splits (Bounded)
+Fee split percentages MAY be adjustable only within hard bounds, and must obey:
+- reserve allocation minimum threshold (never below `minReserveFeeBps`)
+- ops minimum threshold (to keep protocol running)
+- timelock for changes
+- full on-chain event logs
+
+### 9.4.2 Reserve Priority Rule (Retained)
+If reserve health is stressed (RHI below threshold), the system MAY automatically:
+- increase reserve allocation (within bounds)
+- decrease marketing allocation first
+- never violate ops minimums
 
 ---
 
@@ -1091,6 +1248,23 @@ This stops LOOP from becoming unbacked debt.
 
 ---
 
+## 11.4.1 LOOP Liability Valuation (Explicit Equation)
+
+To remove ambiguity, LOOP liabilities are valued strictly at the redemption floor.
+
+Define:
+- `LoopSupply` = total outstanding LOOP
+- `FloorUSDTPerLOOP` = current monotonic redemption floor
+- `LoopLiabilityUSDT = LoopSupply * FloorUSDTPerLOOP`
+
+Reserve Health Index becomes:
+`RHI = ReserveTotalUSDT / LoopLiabilityUSDT`
+
+(Optionally: use `ReserveAvailableUSDT` instead of `ReserveTotalUSDT` for stricter health accounting,
+but the protocol MUST pick one and keep it consistent everywhere.)
+
+---
+
 ## 11.5 Mint Caps and Anti-Debt Rules
 
 Even with RHI, YieldLoop must enforce caps:
@@ -1163,6 +1337,45 @@ This prevents:
 - bank run collapse
 - reserve drain beyond solvency
 - false guarantee narratives
+
+---
+
+## 12.2.1 Reserve Partitions (Operational Definition)
+
+The Redemption Reserve is **partitioned**. Only the liquid, permitted partition counts as
+`ReserveAvailableUSDT`.
+
+Define:
+- `ReserveTotalUSDT` = total USDT held inside the ReserveSystem contract(s)
+- `ReserveAvailableUSDT` = the portion allowed for immediate redemption
+
+### Partitions (Canonical)
+1) `ReserveAvailableUSDT`
+- liquid USDT available for immediate LOOP redemption, subject to rate limits
+
+2) `ReserveProtectedUSDT`
+- protected solvency buffer that cannot be redeemed
+- exists to harden against runs and operational shocks
+
+3) `ReservePendingUSDT`
+- amounts reserved for:
+  - queued redemptions (if queue mode)
+  - in-flight settlement allocations
+  - any time-locked reserve movements
+
+4) `ReserveOpsHoldbackUSDT` (optional)
+- explicit operational holdback if governance enables it (bounded)
+- MUST be excluded from `ReserveAvailableUSDT`
+
+### Computation (Hard Rule)
+`ReserveAvailableUSDT = ReserveTotalUSDT
+                         - ReserveProtectedUSDT
+                         - ReservePendingUSDT
+                         - ReserveOpsHoldbackUSDT`
+
+### Invariant
+Redemption MUST enforce:
+`usdtOut <= ReserveAvailableUSDT`
 
 ---
 
