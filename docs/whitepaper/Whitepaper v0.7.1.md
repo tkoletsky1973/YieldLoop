@@ -208,7 +208,7 @@ YieldLoop uses **per-deposit vault deployment**.
 
 ## 4.1 Vault Objects
 
-Each user deposit creates a vault position (logical vault). The vault maintains:
+Each user deposit deploys a UserVault contract (isolated custody vault). The vault maintains:
 
 - **Principal Balance (USDT)**  
   The user’s deposited capital that is authorized for strategy execution.
