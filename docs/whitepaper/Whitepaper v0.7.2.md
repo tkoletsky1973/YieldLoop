@@ -1047,6 +1047,11 @@ All addresses must be:
 - changeable only through bounded admin/governance rules
 - preferably multisig controlled
 
+Referral rewards (if offered) are an external marketing incentive and MUST be isolated from
+user principal and redemption reserves. Referral rewards may only be paid from a dedicated,
+pre-funded marketing rewards wallet. If that wallet is empty, referral rewards pause with no
+debt or IOUs created.
+
 ---
 
 ## 9.6 Fee Rate Invariants
