@@ -42,24 +42,35 @@
 
 # 1. Executive Summary
 
-YieldLoop is a USDT-denominated, automated trading protocol on BNB Chain that executes a narrow, constrained strategy: **real-time arbitrage of BTCB/USDT price discrepancies between PancakeSwap (PCS) and BiSwap**.
+YieldLoop is a USDT-denominated, automated trading protocol on BNB Chain that executes a
+narrow, constrained strategy: **real-time arbitrage of BTCB/USDT price discrepancies between
+PancakeSwap (PCS) and BiSwap**.
 
-Users deposit **USDT only** into isolated vaults. The protocol executes arbitrage trades when the projected outcome is profitable **after** all costs, including DEX fees, slippage, and gas. YieldLoop defines “profit” strictly as **realized USDT increase** after a completed buy/sell cycle. No unrealized PnL, mark-to-market accounting, or fake yield is permitted.
+Users deposit **USDT only** into isolated vaults. The protocol executes arbitrage trades when
+the projected outcome is profitable **after** all costs, including DEX fees, slippage, and gas.
+YieldLoop defines “profit” strictly as **realized USDT increase** after a completed buy/sell cycle.
+No unrealized PnL, mark-to-market accounting, or fake yield is permitted.
 
-Profits accumulate into a **Profit Buffer** held in USDT. Users may claim profits at any time (subject to minimum claim size and protocol safety constraints). Users may receive rewards either:
+Profits accumulate into a **Profit Buffer** held in USDT. Users may claim profits at any time
+(subject to minimum claim size and protocol safety constraints). Users may receive rewards
+either:
 - **in USDT**, or
-- **in LOOP**, a redemption token that is minted from verified profit events and backed by protocol reserves.
+- **in LOOP**, a redemption token that is minted from verified profit events and backed by
+protocol reserves.
 
 A platform performance fee applies **only** when real profit is realized:
 - **20.0% fee** if profits are claimed in USDT
 - **17.5% fee** if profits are claimed in LOOP (discount for choosing LOOP)
 
-Platform fee revenue is routed to:
-1) protocol development/ops/admin,  
-2) growth and onboarding (marketing/partnerships), and  
-3) the redemption reserve that backs LOOP.
+Platform performance fee revenue is routed to **four** destinations:
+1) **Dev / Ops / Admin** (protocol maintenance, security, execution operations, ECW gas backstop),
+2) **Marketing / Partnerships / Onboarding** (growth distribution and integrations),
+3) **Redemption Reserve** (USDT routed to the reserve that backs LOOP redemption), and
+4) **LoopLabs (Equal Splits)** (distributed equally among allowlisted LoopLabs recipients).
 
-YieldLoop does not promise guaranteed yield, does not use leverage, and does not fabricate profit through emissions. The protocol can only pay what it truly earns in USDT, and LOOP redemption is **explicitly limited** by available reserve liquidity.
+YieldLoop does not promise guaranteed yield, does not use leverage, and does not fabricate
+profit through emissions. The protocol can only pay what it truly earns in USDT, and LOOP
+redemption is **explicitly limited** by available reserve liquidity.
 
 ---
 
