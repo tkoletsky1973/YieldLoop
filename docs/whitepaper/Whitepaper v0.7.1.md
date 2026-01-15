@@ -2060,7 +2060,20 @@ A user action that withdraws USDT profits from the Profit Buffer or converts pro
 A user action that transfers USDT from the Profit Buffer back into Principal to increase future trade capacity.
 
 ### **Vault**
-An isolated user accounting unit (logical vault / vault position) that tracks principal, profits, and configuration separately.
+A **per-deposit deployed UserVault smart contract** created via `VaultFactory`.
+
+Each deposit deploys a new Vault (one deposit → one vault contract). A single wallet may own
+multiple vaults. Vaults do not share custody or principal.
+
+A Vault maintains isolated state and accounting including:
+- Principal (USDT)
+- Deployed/Active Trading Balance (USDT)
+- Profit Buffer (USDT)
+- Execution Cost Ledger (USDT equivalent)
+- Vault Config Reference (ConfigID / Version Hash)
+- Vault lifecycle state (CREATED, ACTIVE, PAUSED, SETTLEMENT, CLOSED)
+
+A Vault is therefore **not** a pooled accounting position and **not** a shared custody bucket.
 
 ### **Vault State**
 The current operational status of a vault (CREATED, ACTIVE, PAUSED, SETTLEMENT, CLOSED).
