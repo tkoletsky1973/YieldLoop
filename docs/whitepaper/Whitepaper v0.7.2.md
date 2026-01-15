@@ -1371,6 +1371,10 @@ Redemption MUST enforce:
 
 YieldLoop defines an on-chain redemption floor:
 - `FloorUSDTPerLOOP` starts at **1.00** at genesis.
+- Clarification:
+- The redemption floor is NOT the same thing as “market price.”
+- LOOP may trade above or below the redemption floor in any external market.
+- The floor is a protocol-defined redemption accounting value, and redemption remains reserve-limited.
 - The floor is **monotonic non-decreasing** (it can rise, never fall).
 
 At redemption time:
