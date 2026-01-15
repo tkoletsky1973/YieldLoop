@@ -40,15 +40,19 @@ Each 300 USDT Genesis deposit is split:
 
 ---
 
-## 3) Genesis LOOP Allocation (Mint + Bonus + Vesting)
+### 3.1 Genesis Issuance Basis (Accounting Reference Only)
+- Genesis LOOP issuance uses an **internal accounting reference unit** for initial allocation.
+- This reference unit is NOT:
+  - a market price
+  - a peg
+  - a promise of redemption value
+  - a guarantee of exchange rate
 
-### 3.1 Internal Genesis Issuance Price
-- Genesis issuance price is fixed for accounting:
-  - **1 LOOP = 1.00 USDT** (Genesis issuance price)
-- Therefore:
-  - **100 USDT Genesis LOOP allocation → 100 LOOP base issuance**
+**Genesis issuance basis (accounting only):**
+- 100 USDT Genesis LOOP allocation → **100 LOOP base issuance**
 
-> NOTE: This issuance price is internal protocol accounting and is not a promise of market value.
+> NOTE: “Base issuance” is a Genesis allocation reference for mint accounting and vesting schedules only.
+> LOOP market value (if any secondary market exists) is independent of this reference.
 
 ### 3.2 Genesis Bonus (One-Time)
 - Genesis wallets receive a one-time issuance bonus:
