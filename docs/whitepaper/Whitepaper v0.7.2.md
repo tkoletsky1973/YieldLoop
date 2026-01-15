@@ -2247,7 +2247,7 @@ This appendix restates the most important rules of YieldLoop in one place.
 
 This appendix exists to reduce ambiguity for engineering implementation.
 
-The core whitepaper defines the protocol intent. This appendix provides an engineering-facing mapping of that intent into concrete contract structures, keeper behavior, and default implementation decisions for YieldLoop v0.7.1.
+The core whitepaper defines the protocol intent. This appendix provides an engineering-facing mapping of that intent into concrete contract structures, keeper behavior, and default implementation decisions for YieldLoop v0.7.2.
 
 This appendix is **non-marketing** and is intended to be used by:
 - smart contract developers
@@ -2310,6 +2310,12 @@ The protocol SHOULD be implemented as a modular system:
    - Holds reserve USDT
    - Acts as redemption backing source for LOOP
    - Enforces max daily redemption outflow
+
+8 **ExecutionCostWallet (ECW)**
+   - Holds BNB for gas (non-speculative capped)
+   - Replenished via Dev/Ops fee routing conversion
+   - Blocks execution if below min threshold
+
 
 ---
 
