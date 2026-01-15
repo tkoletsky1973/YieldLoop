@@ -199,27 +199,48 @@ If MarketingRewardsVault is empty or paused:
 
 ---
 
-## 7) MarketingRewardsVault (Funding + Limits)
+## 7. Fraud & Abuse Prevention (Flag → Freeze → Review → Revoke)
 
-### 7.1 Funding Source
-MarketingRewardsVault is funded by:
-- Genesis Dev Allocation seed bucket (initial)
-- ongoing marketing budget allocations (later)
+### 7.1 Basic Requirements
+- Genesis eligibility and referral rewards are EOA-only (no smart contract wallets).
+- The system may use automated heuristics to detect Sybil/farming behavior (e.g., repeated funding source patterns, rapid wallet clusters, identical timing/gas funding behaviors).
 
-### 7.2 No Debt Rule
-- If MarketingRewardsVault is empty or below threshold:
-  - referral rewards automatically pause
-- No IOUs, no protocol debt, no negative balances.
+### 7.2 Enforcement Scope (Rewards-Only)
+Enforcement actions related to Genesis/referrals MUST apply only to:
+- Genesis discounts
+- referral reward eligibility
+- referral reward payouts
 
-### 7.3 Protocol-Wide Rate Limit (Recommended)
-Add a protocol-level limit:
-- **Max referral payouts per month (global): configurable**
-- Example launch defaults:
-  - 5,000 USDT / month initially
-  - scalable upward by admin/governance as community grows
+Enforcement MUST NOT:
+- seize user principal
+- impact vault accounting
+- impact settlement rules or user claim mechanics
 
-This prevents runaway budget burn.
+### 7.3 Flag and Freeze
+If suspicious behavior is detected, the system may:
+- flag a wallet (or wallet cluster)
+- freeze Genesis/referral benefits temporarily
 
+During freeze:
+- referral payouts are withheld (not paid)
+- no debt/IOUs are created
+- eligibility remains pending until resolved
+
+### 7.4 Resolution Outcomes
+After review (automated and/or governance/admin process), the outcome is one of:
+A) Clear:
+- unfreeze benefits and continue normally
+
+B) Confirmed abuse / sanction / exploit linkage:
+- permanently revoke Genesis/referral benefits for the wallet(s)
+- permanently block referral payouts to/from those wallet(s)
+
+### 7.5 Transparent Logging (Recommended)
+All freeze/revoke actions SHOULD emit an on-chain event:
+- wallet address
+- action type (freeze/unfreeze/revoke)
+- reason code (Sybil, sanctions, exploit linkage, etc.)
+  
 ---
 
 ## 8) Per-Wallet Referral Reward Caps
