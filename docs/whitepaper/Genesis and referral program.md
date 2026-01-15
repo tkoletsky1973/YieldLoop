@@ -150,25 +150,36 @@ If a referred wallet qualifies:
 
 This is funded from MarketingRewardsVault (see Section 7).
 
-### 6.3 Referral Qualification Rules (Anti-Farm)
-A referral qualifies ONLY if the referred wallet:
+### 6.3 Qualification Trigger (One-Time, Wallet-Level)
+A referred wallet qualifies for a referral reward only once, and only on its first qualifying deposit.
 
-1) deposits **≥ 250 USDT**
-2) remains continuously active in the protocol for **30 days**
-3) completes the settlement checkpoint / cycle continuation without early exit or exploit flags
+Qualification rules:
+- Qualification is evaluated at settlement time after the referred wallet has remained active for 30 days.
+- The referred wallet must have made at least one deposit meeting:
+  - minimum deposit: 250 USDT
+  - deposit remains active for 30 days
+- Qualification can only occur once per referred wallet address, lifetime.
 
-This prevents:
-- deposit/withdraw farming
-- bot loops
-- wash activity
+**Important implementation rule:**
+- Only the first qualifying deposit is eligible.
+- Additional deposits, later deposits, new vaults, or repeated participation by the same wallet MUST NOT create additional referral rewards.
 
-### 6.4 Referral Rules (One Referrer Only)
-- First referral code used by a wallet becomes permanent (“first referrer wins”)
-- Each referred wallet can only qualify once
-- A wallet cannot refer itself
-- Referral loop patterns are disallowed:
-  - A→B and B→A
-  - If MarketingRewardsVault is empty, rewards pause until replenished via authorized marketing budget funding.
+### 6.4 Referral Binding (First Referrer Wins, Locked at First Deposit)
+- A referred wallet may only be associated with one referrer.
+- The referral code binding is recorded permanently at the time of the referred wallet’s first deposit.
+- If a referred wallet deposits without a referral code, no referral can be attached later.
+- Referral code changes after first deposit are not permitted.
+
+This prevents referral hijacking, disputes, or “retroactive referral claims.”
+
+---
+
+### 6.4.1 Referral Reward Uniqueness Constraint (Dev Requirement)
+The contract MUST maintain a permanent record:
+- hasQualifiedReferralReward[referredWallet] = true after first reward payout
+
+Once true:
+- the referred wallet is permanently ineligible for future referral rewards.
 
 ---
 
