@@ -114,7 +114,7 @@ Genesis wallets receive:
   - reserve redemption rate limits
   - circuit breakers / safety rules
 
-### 5.2 Transferability (Remove “by request” centralization)
+### 5.2 Transferability (No Manual Admin, But Anti-Flip Protected)
 The discount benefit MUST NOT require manual admin approval to transfer.
 
 Recommended implementation:
@@ -122,17 +122,26 @@ Recommended implementation:
 - Discount applies to the current NFT holder wallet
 - NFT is transferable by the user
 
+**Anti-abuse rule (mandatory):**
+- GenesisBadge benefits use a **warm-up activation delay**
+- After receiving the NFT (mint or transfer), the wallet must hold it for **30 days** before:
+  - Genesis Fee Tier discount activates
+  - referral eligibility activates (if tied to badge)
+
 This:
-- removes discretionary centralization optics
-- prevents “email Todd to transfer”
-- makes the benefit portable and clean
+- keeps transferability (no admin discretion)
+- prevents instant discount flipping / resale farming
+- blocks referral-code resale markets
+- makes Genesis “early users” real participants, not badge speculators
 
 ---
 
 ## 6) Referral Program (Genesis Contributors Only)
 
 ### 6.1 Eligibility
-- Only Genesis wallets receive referral codes and may earn referral rewards.
+- Genesis participants receive a GenesisBadge NFT.
+- Only wallets with an **active GenesisBadge** may earn referral rewards.
+- Active GenesisBadge = NFT held past the warm-up activation delay.
 
 ### 6.2 Referral Reward (1 / 1 Credit)
 If a referred wallet qualifies:
