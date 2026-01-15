@@ -261,7 +261,7 @@ A vault may only execute trades in **ACTIVE** state.
    - selected config reference (ConfigID / Version)
 
 2) Protocol checks:
-   - deposit >= minimum ($50)
+   - deposit >= minimum ($250)
    - config is allowlisted
    - global protocol not paused
 
