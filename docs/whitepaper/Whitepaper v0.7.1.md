@@ -978,29 +978,6 @@ Sequence:
 
 ---
 
-## 9.4 Fee Split Destinations
-
-The protocol performance fee is split into three primary allocations:
-
-1) **Dev / Ops / Admin**
-   - smart contract maintenance
-   - infrastructure and keeper operations
-   - security operations
-   - legal/compliance overhead
-
-2) **Marketing / Partnerships / Onboarding**
-   - growth and distribution
-   - exchange listings (if applicable)
-   - ecosystem partnerships
-   - user acquisition
-
-3) **Redemption Reserve Allocation**
-   - USDT reserve dedicated to backing LOOP redemption
-
-This ensures LOOP is backed by protocol economics rather than hype.
-
----
-
 ## 9.4 Fee Split Destinations (Updated — Four Buckets)
 
 The protocol performance fee is split into **four** deterministic allocations:
